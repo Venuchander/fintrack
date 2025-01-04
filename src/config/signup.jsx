@@ -1,6 +1,19 @@
 import React, { useState } from "react";
-import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { 
+  getAuth, 
+  createUserWithEmailAndPassword, 
+  signInWithPopup, 
+  GoogleAuthProvider 
+} from "firebase/auth";
+import { 
+  getFirestore, 
+  doc, 
+  setDoc, 
+  collection, 
+  query, 
+  where, 
+  getDocs 
+} from "firebase/firestore";
 import { auth } from "./firebase";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/components/ui/button";
@@ -45,7 +58,7 @@ const SignupPage = () => {
         createdAt: new Date().toISOString()
       });
 
-      navigate("/phone-verification");
+      navigate("/phone-verification"); // Redirect to PhoneVerification page
     } catch (error) {
       setError(error.message);
     }
@@ -75,7 +88,7 @@ const SignupPage = () => {
         createdAt: new Date().toISOString()
       });
 
-      navigate("/phone-verification");
+      navigate("/phone-verification"); // Redirect to PhoneVerification page
     } catch (error) {
       if (error.code === 'auth/popup-closed-by-user') {
         setError("Sign up cancelled. Please try again.");
@@ -190,7 +203,7 @@ const SignupPage = () => {
         </Button>
 
         <p className="text-center text-sm text-muted-foreground">
-          Already have an Fintrack Account?{" "}
+          Already have a Fintrack Account?{" "}
           <a href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
             Log In
           </a>
