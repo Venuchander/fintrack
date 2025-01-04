@@ -1,0 +1,312 @@
+import React, { useState } from "react";
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { getFirestore, doc, setDoc, collection, query, where, getDocs } from "firebase/firestore";
+import { auth } from "./firebase";
+import { useNavigate } from "react-router-dom";
+import { Button } from "../components/components/ui/button";
+import { Input } from "../components/components/ui/input";
+import { Eye, EyeOff } from 'lucide-react';
+
+const Signup = () => {
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isCheckingUsername, setIsCheckingUsername] = useState(false);
+  const [usernameError, setUsernameError] = useState("");
+  const navigate = useNavigate();
+  const db = getFirestore();
+
+  // Debounce function
+  const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
+
+  // Function to generate username from email
+  const generateUsernameFromEmail = (email) => {
+    return email
+      .split('@')[0]
+      .replace(/[^a-zA-Z0-9]/g, '')
+      .toLowerCase()
+      .slice(0, 15);
+  };
+
+  // Function to check username availability
+  const checkUsernameAvailability = async (username) => {
+    if (!username) return false;
+    
+    // Username validation rules
+    const usernameRegex = /^[a-zA-Z0-9_]{3,15}$/;
+    if (!usernameRegex.test(username)) {
+      setUsernameError("Username must be 3-15 characters and contain only letters, numbers, and underscores");
+      return false;
+    }
+
+    try {
+      const userNameQuery = query(collection(db, "users"), where("userName", "==", username));
+      const userNameSnapshot = await getDocs(userNameQuery);
+      
+      const isAvailable = userNameSnapshot.empty;
+      setUsernameError(isAvailable ? "" : "Username already taken");
+      return isAvailable;
+    } catch (error) {
+      setUsernameError("Error checking username availability");
+      return false;
+    }
+  };
+
+  // Debounced username check
+  const debouncedUsernameCheck = debounce(async (username) => {
+    setIsCheckingUsername(true);
+    await checkUsernameAvailability(username);
+    setIsCheckingUsername(false);
+  }, 500);
+
+  // Handle username change with validation
+  const handleUsernameChange = (e) => {
+    const newUsername = e.target.value.toLowerCase();
+    setUserName(newUsername);
+    setUsernameError("");
+    debouncedUsernameCheck(newUsername);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (usernameError) {
+      setError("Please fix the username errors before continuing.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    try {
+      // Final username availability check before submission
+      const isUsernameAvailable = await checkUsernameAvailability(userName);
+      if (!isUsernameAvailable) {
+        setError("Username is not available. Please choose another.");
+        return;
+      }
+
+      // Check if email already exists
+      const emailQuery = query(collection(db, "users"), where("email", "==", email));
+      const emailSnapshot = await getDocs(emailQuery);
+      
+      if (!emailSnapshot.empty) {
+        setError("Email already exists. Please login instead.");
+        return;
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        userName,
+        email,
+        authProvider: "email",
+        createdAt: new Date().toISOString()
+      });
+
+      navigate("/home");
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleGoogleSignUp = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Check if user already exists
+      const userQuery = query(collection(db, "users"), where("email", "==", user.email));
+      const userSnapshot = await getDocs(userQuery);
+
+      if (!userSnapshot.empty) {
+        setError("Account already exists. Please login instead.");
+        navigate("/login");
+        return;
+      }
+
+      // Auto-fill email
+      setEmail(user.email);
+
+      // Generate base username from email
+      let baseUserName = generateUsernameFromEmail(user.email);
+      let uniqueUserName = baseUserName;
+      let counter = 1;
+      
+      // Keep trying until we find an available username
+      while (!(await checkUsernameAvailability(uniqueUserName))) {
+        uniqueUserName = `${baseUserName}${counter}`;
+        counter++;
+      }
+
+      // Set the unique username
+      setUserName(uniqueUserName);
+
+      // Store user information
+      await setDoc(doc(db, "users", user.uid), {
+        userName: uniqueUserName,
+        email: user.email,
+        photoURL: user.photoURL,
+        authProvider: "google",
+        createdAt: new Date().toISOString()
+      });
+
+      navigate("/home");
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        setError("Sign up cancelled. Please try again.");
+      } else {
+        setError(error.message);
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4">
+      <div className="space-y-6 w-full max-w-md">
+        <div className="space-y-2">
+          <div className="flex items-center mb-8">
+            <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
+          </div>
+          <h1 className="text-2xl font-semibold tracking-tight">Sign Up</h1>
+          <p className="text-sm text-muted-foreground">
+            Enter your details to create your Fintrack account:
+          </p>
+        </div>
+
+        {error && (
+          <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">User Name*</label>
+            <Input
+              required
+              value={userName}
+              onChange={handleUsernameChange}
+              className={`h-11 ${usernameError ? 'border-red-500' : ''}`}
+              placeholder="3-15 characters, letters, numbers, underscores"
+            />
+            {isCheckingUsername && (
+              <p className="text-sm text-gray-500">Checking username availability...</p>
+            )}
+            {usernameError && (
+              <p className="text-sm text-red-500">{usernameError}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Email*</label>
+            <Input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-11"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Password*</label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="h-11 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Confirm Password*</label>
+              <div className="relative">
+                <Input
+                  type={showConfirmPassword ? "text" : "password"}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="h-11 pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <Button 
+            type="submit" 
+            className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+            disabled={isCheckingUsername || usernameError !== ""}
+          >
+            Sign Up
+          </Button>
+        </form>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-slate-50 px-2 text-muted-foreground">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          onClick={handleGoogleSignUp}
+          className="w-full h-11 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+        >
+          <img
+            src="https://www.google.com/favicon.ico"
+            alt="Google"
+            className="w-5 h-5"
+          />
+          <span>Sign up with Google</span>
+        </Button>
+
+        <p className="text-center text-sm text-muted-foreground">
+          Already have an Fintrack Account?{" "}
+          <a href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
+            Log In
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Signup;
