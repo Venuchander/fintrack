@@ -6,7 +6,7 @@ import './index.css'; // Assuming Tailwind CSS is applied here
 // Import your pages
 import LoginPage from './config/login'; // The login page component
 import SignupPage from './config/signup'; // The signup page component
-import PhoneVerificationPage from './config/PhoneNumber'; // New page for phone verification
+import PhoneNumberPage from './config/PhoneNumber'; // Updated page for phone number
 
 // Main component that holds the routes
 const App = () => {
@@ -15,7 +15,7 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<LoginPage />} /> {/* Route for LoginPage */}
         <Route path="/signup" element={<SignupPage />} /> {/* Route for SignupPage */}
-        <Route path="/phone-verification" element={<PhoneVerificationPage />} /> {/* New route for PhoneVerificationPage */}
+        <Route path="/phone-number" element={<PhoneNumberPage />} /> {/* Updated route for PhoneNumberPage */}
 
         {/* Redirect default route to signup */}
         <Route path="/" element={<Navigate to="/signup" />} /> {/* Redirect to SignupPage if no path is specified */}
