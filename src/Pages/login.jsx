@@ -73,7 +73,7 @@ const LoginPage = () => {
         return;
       }
 
-      navigate("/home");
+      navigate("/dashboard");
     } catch (err) {
       console.error("Google Sign In Error:", err);
       if (err.code === 'auth/popup-closed-by-user') {
@@ -122,7 +122,7 @@ const LoginPage = () => {
         await auth.setPersistence('local');
       }
 
-      navigate("/home");
+      navigate("/dashboard");
     } catch (err) {
       console.error("Login Error:", err);
       switch (err.code) {
@@ -192,10 +192,10 @@ const LoginPage = () => {
                 You are currently logged in. You can:
               </p>
               <Button
-                onClick={() => navigate("/home")}
+                onClick={() => navigate("/dashboard")}
                 className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
               >
-                Go to Home
+                Go to dashboard
               </Button>
               <Button
                 onClick={handleLogout}
