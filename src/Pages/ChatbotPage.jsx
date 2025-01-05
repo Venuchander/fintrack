@@ -57,7 +57,7 @@ export default function ChatbotPage() {
 
   return (
     <Layout>
-    <div className="flex flex-col h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="flex flex-col h-screen bg-gray-100">
       <header className="bg-white shadow-sm p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
