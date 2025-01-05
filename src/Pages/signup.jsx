@@ -9,7 +9,7 @@ import {
   setDoc,
   getDoc
 } from "firebase/firestore";
-import { auth, db } from "./firebase";  // Import from your firebase.js file
+import { auth, db } from "./lib/firebase";  // Import from your firebase.js file
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/components/ui/button";
 import { Input } from "../components/components/ui/input";

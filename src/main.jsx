@@ -4,9 +4,9 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import './index.css'; // Assuming Tailwind CSS is applied here
 
 // Import your pages
-import LoginPage from './config/login'; // The login page component
-import SignupPage from './config/signup'; // The signup page component
-import PhoneNumberPage from './config/PhoneNumber'; // Updated page for phone number
+import LoginPage from './Pages/login'; // The login page component
+import SignupPage from './Pages/signup'; // The signup page component
+import PhoneNumberPage from './Pages/PhoneNumber'; // Updated page for phone number
 
 // Main component that holds the routes
 const App = () => {

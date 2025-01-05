@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, setDoc } from "firebase/firestore";
-import { auth } from "./firebase";
+import { auth } from "./lib/firebase";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/components/ui/button";
 import { Input } from "../components/components/ui/input";
