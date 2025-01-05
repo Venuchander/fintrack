@@ -150,7 +150,7 @@ function Dashboard() {
       {/* Sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-64 bg-white shadow-md">
         <div className="flex items-center justify-center h-20 border-b">
-          <h1 className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => navigate("/")}>FinTrack</h1>
+          <h1 className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => navigate("/dashboard")}>FinTrack</h1>
         </div>
         <nav className="flex-grow">
           {navigationItems.map((item, index) => (

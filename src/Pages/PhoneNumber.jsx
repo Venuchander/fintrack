@@ -27,7 +27,7 @@ const PhoneNumberPage = () => {
         });
 
         // Redirect to home after saving phone number
-        navigate("/home");
+        navigate("/dashboard");
       } catch (error) {
         setError(error.message);
       }
