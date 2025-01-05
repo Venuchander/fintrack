@@ -1,128 +1,314 @@
-import React, { useState } from 'react';
-import Layout from './Layout';
-import { Card, CardHeader, CardTitle, CardContent } from '../components/components/ui/card';
-import { Input } from '../components/components/ui/input';
-import { Label } from '../components/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/components/ui/select';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
+'use client'
 
-const Expenses = () => {
-  const [income, setIncome] = useState('');
-  const [savingsGoal, setSavingsGoal] = useState('');
-  const [timeline, setTimeline] = useState('monthly');
-  const [expenses, setExpenses] = useState([
-    { category: 'Housing', amount: 0 },
-    { category: 'Utilities', amount: 0 },
-    { category: 'Groceries', amount: 0 },
-    { category: 'Entertainment', amount: 0 }
-  ]);
+import { useState } from "react"
+import { Calendar } from "../components/components/ui/calendar"
+import { Button } from "../components/components/ui/button"
+import Layout from "./Layout"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/components/ui/card"
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../components/components/ui/form"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/components/ui/select"
+import { Input } from "../components/components/ui/input"
+import { Textarea } from "../components/components/ui/textarea"
+import { RadioGroup, RadioGroupItem } from "../components/components/ui/radio-group"
+import { Switch } from "../components/components/ui/switch"
+import { Popover, PopoverContent, PopoverTrigger } from "../components/components/ui/popover"
+import { cn } from "../components/components/lib/utils"
+import { CalendarIcon, Upload } from 'lucide-react'
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { format } from "date-fns"
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const formSchema = z.object({
+  amount: z.string().min(1, "Amount is required"),
+  date: z.date({
+    required_error: "Date is required",
+  }),
+  category: z.string({
+    required_error: "Please select a category",
+  }),
+  description: z.string().optional(),
+  paymentMethod: z.enum(["cash", "credit", "debit", "digital"], {
+    required_error: "Please select a payment method",
+  }),
+  receipt: z.string().optional(),
+  isRecurring: z.boolean().default(false),
+})
 
-  const handleExpenseChange = (index, value) => {
-    const updatedExpenses = [...expenses];
-    updatedExpenses[index].amount = parseFloat(value) || 0;
-    setExpenses(updatedExpenses);
-  };
+function AddExpense() {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      isRecurring: false,
+    },
+  })
 
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  function onSubmit(values) {
+    console.log(values)
+    // Handle form submission
+  }
 
   return (
     <Layout>
-    <div className="p-6">
-      <Card className="mb-6">
+    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <Card className="mx-auto max-w-2xl">
         <CardHeader>
-          <CardTitle>Income & Savings</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="income">Total Income</Label>
-            <Input
-              id="income"
-              type="number"
-              value={income}
-              onChange={(e) => setIncome(e.target.value)}
-              placeholder="Enter your income"
-              className="mt-1"
-            />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="savings-goal">Savings Goal</Label>
-              <Input
-                id="savings-goal"
-                type="number"
-                value={savingsGoal}
-                onChange={(e) => setSavingsGoal(e.target.value)}
-                placeholder="Enter target amount"
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="timeline">Timeline</Label>
-              <Select value={timeline} onValueChange={setTimeline}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select timeline" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="yearly">Yearly</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Expenses</CardTitle>
+          <CardTitle>Add New Expense</CardTitle>
+          <CardDescription>Track your spending by adding a new expense</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              {expenses.map((expense, index) => (
-                <div key={expense.category}>
-                  <Label htmlFor={`expense-${index}`}>{expense.category}</Label>
-                  <Input
-                    id={`expense-${index}`}
-                    type="number"
-                    value={expense.amount}
-                    onChange={(e) => handleExpenseChange(index, e.target.value)}
-                    placeholder={`Enter ${expense.category.toLowerCase()} expenses`}
-                    className="mt-1"
-                  />
-                </div>
-              ))}
-            </div>
-            
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={expenses}
-                    dataKey="amount"
-                    nameKey="category"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    label
-                  >
-                    {expenses.map((entry, index) => (
-                      <Cell key={entry.category} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Legend />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="grid gap-6 md:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amount *</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-2.5">$</span>
+                          <Input placeholder="0.00" className="pl-6" {...field} />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="date"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date *</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              variant="outline"
+                              className={cn(
+                                "w-full pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>dd/mm/yyyy</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
+                            }
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category *</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="food">Food & Dining</SelectItem>
+                        <SelectItem value="transport">Transportation</SelectItem>
+                        <SelectItem value="utilities">Utilities</SelectItem>
+                        <SelectItem value="shopping">Shopping</SelectItem>
+                        <SelectItem value="entertainment">Entertainment</SelectItem>
+                        <SelectItem value="health">Healthcare</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Add details about this expense"
+                        className="resize-none"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel>Payment Method *</FormLabel>
+                    <FormControl>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                        className="flex flex-wrap gap-4"
+                      >
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="cash" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Cash</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="credit" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Credit Card</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="debit" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Debit Card</FormLabel>
+                        </FormItem>
+                        <FormItem className="flex items-center space-x-3 space-y-0">
+                          <FormControl>
+                            <RadioGroupItem value="digital" />
+                          </FormControl>
+                          <FormLabel className="font-normal">Digital Wallet</FormLabel>
+                        </FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="receipt"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Attach Receipt</FormLabel>
+                    <FormControl>
+                      <div
+                        className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition-colors"
+                        onClick={() => document.getElementById('file-upload')?.click()}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                          e.preventDefault()
+                          const file = e.dataTransfer.files?.[0]
+                          if (file) {
+                            field.onChange(file)
+                          }
+                        }}
+                      >
+                        <Input
+                          id="file-upload"
+                          type="file"
+                          className="hidden"
+                          accept="image/png,image/jpeg"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              field.onChange(file)
+                            }
+                          }}
+                        />
+                        <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
+                        <div className="text-sm text-gray-600">
+                          <span className="text-blue-600">Upload a file</span> or drag and drop
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          PNG, JPG up to 10MB
+                        </div>
+                        {field.value && (
+                          <div className="mt-2 text-sm text-green-600">
+                            Selected: {field.value instanceof File ? field.value.name : field.value}
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="isRecurring"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg">
+                    <div className="space-y-0.5">
+                      <FormLabel>Recurring Expense</FormLabel>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <div className="flex justify-end gap-4">
+                <Button variant="outline" type="button">
+                  Cancel
+                </Button>
+                <Button type="submit">Add Expense</Button>
+              </div>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
     </Layout>
-  );
-};
+  )
+}
 
-export default Expenses;
+export default AddExpense
