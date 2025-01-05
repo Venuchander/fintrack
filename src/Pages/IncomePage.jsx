@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from "react"
-import { Button } from "../components/components/ui/button"
 import Layout from "./Layout"
+import { Button } from "../components/components/ui/button"
 import {
   Card,
   CardContent,
@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../components/components/ui/dialog"
-import { CreditCard, Wallet, PiggyBank, DollarSign, Smartphone, Bitcoin, Plus, Edit } from 'lucide-react'
+import { CreditCard, Wallet, PiggyBank, DollarSign, Smartphone, Bitcoin, Plus, Edit, Trash2 } from 'lucide-react'
 
 const iconMap = {
   'Credit Card': <CreditCard className="w-5 h-5" />,
@@ -30,7 +30,7 @@ const iconMap = {
   'Bit Coin': <Bitcoin className="w-5 h-5" />,
 }
 
-export default function Income() {
+export default function Dashboard() {
   const [accounts, setAccounts] = useState([
     { name: 'Credit Card', balance: 12000, icon: iconMap['Credit Card'] },
     { name: 'Debit Card', balance: 10000, icon: iconMap['Debit Card'] },
@@ -65,6 +65,11 @@ export default function Income() {
       setNewAccount({ name: '', balance: '' })
       setIsAddingAccount(false)
     }
+  }
+
+  const handleDeleteAccount = (index) => {
+    const updatedAccounts = accounts.filter((_, i) => i !== index)
+    setAccounts(updatedAccounts)
   }
 
   const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0)
@@ -111,14 +116,24 @@ export default function Income() {
                         )}
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleEdit(index)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => handleEdit(index)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+                        onClick={() => handleDeleteAccount(index)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
