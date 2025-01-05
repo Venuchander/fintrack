@@ -1,20 +1,15 @@
 import React, { useState } from "react";
 import { 
-  getAuth, 
   createUserWithEmailAndPassword, 
   signInWithPopup, 
   GoogleAuthProvider 
 } from "firebase/auth";
 import { 
-  getFirestore, 
   doc, 
-  setDoc, 
-  collection, 
-  query, 
-  where, 
-  getDocs 
+  setDoc,
+  getDoc
 } from "firebase/firestore";
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";  // Import from your firebase.js file
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/components/ui/button";
 import { Input } from "../components/components/ui/input";
@@ -28,7 +23,6 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
-  const db = getFirestore();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,26 +34,20 @@ const SignupPage = () => {
     }
 
     try {
-      // Check if email already exists
-      const emailQuery = query(collection(db, "users"), where("email", "==", email));
-      const emailSnapshot = await getDocs(emailQuery);
-
-      if (!emailSnapshot.empty) {
-        setError("Email already exists. Please login instead.");
-        return;
-      }
-
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      await setDoc(doc(db, "users", user.uid), {
-        email,
+      // Save user data to Firestore
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, {
+        email: email,
         authProvider: "email",
         createdAt: new Date().toISOString()
-      });
+      }, { merge: true });
 
-      navigate("/phone-verification"); // Redirect to PhoneVerification page
+      navigate("/phone-number");
     } catch (error) {
+      console.error("Error during signup:", error.message);
       setError(error.message);
     }
   };
@@ -70,26 +58,33 @@ const SignupPage = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if user already exists
-      const userQuery = query(collection(db, "users"), where("email", "==", user.email));
-      const userSnapshot = await getDocs(userQuery);
+      // Check if user document already exists
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
 
-      if (!userSnapshot.empty) {
-        setError("Account already exists. Please login instead.");
-        navigate("/login");
-        return;
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        // If user exists but doesn't have email, update it
+        if (!userData.email) {
+          await setDoc(userRef, {
+            email: user.email,
+            updatedAt: new Date().toISOString()
+          }, { merge: true });
+        }
+      } else {
+        // Create new user document
+        await setDoc(userRef, {
+          email: user.email,
+          displayName: user.displayName || '',
+          photoURL: user.photoURL || '',
+          authProvider: "google",
+          createdAt: new Date().toISOString()
+        });
       }
 
-      // Store user information
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        photoURL: user.photoURL,
-        authProvider: "google",
-        createdAt: new Date().toISOString()
-      });
-
-      navigate("/phone-verification"); // Redirect to PhoneVerification page
+      navigate("/phone-number");
     } catch (error) {
+      console.error("Google SignUp Error:", error);
       if (error.code === 'auth/popup-closed-by-user') {
         setError("Sign up cancelled. Please try again.");
       } else {
