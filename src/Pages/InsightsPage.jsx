@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
+import Layout from './Layout'
 const Insights = () => {
   const spendingData = [
     { month: 'Jan', spending: 2400, savings: 1000 },
@@ -13,6 +13,7 @@ const Insights = () => {
   ];
 
   return (
+    <Layout>
     <div className="p-6">
       <Card className="mb-6">
         <CardHeader>
@@ -61,6 +62,7 @@ const Insights = () => {
         </CardContent>
       </Card>
     </div>
+    </Layout>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Layout from './Layout';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/components/ui/card';
 import { Input } from '../components/components/ui/input';
 import { Label } from '../components/components/ui/label';
@@ -27,6 +28,7 @@ const Expenses = () => {
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
 
   return (
+    <Layout>
     <div className="p-6">
       <Card className="mb-6">
         <CardHeader>
@@ -119,6 +121,7 @@ const Expenses = () => {
         </CardContent>
       </Card>
     </div>
+    </Layout>
   );
 };
 

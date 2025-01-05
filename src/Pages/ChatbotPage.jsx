@@ -3,6 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/componen
 import { Input } from '../components/components/ui/input';
 import { Button } from '../components/components/ui/button';
 import { Mic, Send } from 'lucide-react';
+import Layout from './Layout'
 
 const Chatbot = () => {
   const [messages, setMessages] = useState([]);
@@ -28,6 +29,7 @@ const Chatbot = () => {
   };
 
   return (
+    <Layout>
     <div className="p-6">
       <Card className="h-[calc(100vh-8rem)] flex flex-col">
         <CardHeader>
@@ -71,6 +73,7 @@ const Chatbot = () => {
         </div>
       </Card>
     </div>
+    </Layout>
   );
 };
 

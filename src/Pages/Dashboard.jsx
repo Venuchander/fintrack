@@ -1,4 +1,6 @@
 import React from "react"
+import Layout from './Layout'
+import { useNavigate, useLocation } from "react-router-dom"
 import { 
   Chart as ChartJS, 
   CategoryScale,
@@ -45,6 +47,23 @@ ChartJS.register(
 )
 
 function Dashboard() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Navigation items with their routes
+  const navigationItems = [
+    { name: "Dashboard", icon: PieChart, path: "/dashboard" },
+    { name: "Expenses", icon: DollarSign, path: "/expense" },
+    { name: "Chatbot", icon: MessageSquare, path: "/chatbot" },
+    { name: "AI Insights", icon: Brain, path: "/insights" },
+  ]
+
+  // Handle logout
+  const handleLogout = () => {
+    // Add your logout logic here
+    navigate("/login")
+  }
+
   const expenseData = {
     labels: ['Housing', 'Transportation', 'Food', 'Utilities', 'Insurance', 'Healthcare', 'Savings', 'Personal'],
     datasets: [
@@ -131,20 +150,19 @@ function Dashboard() {
       {/* Sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-64 bg-white shadow-md">
         <div className="flex items-center justify-center h-20 border-b">
-          <h1 className="text-2xl font-bold text-blue-600">FinTrack</h1>
+          <h1 className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => navigate("/")}>FinTrack</h1>
         </div>
         <nav className="flex-grow">
-          {[
-            { name: "Dashboard", icon: PieChart },
-            { name: "Expenses", icon: DollarSign, page: "/expense" },
-            { name: "Excel Table", icon: Table },
-            { name: "Chatbot", icon: MessageSquare },
-            { name: "AI Insights", icon: Brain },
-          ].map((item, index) => (
+          {navigationItems.map((item, index) => (
             <Button
               key={index}
               variant="ghost"
-              className="w-full justify-start text-left py-3 px-6 text-gray-600 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
+              className={`w-full justify-start text-left py-3 px-6 ${
+                location.pathname === item.path
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
+              } transition-colors duration-200`}
+              onClick={() => navigate(item.path)}
             >
               {React.createElement(item.icon, { className: "mr-2 h-5 w-5" })}
               {item.name}
@@ -152,7 +170,11 @@ function Dashboard() {
           ))}
         </nav>
         <div className="p-4 border-t">
-          <Button variant="outline" className="w-full text-red-600 hover:bg-red-50 hover:text-red-700">
+          <Button 
+            variant="outline" 
+            className="w-full text-red-600 hover:bg-red-50 hover:text-red-700"
+            onClick={handleLogout}
+          >
             <LogOut className="mr-2 h-4 w-4" /> Logout
           </Button>
         </div>
@@ -168,24 +190,11 @@ function Dashboard() {
                 <Button variant="ghost" size="icon" className="md:hidden mr-2">
                   <Menu className="h-6 w-6" />
                 </Button>
-                <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  {navigationItems.find(item => item.path === location.pathname)?.name || "Dashboard"}
+                </h2>
               </div>
               <div className="flex items-center">
-                <div className="relative rounded-md shadow-sm mr-4">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                  </div>
-                  <Input
-                    type="text"
-                    name="search"
-                    id="search"
-                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md"
-                    placeholder="Search"
-                  />
-                </div>
-                <Button variant="ghost" size="icon" className="mr-2">
-                  <Bell className="h-6 w-6" />
-                </Button>
                 <Button variant="ghost" className="inline-flex items-center">
                   <img
                     className="h-8 w-8 rounded-full"
