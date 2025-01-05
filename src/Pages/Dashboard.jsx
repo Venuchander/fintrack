@@ -53,6 +53,7 @@ function Dashboard() {
   // Navigation items with their routes
   const navigationItems = [
     { name: "Dashboard", icon: PieChart, path: "/dashboard" },
+    { name: "Income", icon: Wallet, path: "/income" },
     { name: "Expenses", icon: DollarSign, path: "/expense" },
     { name: "Chatbot", icon: MessageSquare, path: "/chatbot" },
     { name: "AI Insights", icon: Brain, path: "/insights" },

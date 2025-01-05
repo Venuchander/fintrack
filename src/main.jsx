@@ -11,6 +11,7 @@ import Dashboard from "./Pages/Dashboard"; // Import the Dashboard component
 import Expenses from "./Pages/ExpensePage"; // Import the Expenses component
 import Insights from "./Pages/InsightsPage"; // Import the Insights component
 import Chatbot from "./Pages/ChatbotPage"; // Import the Chatbot component
+import Income from "./Pages/IncomePage";
 // Main component that holds the routes
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/expense" element={<Expenses />} /> {/* Route for Expense */}
         <Route path="/insights" element={<Insights />} /> {/* Route for Insights */}
         <Route path="/chatbot" element={<Chatbot />} />
+        <Route path="/income" element={<Income />} />
         {/* Redirect default route to signup */}
         <Route path="/" element={<Navigate to="/signup" />} /> {/* Redirect to SignupPage if no path is specified */}
       </Routes>

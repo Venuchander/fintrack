@@ -1,6 +1,6 @@
 import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { PieChart, DollarSign, MessageSquare, Brain, LogOut } from 'lucide-react'
+import { PieChart, DollarSign, MessageSquare, Brain, LogOut, Wallet } from 'lucide-react'
 import { Button } from "../components/components/ui/button"
 
 const Sidebar = () => {
@@ -10,6 +10,7 @@ const Sidebar = () => {
   // Navigation items with their routes
   const navigationItems = [
     { name: "Dashboard", icon: PieChart, path: "/dashboard" },
+    { name: "Income", icon: Wallet, path: "/income" },
     { name: "Expenses", icon: DollarSign, path: "/expense" },
     { name: "Chatbot", icon: MessageSquare, path: "/chatbot" },
     { name: "AI Insights", icon: Brain, path: "/insights" },
