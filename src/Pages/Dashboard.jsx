@@ -57,11 +57,15 @@ ChartJS.register(
   Legend
 )
 
+import ProfileButton from './profile'
+import Sidebar from './Sidebar'
+
 function Dashboard() {
   const navigate = useNavigate()
   const location = useLocation()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -75,14 +79,6 @@ function Dashboard() {
 
     return () => unsubscribe()
   }, [navigate])
-
-  const navigationItems = [
-    { name: "Dashboard", icon: PieChart, path: "/dashboard" },
-    { name: "Income", icon: Wallet, path: "/income" },
-    { name: "Expenses", icon: DollarSign, path: "/expense" },
-    { name: "Chatbot", icon: MessageSquare, path: "/chatbot" },
-    { name: "AI Insights", icon: Brain, path: "/insights" },
-  ]
 
   const handleLogout = async () => {
     try {
@@ -184,40 +180,20 @@ function Dashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
-      <aside className="hidden md:flex md:flex-col md:w-64 bg-white shadow-md">
-        <div className="flex items-center justify-center h-20 border-b">
-          <h1 className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => navigate("/dashboard")}>
-            FinTrack
-          </h1>
-        </div>
-        <nav className="flex-grow">
-          {navigationItems.map((item, index) => (
-            <Button
-              key={index}
-              variant="ghost"
-              className={`w-full justify-start text-left py-3 px-6 ${
-                location.pathname === item.path
-                  ? "bg-blue-50 text-blue-600"
-                  : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-              } transition-colors duration-200`}
-              onClick={() => navigate(item.path)}
-            >
-              {React.createElement(item.icon, { className: "mr-2 h-5 w-5" })}
-              {item.name}
-            </Button>
-          ))}
-        </nav>
-        <div className="p-4 border-t">
-          <Button 
-            variant="outline" 
-            className="w-full text-red-600 hover:bg-red-50 hover:text-red-700"
-            onClick={handleLogout}
-          >
-            <LogOut className="mr-2 h-4 w-4" /> Logout
-          </Button>
-        </div>
-      </aside>
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar Component */}
+      <Sidebar 
+        isOpen={isSidebarOpen} 
+        onClose={() => setIsSidebarOpen(false)}
+        user={user}
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -226,48 +202,17 @@ function Dashboard() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center">
-                <Button variant="ghost" size="icon" className="md:hidden mr-2">
-                  <Menu className="h-6 w-6" />
-                </Button>
                 <h2 className="text-2xl font-semibold text-gray-900">
-                  {navigationItems.find(item => item.path === location.pathname)?.name || "Dashboard"}
+                  {location.pathname.split('/')[1].charAt(0).toUpperCase() + 
+                   location.pathname.split('/')[1].slice(1) || "Dashboard"}
                 </h2>
               </div>
               <div className="flex items-center gap-4">
-                <div className="flex items-center">
-                  <Button variant="ghost" className="inline-flex items-center">
-                    {user?.providerData[0]?.providerId === "google.com" ? (
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src={user?.photoURL || "/placeholder.svg?height=32&width=32"}
-                        alt={user?.displayName || "User"}
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                        <span className="text-white text-sm">
-                          {user?.email
-                            ? user.email.charAt(0).toUpperCase()
-                            : "U"}
-                        </span>
-                      </div>
-                    )}
-                    <span className="ml-2 text-sm font-medium text-gray-700">
-                      {user?.displayName ||
-                        (user?.email
-                          ? user.email
-                              .split("@")[0]
-                              .split(/[\d._-]+/) // Split on dots, underscores, hyphens, or digits
-                              .filter(Boolean) // Remove empty segments
-                              .map(
-                                (part) => part.charAt(0).toUpperCase() + part.slice(1)
-                              )
-                              .join(" ")
-                          : "User")}
-                    </span>
-                    <ChevronDown className="ml-2 h-4 w-4" aria-hidden="true" />
-                  </Button>
-                </div>
+                <ProfileButton 
+                  user={user}
+                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onLogout={handleLogout}
+                />
               </div>
             </div>
           </div>

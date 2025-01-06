@@ -1,13 +1,14 @@
+// Sidebar.jsx
 import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { PieChart, DollarSign, MessageSquare, Brain, LogOut, Wallet } from 'lucide-react'
 import { Button } from "../components/components/ui/button"
+import { auth } from "./lib/firebase"
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose, user }) => {
   const navigate = useNavigate()
   const location = useLocation()
 
-  // Navigation items with their routes
   const navigationItems = [
     { name: "Dashboard", icon: PieChart, path: "/dashboard" },
     { name: "Income", icon: Wallet, path: "/income" },
@@ -16,16 +17,24 @@ const Sidebar = () => {
     { name: "AI Insights", icon: Brain, path: "/insights" },
   ]
 
-  // Handle logout
-  const handleLogout = () => {
-    // Add your logout logic here
-    navigate("/login")
+  const handleNavigation = (path) => {
+    navigate(path)
+    onClose()
   }
 
   return (
-    <aside className="hidden md:flex md:flex-col md:w-64 bg-white shadow-md">
+    <aside 
+      className={`fixed inset-y-0 right-0 transform ${
+        isOpen ? "translate-x-0" : "translate-x-full"
+      } transition-transform duration-300 ease-in-out flex flex-col w-64 bg-white shadow-md z-30`}
+    >
       <div className="flex items-center justify-center h-20 border-b">
-        <h1 className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => navigate("/")}>FinTrack</h1>
+        <h1 
+          className="text-2xl font-bold text-blue-600 cursor-pointer" 
+          onClick={() => handleNavigation("/dashboard")}
+        >
+          FinTrack
+        </h1>
       </div>
       <nav className="flex-grow">
         {navigationItems.map((item, index) => (
@@ -37,7 +46,7 @@ const Sidebar = () => {
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
             } transition-colors duration-200`}
-            onClick={() => navigate(item.path)}
+            onClick={() => handleNavigation(item.path)}
           >
             {React.createElement(item.icon, { className: "mr-2 h-5 w-5" })}
             {item.name}
@@ -48,7 +57,14 @@ const Sidebar = () => {
         <Button 
           variant="outline" 
           className="w-full text-red-600 hover:bg-red-50 hover:text-red-700"
-          onClick={handleLogout}
+          onClick={async () => {
+            try {
+              await auth.signOut()
+              navigate("/login")
+            } catch (error) {
+              console.error("Error signing out:", error)
+            }
+          }}
         >
           <LogOut className="mr-2 h-4 w-4" /> Logout
         </Button>

@@ -10,6 +10,7 @@ import dynamic from 'next/dynamic'
 import Layout from './Layout'
 import { GoogleGenerativeAI } from "@google/generative-ai"
 
+
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI("AIzaSyDAlB1aWf6GFj1cORf1pI5oh9K_adYsXLg")
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
