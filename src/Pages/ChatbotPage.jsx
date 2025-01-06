@@ -9,14 +9,14 @@ import { Lightbulb, Send, SmilePlus, Phone, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Layout from './Layout'
 import { GoogleGenerativeAI } from "@google/generative-ai"
-
+import axios from 'axios'
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI("AIzaSyDAlB1aWf6GFj1cORf1pI5oh9K_adYsXLg")
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
 // Create chat history
-let chatHistory = [];
+let chatHistory = []
 
 // Dynamically import EmojiPicker
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
@@ -88,9 +88,41 @@ export default function ChatbotPage() {
     setShowEmojiPicker(false)
   }
 
-  const handleCall = () => {
-    alert('Initiating call...')
-  }
+  // Handle Bland AI Call API integration
+  const handleCall = async () => {
+    // Set your Bland AI API key
+    const BLAND_API_KEY = " Bland_Api "; // Replace with your actual API key
+
+    // Default call data (no need for user input)
+    const callData = {
+      phone_number: "+91" + "9360658717", // Replace with actual phone number or dynamic input
+      task: "financial_consultation",  // Define the task type (you can adjust this)
+      model: "enhanced",
+      voice: "nat",  // Natural voice
+      max_duration: 15,
+      record: true
+    };
+
+    // Set the headers for the API call
+    const headers = {
+      'Authorization': `Bearer ${BLAND_API_KEY}`,
+      'Content-Type': 'application/json',
+    };
+
+    // Make the POST request to initiate the call
+    try {
+      const response = await axios.post('https://api.bland.ai/v1/calls', callData, { headers });
+      if (response.status === 200) {
+        const callResponse = response.data;
+        alert(`Financial consultation call initiated! Call ID: ${callResponse.id}`);
+      } else {
+        alert(`Call initiation failed: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error('Error initiating call:', error);
+      alert(`Error initiating call: ${error.message}`);
+    }
+  };
 
   return (
     <Layout>
