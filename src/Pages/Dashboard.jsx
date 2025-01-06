@@ -1,6 +1,6 @@
-import React from "react"
-import Layout from './Layout'
+import React, { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+import { auth } from "./lib/firebase"
 import { 
   Chart as ChartJS, 
   CategoryScale,
@@ -14,7 +14,21 @@ import {
   Legend
 } from 'chart.js'
 import { Bar, Doughnut, Line } from "react-chartjs-2"
-import { Menu, Bell, ChevronDown, Search, DollarSign, PieChart, Table, MessageSquare, Brain, LogOut, Wallet, TrendingUp, CreditCard } from 'lucide-react'
+import { 
+  Menu, 
+  Bell, 
+  ChevronDown, 
+  Search, 
+  DollarSign, 
+  PieChart, 
+  Table, 
+  MessageSquare, 
+  Brain, 
+  LogOut, 
+  Wallet, 
+  TrendingUp, 
+  CreditCard 
+} from 'lucide-react'
 import { Button } from "../components/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/components/ui/card"
 import { Input } from "../components/components/ui/input"
@@ -49,8 +63,22 @@ ChartJS.register(
 function Dashboard() {
   const navigate = useNavigate()
   const location = useLocation()
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-  // Navigation items with their routes
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setUser(user)
+      } else {
+        navigate("/login")
+      }
+      setLoading(false)
+    })
+
+    return () => unsubscribe()
+  }, [navigate])
+
   const navigationItems = [
     { name: "Dashboard", icon: PieChart, path: "/dashboard" },
     { name: "Income", icon: Wallet, path: "/income" },
@@ -59,10 +87,13 @@ function Dashboard() {
     { name: "AI Insights", icon: Brain, path: "/insights" },
   ]
 
-  // Handle logout
-  const handleLogout = () => {
-    // Add your logout logic here
-    navigate("/login")
+  const handleLogout = async () => {
+    try {
+      await auth.signOut()
+      navigate("/login")
+    } catch (error) {
+      console.error("Error signing out:", error)
+    }
   }
 
   const expenseData = {
@@ -146,12 +177,22 @@ function Dashboard() {
     }
   }
 
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-xl font-semibold">Loading...</div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <aside className="hidden md:flex md:flex-col md:w-64 bg-white shadow-md">
         <div className="flex items-center justify-center h-20 border-b">
-          <h1 className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => navigate("/dashboard")}>FinTrack</h1>
+          <h1 className="text-2xl font-bold text-blue-600 cursor-pointer" onClick={() => navigate("/dashboard")}>
+            FinTrack
+          </h1>
         </div>
         <nav className="flex-grow">
           {navigationItems.map((item, index) => (
@@ -195,16 +236,32 @@ function Dashboard() {
                   {navigationItems.find(item => item.path === location.pathname)?.name || "Dashboard"}
                 </h2>
               </div>
-              <div className="flex items-center">
-                <Button variant="ghost" className="inline-flex items-center">
-                  <img
-                    className="h-8 w-8 rounded-full"
-                    src="/placeholder.svg?height=32&width=32"
-                    alt=""
-                  />
-                  <span className="ml-2 text-sm font-medium text-gray-700">SRM Student</span>
-                  <ChevronDown className="ml-2 h-4 w-4" aria-hidden="true" />
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon">
+                  <Bell className="h-5 w-5" />
                 </Button>
+                <div className="flex items-center">
+                  <Button variant="ghost" className="inline-flex items-center">
+                    {user?.providerData[0]?.providerId === "google.com" ? (
+                      <img
+                        className="h-8 w-8 rounded-full"
+                        src={user?.photoURL || "/placeholder.svg?height=32&width=32"}
+                        alt={user?.displayName || "User"}
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+                        <span className="text-white text-sm">
+                          {user?.email?.charAt(0).toUpperCase() || "U"}
+                        </span>
+                      </div>
+                    )}
+                    <span className="ml-2 text-sm font-medium text-gray-700">
+                      {user?.displayName || user?.email || "User"}
+                    </span>
+                    <ChevronDown className="ml-2 h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
