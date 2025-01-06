@@ -16,12 +16,9 @@ import {
 import { Bar, Doughnut, Line } from "react-chartjs-2"
 import { 
   Menu, 
-  Bell, 
   ChevronDown, 
-  Search, 
   DollarSign, 
   PieChart, 
-  Table, 
   MessageSquare, 
   Brain, 
   LogOut, 
@@ -237,9 +234,6 @@ function Dashboard() {
                 </h2>
               </div>
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon">
-                  <Bell className="h-5 w-5" />
-                </Button>
                 <div className="flex items-center">
                   <Button variant="ghost" className="inline-flex items-center">
                     {user?.providerData[0]?.providerId === "google.com" ? (
