@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/components/ui/button";
 import { Input } from "../components/components/ui/input";
 import { Eye, EyeOff } from 'lucide-react';
+import { createOrUpdateUser } from "./lib/userService";
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
@@ -27,24 +28,25 @@ const SignupPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-
+  
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
+  
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-
-      // Save user data to Firestore
-      const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, {
+  
+      await createOrUpdateUser(user.uid, {
         email: email,
         authProvider: "email",
-        createdAt: new Date().toISOString()
-      }, { merge: true });
-
+        isEmailVerified: user.emailVerified,
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        status: 'active'
+      });
+  
       navigate("/phone-number");
     } catch (error) {
       console.error("Error during signup:", error.message);
@@ -57,39 +59,22 @@ const SignupPage = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      // Check if user document already exists
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const userData = userSnap.data();
-        // If user exists but doesn't have email, update it
-        if (!userData.email) {
-          await setDoc(userRef, {
-            email: user.email,
-            updatedAt: new Date().toISOString()
-          }, { merge: true });
-        }
-      } else {
-        // Create new user document
-        await setDoc(userRef, {
-          email: user.email,
-          displayName: user.displayName || '',
-          photoURL: user.photoURL || '',
-          authProvider: "google",
-          createdAt: new Date().toISOString()
-        });
-      }
-
+  
+      await createOrUpdateUser(user.uid, {
+        email: user.email,
+        authProvider: "google",
+        isEmailVerified: user.emailVerified,
+        displayName: user.displayName || '',
+        photoURL: user.photoURL || '',
+        status: 'active'
+      });
+  
       navigate("/phone-number");
     } catch (error) {
       console.error("Google SignUp Error:", error);
-      if (error.code === 'auth/popup-closed-by-user') {
-        setError("Sign up cancelled. Please try again.");
-      } else {
-        setError(error.message);
-      }
+      setError(error.code === 'auth/popup-closed-by-user'
+        ? "Sign up cancelled. Please try again."
+        : error.message);
     }
   };
 

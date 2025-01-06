@@ -5,6 +5,7 @@ import { auth } from "./lib/firebase";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/components/ui/button";
 import { Input } from "../components/components/ui/input";
+import { createOrUpdateUser } from "./lib/userService";
 
 const PhoneNumberPage = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -16,17 +17,14 @@ const PhoneNumberPage = () => {
     const formattedPhoneNumber = phoneNumber.startsWith("+91")
       ? phoneNumber
       : `+91${phoneNumber}`;
-
+  
     const user = auth.currentUser;
-
+  
     if (user) {
       try {
-        // Save phone number to Firestore under the user document
-        await setDoc(doc(db, "users", user.uid), {
-          phoneNumber: formattedPhoneNumber,
+        await createOrUpdateUser(user.uid, {
+          phoneNumber: formattedPhoneNumber
         });
-
-        // Redirect to home after saving phone number
         navigate("/dashboard");
       } catch (error) {
         setError(error.message);
@@ -35,6 +33,7 @@ const PhoneNumberPage = () => {
       setError("User is not authenticated.");
     }
   };
+  
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4">

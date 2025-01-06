@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { auth, db } from "./lib/firebase";
+import { createOrUpdateUser } from "./lib/userService";
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -62,8 +63,8 @@ const LoginPage = () => {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
-      // Check if user exists in Firestore using UID
+  
+      // Check if user exists in Firestore
       const userDoc = await getDoc(doc(db, "users", user.uid));
       
       if (!userDoc.exists()) {
@@ -72,15 +73,13 @@ const LoginPage = () => {
         navigate("/signup");
         return;
       }
-
+  
       navigate("/dashboard");
     } catch (err) {
       console.error("Google Sign In Error:", err);
-      if (err.code === 'auth/popup-closed-by-user') {
-        setError("Sign in was cancelled. Please try again.");
-      } else {
-        setError(err.message || "Failed to sign in with Google");
-      }
+      setError(err.code === 'auth/popup-closed-by-user' 
+        ? "Sign in was cancelled. Please try again."
+        : (err.message || "Failed to sign in with Google"));
     }
   };
 
