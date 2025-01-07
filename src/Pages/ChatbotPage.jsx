@@ -1,3 +1,4 @@
+// ChatbotPage.jsx
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
@@ -10,6 +11,8 @@ import dynamic from 'next/dynamic'
 import Layout from './Layout'
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import axios from 'axios'
+import ProfileButton from './profile'
+import Sidebar from './Sidebar'
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI("AIzaSyDAlB1aWf6GFj1cORf1pI5oh9K_adYsXLg")
@@ -34,6 +37,8 @@ export default function ChatbotPage() {
   const [input, setInput] = useState('')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [user, setUser] = useState(null)
   const messagesEndRef = useRef(null)
 
   const scrollToBottom = () => {
@@ -56,24 +61,19 @@ export default function ChatbotPage() {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
     
-    // Add user message
     const userMessage = { text: input, sender: 'user' }
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
 
     try {
-      // Get AI response
       const aiResponse = await generateResponse(input)
-      
-      // Add AI response to messages
       setMessages(prev => [...prev, {
         text: aiResponse,
         sender: 'bot'
       }])
     } catch (error) {
       console.error('Error in handleSend:', error)
-      // Add error message
       setMessages(prev => [...prev, {
         text: "I apologize, but I encountered an error. Please try again.",
         sender: 'bot'
@@ -88,69 +88,82 @@ export default function ChatbotPage() {
     setShowEmojiPicker(false)
   }
 
-  // Handle Bland AI Call API integration
   const handleCall = async () => {
-    // Set your Bland AI API key
-    const BLAND_API_KEY = " Bland_Api "; // Replace with your actual API key
-
-    // Default call data (no need for user input)
+    const BLAND_API_KEY = "Bland_Api"
     const callData = {
-      phone_number: "+91" + "9360658717", // Replace with actual phone number or dynamic input
-      task: "financial_consultation",  // Define the task type (you can adjust this)
+      phone_number: "+91" + "9360658717",
+      task: "financial_consultation",
       model: "enhanced",
-      voice: "nat",  // Natural voice
+      voice: "nat",
       max_duration: 15,
       record: true
-    };
+    }
 
-    // Set the headers for the API call
     const headers = {
       'Authorization': `Bearer ${BLAND_API_KEY}`,
       'Content-Type': 'application/json',
-    };
+    }
 
-    // Make the POST request to initiate the call
     try {
-      const response = await axios.post('https://api.bland.ai/v1/calls', callData, { headers });
+      const response = await axios.post('https://api.bland.ai/v1/calls', callData, { headers })
       if (response.status === 200) {
-        const callResponse = response.data;
-        alert(`Financial consultation call initiated! Call ID: ${callResponse.id}`);
+        alert(`Financial consultation call initiated! Call ID: ${response.data.id}`)
       } else {
-        alert(`Call initiation failed: ${response.data.message}`);
+        alert(`Call initiation failed: ${response.data.message}`)
       }
     } catch (error) {
-      console.error('Error initiating call:', error);
-      alert(`Error initiating call: ${error.message}`);
+      console.error('Error initiating call:', error)
+      alert(`Error initiating call: ${error.message}`)
     }
-  };
+  }
 
   return (
-    <Layout>
-      <div className="flex flex-col h-screen bg-gray-100">
-        <header className="bg-white shadow-sm p-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 bg-blue-500">
-                <AvatarImage src="/placeholder.svg" />
-                <AvatarFallback>
-                  <Lightbulb className="h-5 w-5 text-white" />
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
-                <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
-                  {isLoading ? 'Thinking...' : 'Online'}
-                </Badge>
+    <div className="flex h-screen bg-gray-100">
+      {isSidebarOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setIsSidebarOpen(false)} />
+      )}
+
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        user={user}
+      />
+
+      <div className="flex-1 flex flex-col">
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10 bg-blue-500">
+                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarFallback>
+                    <Lightbulb className="h-5 w-5 text-white" />
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
+                  <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
+                    {isLoading ? 'Thinking...' : 'Online'}
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button
+                  onClick={handleCall}
+                  variant="outline"
+                  className="rounded-full border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                >
+                  <Phone className="h-4 w-4 text-blue-500 mr-2" />
+                  Call
+                </Button>
+                <ProfileButton
+                  user={user}
+                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onLogout={() => {/* Add logout handler */}}
+                />
               </div>
             </div>
-            <Button
-              onClick={handleCall}
-              variant="outline"
-              className="rounded-full border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-            >
-              <Phone className="h-4 w-4 text-blue-500 mr-2" />
-              Call
-            </Button>
           </div>
         </header>
 
@@ -216,6 +229,6 @@ export default function ChatbotPage() {
           </div>
         </footer>
       </div>
-    </Layout>
+    </div>
   )
 }
