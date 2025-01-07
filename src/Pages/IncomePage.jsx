@@ -52,6 +52,7 @@ export default function IncomeDashboard() {
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [accounts, setAccounts] = useState([]);
+  const [totalBalance, setTotalBalance] = useState(0);
   const [editingId, setEditingId] = useState(null);
   const [newAccount, setNewAccount] = useState({ name: "", balance: "" });
   const [isAddingAccount, setIsAddingAccount] = useState(false);
@@ -63,12 +64,12 @@ export default function IncomeDashboard() {
         try {
           const userData = await getUserData(user.uid);
           if (userData?.accounts) {
-            // Transform stored accounts back into displayable format
             const displayAccounts = userData.accounts.map(account => ({
               ...account,
               icon: getIconComponent(account.iconType || account.name)
             }));
             setAccounts(displayAccounts);
+            setTotalBalance(userData.totalBalance || 0);
           }
         } catch (error) {
           console.error("Error fetching accounts:", error);
@@ -94,11 +95,11 @@ export default function IncomeDashboard() {
       setEditingId(null);
       
       if (user) {
-        await updateUserAccounts(user.uid, updatedAccounts);
+        const result = await updateUserAccounts(user.uid, updatedAccounts);
+        setTotalBalance(result.totalBalance);
       }
     } catch (error) {
       console.error("Error updating balance:", error);
-      // Handle error (show error message to user)
     }
   };
 
@@ -116,14 +117,14 @@ export default function IncomeDashboard() {
         setAccounts(updatedAccounts);
         
         if (user) {
-          await updateUserAccounts(user.uid, updatedAccounts);
+          const result = await updateUserAccounts(user.uid, updatedAccounts);
+          setTotalBalance(result.totalBalance);
         }
 
         setNewAccount({ name: "", balance: "" });
         setIsAddingAccount(false);
       } catch (error) {
         console.error("Error adding account:", error);
-        // Handle error (show error message to user)
       }
     }
   };
@@ -134,15 +135,13 @@ export default function IncomeDashboard() {
       setAccounts(updatedAccounts);
       
       if (user) {
-        await updateUserAccounts(user.uid, updatedAccounts);
+        const result = await updateUserAccounts(user.uid, updatedAccounts);
+        setTotalBalance(result.totalBalance);
       }
     } catch (error) {
       console.error("Error deleting account:", error);
-      // Handle error (show error message to user)
     }
   };
-
-  const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);
 
   if (loading) {
     return (
@@ -163,7 +162,7 @@ export default function IncomeDashboard() {
 
       <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
@@ -190,7 +189,7 @@ export default function IncomeDashboard() {
               <h2 className="text-xl font-semibold px-1">Accounts</h2>
               <div className="grid gap-4">
                 {accounts.map((account, index) => (
-                  <Card key={index} className="group">
+                  <Card key={index} className="group hover:shadow-md transition-shadow">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
@@ -202,16 +201,11 @@ export default function IncomeDashboard() {
                             {editingId === index ? (
                               <Input
                                 type="number"
-                                value={editValue}
+                                value={account.balance}
                                 className="w-32 text-sm"
                                 autoFocus
-                                onChange={(e) => setEditValue(e.target.value)}
-                                onBlur={() => handleBalanceChange(index, editValue)}
-                                onKeyPress={(e) => {
-                                  if (e.key === 'Enter') {
-                                    handleBalanceChange(index, editValue);
-                                  }
-                                }}
+                                onChange={(e) => handleBalanceChange(index, e.target.value)}
+                                onBlur={() => setEditingId(null)}
                               />
                             ) : (
                               <p className="text-sm text-muted-foreground">
@@ -224,6 +218,7 @@ export default function IncomeDashboard() {
                           <Button
                             variant="ghost"
                             size="icon"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity"
                             onClick={() => handleEdit(index)}
                           >
                             <Edit className="w-4 h-4" />
@@ -231,7 +226,7 @@ export default function IncomeDashboard() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="text-destructive"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
                             onClick={() => handleDeleteAccount(index)}
                           >
                             <Trash2 className="w-4 h-4" />

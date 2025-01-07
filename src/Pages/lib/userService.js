@@ -15,8 +15,9 @@ export const createOrUpdateUser = async (uid, userData) => {
     } else {
       await setDoc(userRef, {
         ...userData,
-        accounts: [], // Initialize empty accounts array
-        expenses: [], // Initialize empty expenses array
+        accounts: [],
+        totalBalance: 0,
+        expenses: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
@@ -26,24 +27,26 @@ export const createOrUpdateUser = async (uid, userData) => {
     throw error;
   }
 };
-
 export const updateUserAccounts = async (uid, accounts) => {
   try {
     const userRef = doc(db, "users", uid);
     
-    // Serialize the accounts data to ensure it's Firebase-friendly
+    // Serialize the accounts data and calculate total balance
     const serializedAccounts = accounts.map(account => ({
       name: account.name,
       balance: account.balance,
-      iconType: account.iconType || account.name // Store icon type instead of React component
+      iconType: account.iconType || account.name
     }));
+
+    const totalBalance = serializedAccounts.reduce((sum, account) => sum + account.balance, 0);
 
     await setDoc(userRef, {
       accounts: serializedAccounts,
+      totalBalance,
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
-    return serializedAccounts;
+    return { accounts: serializedAccounts, totalBalance };
   } catch (error) {
     console.error("Error updating accounts:", error);
     throw error;
