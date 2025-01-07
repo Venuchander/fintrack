@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
 import ProfileButton from "./profile";
 import Sidebar from "./Sidebar";
+import { getUserData, updateUserAccounts } from "./lib/userService";
 import { Button } from "../components/components/ui/button";
 import {
   Card,
@@ -46,24 +47,23 @@ export default function IncomeDashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [editValue, setEditValue] = useState(""); // New state for edit input
-  const [accounts, setAccounts] = useState([
-    { name: "Credit Card", balance: 12000, icon: iconMap["Credit Card"] },
-    { name: "Debit Card", balance: 10000, icon: iconMap["Debit Card"] },
-    { name: "Savings", balance: 8000, icon: iconMap["Savings"] },
-    { name: "Cash", balance: 4000, icon: iconMap["Cash"] },
-    { name: "UPI", balance: 20000, icon: iconMap["UPI"] },
-    { name: "Bit Coin", balance: 50000, icon: iconMap["Bit Coin"] },
-  ]);
-
+  const [accounts, setAccounts] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [newAccount, setNewAccount] = useState({ name: "", balance: "" });
   const [isAddingAccount, setIsAddingAccount] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) setUser(user);
-      else navigate("/login");
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setUser(user);
+        // Fetch user data including accounts
+        const userData = await getUserData(user.uid);
+        if (userData?.accounts) {
+          setAccounts(userData.accounts);
+        }
+      } else {
+        navigate("/login");
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -74,31 +74,47 @@ export default function IncomeDashboard() {
     setEditValue(accounts[index].balance.toString()); // Set initial edit value
   };
 
-  const handleBalanceChange = (index, newBalance) => {
+  const handleBalanceChange = async (index, newBalance) => {
     const updatedAccounts = [...accounts];
     updatedAccounts[index].balance = Number(newBalance);
     setAccounts(updatedAccounts);
     setEditingId(null);
+    
+    // Update accounts in Firebase
+    if (user) {
+      await updateUserAccounts(user.uid, updatedAccounts);
+    }
   };
 
-  const handleAddAccount = () => {
+  const handleAddAccount = async () => {
     if (newAccount.name && newAccount.balance) {
-      setAccounts([
+      const updatedAccounts = [
         ...accounts,
         {
           name: newAccount.name,
           balance: Number(newAccount.balance),
           icon: iconMap[newAccount.name] || <CreditCard className="w-5 h-5" />,
         },
-      ]);
+      ];
+      setAccounts(updatedAccounts);
       setNewAccount({ name: "", balance: "" });
       setIsAddingAccount(false);
+      
+      // Update accounts in Firebase
+      if (user) {
+        await updateUserAccounts(user.uid, updatedAccounts);
+      }
     }
   };
 
-  const handleDeleteAccount = (index) => {
+  const handleDeleteAccount = async (index) => {
     const updatedAccounts = accounts.filter((_, i) => i !== index);
     setAccounts(updatedAccounts);
+    
+    // Update accounts in Firebase
+    if (user) {
+      await updateUserAccounts(user.uid, updatedAccounts);
+    }
   };
 
   const totalBalance = accounts.reduce((sum, account) => sum + account.balance, 0);

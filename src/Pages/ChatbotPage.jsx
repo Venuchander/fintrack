@@ -160,7 +160,7 @@ export default function ChatbotPage() {
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                  onLogout={() => {/* Add logout handler */}}
+                  onLogout={() => auth.signOut()}
                 />
               </div>
             </div>

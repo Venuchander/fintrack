@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { auth } from "./lib/firebase"
+import { addExpense } from "./lib/userService"
 import { Calendar } from "../components/components/ui/calendar"
 import { Button } from "../components/components/ui/button"
 import { format } from "date-fns"
@@ -58,27 +59,53 @@ const formSchema = z.object({
 })
 
 function AddExpense() {
-  const navigate = useNavigate()
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: { isRecurring: false },
-  })
+  });
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) setUser(user)
-      else navigate("/login")
-      setLoading(false)
-    })
-    return () => unsubscribe()
-  }, [navigate])
+      if (user) setUser(user);
+      else navigate("/login");
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, [navigate]);
 
-  function onSubmit(values) {
-    console.log(values)
+  async function onSubmit(values) {
+    try {
+      if (!user) return;
+
+      // Convert File object to base64 if receipt exists
+      let receiptData = null;
+      if (values.receipt instanceof File) {
+        receiptData = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.readAsDataURL(values.receipt);
+        });
+      }
+
+      const expenseData = {
+        ...values,
+        receipt: receiptData,
+        amount: parseFloat(values.amount),
+        date: values.date.toISOString(),
+      };
+
+      await addExpense(user.uid, expenseData);
+      form.reset();
+      // Optionally show success message or redirect
+    } catch (error) {
+      console.error("Error adding expense:", error);
+      // Handle error (show error message to user)
+    }
   }
 
   if (loading) {
