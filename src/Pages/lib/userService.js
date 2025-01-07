@@ -30,10 +30,20 @@ export const createOrUpdateUser = async (uid, userData) => {
 export const updateUserAccounts = async (uid, accounts) => {
   try {
     const userRef = doc(db, "users", uid);
+    
+    // Serialize the accounts data to ensure it's Firebase-friendly
+    const serializedAccounts = accounts.map(account => ({
+      name: account.name,
+      balance: account.balance,
+      iconType: account.iconType || account.name // Store icon type instead of React component
+    }));
+
     await setDoc(userRef, {
-      accounts,
+      accounts: serializedAccounts,
       updatedAt: new Date().toISOString()
     }, { merge: true });
+
+    return serializedAccounts;
   } catch (error) {
     console.error("Error updating accounts:", error);
     throw error;

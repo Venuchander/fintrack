@@ -36,10 +36,14 @@ import {
 const iconMap = {
   "Credit Card": <CreditCard className="w-5 h-5" />,
   "Debit Card": <Wallet className="w-5 h-5" />,
-  Savings: <PiggyBank className="w-5 h-5" />,
-  Cash: <DollarSign className="w-5 h-5" />,
-  UPI: <Smartphone className="w-5 h-5" />,
+  "Savings": <PiggyBank className="w-5 h-5" />,
+  "Cash": <DollarSign className="w-5 h-5" />,
+  "UPI": <Smartphone className="w-5 h-5" />,
   "Bit Coin": <Bitcoin className="w-5 h-5" />,
+};
+
+const getIconComponent = (iconType) => {
+  return iconMap[iconType] || <CreditCard className="w-5 h-5" />;
 };
 
 export default function IncomeDashboard() {
@@ -56,10 +60,18 @@ export default function IncomeDashboard() {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setUser(user);
-        // Fetch user data including accounts
-        const userData = await getUserData(user.uid);
-        if (userData?.accounts) {
-          setAccounts(userData.accounts);
+        try {
+          const userData = await getUserData(user.uid);
+          if (userData?.accounts) {
+            // Transform stored accounts back into displayable format
+            const displayAccounts = userData.accounts.map(account => ({
+              ...account,
+              icon: getIconComponent(account.iconType || account.name)
+            }));
+            setAccounts(displayAccounts);
+          }
+        } catch (error) {
+          console.error("Error fetching accounts:", error);
         }
       } else {
         navigate("/login");
@@ -75,45 +87,58 @@ export default function IncomeDashboard() {
   };
 
   const handleBalanceChange = async (index, newBalance) => {
-    const updatedAccounts = [...accounts];
-    updatedAccounts[index].balance = Number(newBalance);
-    setAccounts(updatedAccounts);
-    setEditingId(null);
-    
-    // Update accounts in Firebase
-    if (user) {
-      await updateUserAccounts(user.uid, updatedAccounts);
+    try {
+      const updatedAccounts = [...accounts];
+      updatedAccounts[index].balance = Number(newBalance);
+      setAccounts(updatedAccounts);
+      setEditingId(null);
+      
+      if (user) {
+        await updateUserAccounts(user.uid, updatedAccounts);
+      }
+    } catch (error) {
+      console.error("Error updating balance:", error);
+      // Handle error (show error message to user)
     }
   };
 
   const handleAddAccount = async () => {
     if (newAccount.name && newAccount.balance) {
-      const updatedAccounts = [
-        ...accounts,
-        {
+      try {
+        const newAccountWithIcon = {
           name: newAccount.name,
           balance: Number(newAccount.balance),
-          icon: iconMap[newAccount.name] || <CreditCard className="w-5 h-5" />,
-        },
-      ];
-      setAccounts(updatedAccounts);
-      setNewAccount({ name: "", balance: "" });
-      setIsAddingAccount(false);
-      
-      // Update accounts in Firebase
-      if (user) {
-        await updateUserAccounts(user.uid, updatedAccounts);
+          iconType: newAccount.name,
+          icon: getIconComponent(newAccount.name)
+        };
+
+        const updatedAccounts = [...accounts, newAccountWithIcon];
+        setAccounts(updatedAccounts);
+        
+        if (user) {
+          await updateUserAccounts(user.uid, updatedAccounts);
+        }
+
+        setNewAccount({ name: "", balance: "" });
+        setIsAddingAccount(false);
+      } catch (error) {
+        console.error("Error adding account:", error);
+        // Handle error (show error message to user)
       }
     }
   };
 
   const handleDeleteAccount = async (index) => {
-    const updatedAccounts = accounts.filter((_, i) => i !== index);
-    setAccounts(updatedAccounts);
-    
-    // Update accounts in Firebase
-    if (user) {
-      await updateUserAccounts(user.uid, updatedAccounts);
+    try {
+      const updatedAccounts = accounts.filter((_, i) => i !== index);
+      setAccounts(updatedAccounts);
+      
+      if (user) {
+        await updateUserAccounts(user.uid, updatedAccounts);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      // Handle error (show error message to user)
     }
   };
 
