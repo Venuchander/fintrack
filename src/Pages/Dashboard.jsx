@@ -14,18 +14,7 @@ import {
   Legend
 } from 'chart.js'
 import { Bar, Doughnut, Line } from "react-chartjs-2"
-import { 
-  Menu, 
-  ChevronDown, 
-  DollarSign, 
-  PieChart, 
-  MessageSquare, 
-  Brain, 
-  LogOut, 
-  Wallet, 
-  TrendingUp, 
-  CreditCard 
-} from 'lucide-react'
+import { Menu, ChevronDown, DollarSign, PieChart, MessageSquare, Brain, LogOut, Wallet, TrendingUp, CreditCard, Wifi } from 'lucide-react'
 import { Button } from "../components/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "../components/components/ui/card"
 import { Input } from "../components/components/ui/input"
@@ -170,6 +159,16 @@ function Dashboard() {
     }
   }
 
+  const bankData = [
+    { name: "Chase Bank", amount: "$5,750" },
+    { name: "Wells Fargo", amount: "$3,200" }
+  ]
+
+  const creditCardData = [
+    { name: "Chase Sapphire", amount: "$1,500", number: "4321", expiryMonth: "12", expiryYear: "25", type: "visa" },
+    { name: "American Express", amount: "$2,300", number: "9876", expiryMonth: "06", expiryYear: "24", type: "amex" }
+  ]
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -245,6 +244,59 @@ function Dashboard() {
                         <div className="bg-blue-600 h-2.5 rounded-full" style={{width: item.progress}}></div>
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Bank Cards */}
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {bankData.map((bank, index) => (
+                <Card key={index} className="bg-blue-50">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{bank.name}</CardTitle>
+                    <Wallet className="h-4 w-4 text-blue-600" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold text-blue-600">{bank.amount}</div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Credit Card Cards */}
+            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {creditCardData.map((card, index) => (
+                <Card key={index} className="overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className={`h-48 p-6 flex flex-col justify-between ${
+                      card.type === 'amex' ? 'bg-gradient-to-br from-green-400 to-blue-500' : 'bg-gradient-to-br from-purple-500 to-pink-500'
+                    }`}>
+                      <div className="flex justify-between items-start">
+                        <Wifi className="h-8 w-8 text-white opacity-75" />
+                        <span className="text-white font-bold">{card.name}</span>
+                      </div>
+                      <div className="text-white">
+                        <div className="mb-4">
+                          <span className="text-2xl tracking-wider">•••• •••• •••• {card.number}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <div>
+                            <p className="text-xs opacity-75">Expires</p>
+                            <p className="font-bold">{card.expiryMonth}/{card.expiryYear}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs opacity-75">Balance</p>
+                            <p className="font-bold">{card.amount}</p>
+                          </div>
+                          {card.type === 'visa' ? (
+                            <span className="text-2xl font-bold italic">VISA</span>
+                          ) : (
+                            <span className="text-2xl font-bold">AMEX</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -334,3 +386,4 @@ function Dashboard() {
 }
 
 export default Dashboard
+

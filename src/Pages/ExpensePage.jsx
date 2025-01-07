@@ -49,9 +49,10 @@ const formSchema = z.object({
     required_error: "Please select a category",
   }),
   description: z.string().optional(),
-  paymentMethod: z.enum(["cash", "credit", "debit", "digital"], {
+  paymentMethod: z.enum(["cash", "credit1", "credit2", "bank1", "bank2"], {
     required_error: "Please select a payment method",
   }),
+  bankPaymentType: z.enum(["upi", "debit"]).optional(),
 })
 
 function AddExpense() {
@@ -63,6 +64,9 @@ function AddExpense() {
 
   const form = useForm({
     resolver: zodResolver(formSchema),
+    defaultValues: {
+      paymentMethod: "cash",
+    },
   });
 
   useEffect(() => {
@@ -83,6 +87,11 @@ function AddExpense() {
         amount: parseFloat(values.amount),
         date: values.date.toISOString(),
       };
+
+      // Remove bankPaymentType if it's not applicable
+      if (values.paymentMethod !== "bank1" && values.paymentMethod !== "bank2") {
+        delete expenseData.bankPaymentType;
+      }
 
       await addExpense(user.uid, expenseData);
       form.reset();
@@ -265,8 +274,13 @@ function AddExpense() {
                           <FormLabel>Payment Method *</FormLabel>
                           <FormControl>
                             <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                                if (value !== "bank1" && value !== "bank2") {
+                                  form.setValue("bankPaymentType", undefined);
+                                }
+                              }}
+                              value={field.value}
                               className="flex flex-wrap gap-4"
                             >
                               <FormItem className="flex items-center space-x-3 space-y-0">
@@ -277,21 +291,27 @@ function AddExpense() {
                               </FormItem>
                               <FormItem className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
-                                  <RadioGroupItem value="credit" />
+                                  <RadioGroupItem value="credit1" />
                                 </FormControl>
-                                <FormLabel className="font-normal">Credit Card</FormLabel>
+                                <FormLabel className="font-normal">Credit Card 1</FormLabel>
                               </FormItem>
                               <FormItem className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
-                                  <RadioGroupItem value="debit" />
+                                  <RadioGroupItem value="credit2" />
                                 </FormControl>
-                                <FormLabel className="font-normal">Debit Card</FormLabel>
+                                <FormLabel className="font-normal">Credit Card 2</FormLabel>
                               </FormItem>
                               <FormItem className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
-                                  <RadioGroupItem value="digital" />
+                                  <RadioGroupItem value="bank1" />
                                 </FormControl>
-                                <FormLabel className="font-normal">Digital Wallet</FormLabel>
+                                <FormLabel className="font-normal">Bank 1</FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-3 space-y-0">
+                                <FormControl>
+                                  <RadioGroupItem value="bank2" />
+                                </FormControl>
+                                <FormLabel className="font-normal">Bank 2</FormLabel>
                               </FormItem>
                             </RadioGroup>
                           </FormControl>
@@ -299,6 +319,45 @@ function AddExpense() {
                         </FormItem>
                       )}
                     />
+
+                    {(form.watch("paymentMethod") === "bank1" || form.watch("paymentMethod") === "bank2") && (
+                      <FormField
+                        control={form.control}
+                        name="bankPaymentType"
+                        render={({ field }) => (
+                          <FormItem className="space-y-3">
+                            <FormLabel>Bank Payment Type *</FormLabel>
+                            <FormControl>
+                              <RadioGroup
+                                onValueChange={field.onChange}
+                                value={field.value}
+                                className="flex flex-wrap gap-4"
+                              >
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value="upi" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">UPI</FormLabel>
+                                </FormItem>
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value="debit" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">Debit Card</FormLabel>
+                                </FormItem>
+                                <FormItem className="flex items-center space-x-3 space-y-0">
+                                  <FormControl>
+                                    <RadioGroupItem value="debit" />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">Check</FormLabel>
+                                </FormItem>
+                              </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
                     <div className="flex justify-end gap-4">
                       <Button variant="outline" type="button" 
@@ -319,3 +378,4 @@ function AddExpense() {
 }
 
 export default AddExpense
+
