@@ -1,6 +1,5 @@
-// ExpensePage.jsx
 import { useState, useEffect } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { auth } from "./lib/firebase"
 import { addExpense } from "./lib/userService"
 import { Calendar } from "../components/components/ui/calendar"
@@ -18,7 +17,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -34,10 +32,10 @@ import {
 import { Input } from "../components/components/ui/input"
 import { Textarea } from "../components/components/ui/textarea"
 import { RadioGroup, RadioGroupItem } from "../components/components/ui/radio-group"
-import { Switch } from "../components/components/ui/switch"
 import { Popover, PopoverContent, PopoverTrigger } from "../components/components/ui/popover"
+import { Alert, AlertDescription } from "../components/components/ui/alert"
 import { cn } from "../components/components/lib/utils"
-import { CalendarIcon, Upload } from 'lucide-react'
+import { CalendarIcon, CheckCircle2 } from 'lucide-react'
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -54,8 +52,6 @@ const formSchema = z.object({
   paymentMethod: z.enum(["cash", "credit", "debit", "digital"], {
     required_error: "Please select a payment method",
   }),
-  receipt: z.string().optional(),
-  isRecurring: z.boolean().default(false),
 })
 
 function AddExpense() {
@@ -63,10 +59,10 @@ function AddExpense() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: { isRecurring: false },
   });
 
   useEffect(() => {
@@ -82,29 +78,22 @@ function AddExpense() {
     try {
       if (!user) return;
 
-      // Convert File object to base64 if receipt exists
-      let receiptData = null;
-      if (values.receipt instanceof File) {
-        receiptData = await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(values.receipt);
-        });
-      }
-
       const expenseData = {
         ...values,
-        receipt: receiptData,
         amount: parseFloat(values.amount),
         date: values.date.toISOString(),
       };
 
       await addExpense(user.uid, expenseData);
       form.reset();
-      // Optionally show success message or redirect
+      setShowSuccess(true);
+      
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        setShowSuccess(false);
+      }, 3000);
     } catch (error) {
       console.error("Error adding expense:", error);
-      // Handle error (show error message to user)
     }
   }
 
@@ -115,7 +104,7 @@ function AddExpense() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
+    <div className="flex h-screen bg-gray-100">
       {isSidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
           onClick={() => setIsSidebarOpen(false)} />
@@ -127,7 +116,7 @@ function AddExpense() {
         user={user}
       />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col max-h-screen">
         <header className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
@@ -142,7 +131,18 @@ function AddExpense() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4">
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-2xl mx-auto space-y-4">
+            {showSuccess && (
+              <div className="animate-in slide-in-from-top-2 duration-300">
+                <Alert className="bg-green-50 border-green-200">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <AlertDescription className="text-green-800">
+                    Expense added successfully!
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle>Add New Expense</CardTitle>
@@ -160,8 +160,8 @@ function AddExpense() {
                             <FormLabel>Amount *</FormLabel>
                             <FormControl>
                               <div className="relative">
-                                <span className="absolute left-3 top-2.5">$</span>
-                                <Input placeholder="0.00" className="pl-6" {...field} />
+                                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 font-medium">₹</span>
+                                <Input placeholder="0.00" className="pl-7" {...field} />
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -300,72 +300,11 @@ function AddExpense() {
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="receipt"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Attach Receipt</FormLabel>
-                          <FormControl>
-                            <div
-                              className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-gray-400 transition-colors"
-                              onClick={() => document.getElementById('file-upload')?.click()}
-                              onDragOver={(e) => e.preventDefault()}
-                              onDrop={(e) => {
-                                e.preventDefault()
-                                const file = e.dataTransfer.files?.[0]
-                                if (file) field.onChange(file)
-                              }}
-                            >
-                              <Input
-                                id="file-upload"
-                                type="file"
-                                className="hidden"
-                                accept="image/png,image/jpeg"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0]
-                                  if (file) field.onChange(file)
-                                }}
-                              />
-                              <Upload className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-                              <div className="text-sm text-gray-600">
-                                <span className="text-blue-600">Upload a file</span> or drag and drop
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                PNG, JPG up to 10MB
-                              </div>
-                              {field.value && (
-                                <div className="mt-2 text-sm text-green-600">
-                                  Selected: {field.value instanceof File ? field.value.name : field.value}
-                                </div>
-                              )}
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="isRecurring"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg">
-                          <div className="space-y-0.5">
-                            <FormLabel>Recurring Expense</FormLabel>
-                          </div>
-                          <FormControl>
-                            <Switch
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
                     <div className="flex justify-end gap-4">
-                      <Button variant="outline" type="button">Cancel</Button>
+                      <Button variant="outline" type="button" 
+                        onClick={() => form.reset()}>
+                        Cancel
+                      </Button>
                       <Button type="submit">Add Expense</Button>
                     </div>
                   </form>
