@@ -13,11 +13,15 @@ import { GoogleGenerativeAI } from "@google/generative-ai"
 import axios from 'axios'
 import ProfileButton from './profile'
 import Sidebar from './Sidebar'
-
+import { getAuth } from 'firebase/auth'
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI("AIzaSyDAlB1aWf6GFj1cORf1pI5oh9K_adYsXLg")
+const genAI = new GoogleGenerativeAI("GeminiAPIKey")
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
+
+const auth = getAuth()
+const db = getFirestore()
 // Create chat history
 let chatHistory = []
 
@@ -40,6 +44,13 @@ export default function ChatbotPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [user, setUser] = useState(null)
   const messagesEndRef = useRef(null)
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user)
+    })
+    return () => unsubscribe()
+  }, [])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -89,22 +100,40 @@ export default function ChatbotPage() {
   }
 
   const handleCall = async () => {
-    const BLAND_API_KEY = "Bland_Api"
-    const callData = {
-      phone_number: "+91" + "9360658717",
-      task: "financial_consultation",
-      model: "enhanced",
-      voice: "nat",
-      max_duration: 15,
-      record: true
-    }
-
-    const headers = {
-      'Authorization': `Bearer ${BLAND_API_KEY}`,
-      'Content-Type': 'application/json',
+    if (!user) {
+      alert('Please log in to make a call')
+      return
     }
 
     try {
+      // Get user data from Firestore
+      const userDoc = await getDoc(doc(db, 'users', user.uid))
+      if (!userDoc.exists()) {
+        alert('User profile not found')
+        return
+      }
+
+      const userPhoneNumber = userDoc.data().phoneNumber
+      if (!userPhoneNumber) {
+        alert('Phone number not found in your profile')
+        return
+      }
+
+      const BLAND_API_KEY = "BlandAPIKey"
+      const callData = {
+        phone_number: userPhoneNumber.startsWith('+') ? userPhoneNumber : `+${userPhoneNumber}`,
+        task: "financial_consultation",
+        model: "enhanced",
+        voice: "nat",
+        max_duration: 15,
+        record: true
+      }
+
+      const headers = {
+        'Authorization': `Bearer ${BLAND_API_KEY}`,
+        'Content-Type': 'application/json',
+      }
+
       const response = await axios.post('https://api.bland.ai/v1/calls', callData, { headers })
       if (response.status === 200) {
         alert(`Financial consultation call initiated! Call ID: ${response.data.id}`)
