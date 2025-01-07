@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { auth } from "./lib/firebase"
+import { getUserData } from "./lib/userService"
 import { 
   Chart as ChartJS, 
   CategoryScale,
@@ -53,13 +54,22 @@ function Dashboard() {
   const navigate = useNavigate()
   const location = useLocation()
   const [user, setUser] = useState(null)
+  const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [selectedTransactionType, setSelectedTransactionType] = useState("all")
 
+  // Fetch user data when auth state changes
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         setUser(user)
+        try {
+          const data = await getUserData(user.uid)
+          setUserData(data)
+        } catch (error) {
+          console.error("Error fetching user data:", error)
+        }
       } else {
         navigate("/login")
       }
@@ -78,96 +88,164 @@ function Dashboard() {
     }
   }
 
-  const expenseData = {
-    labels: ['Housing', 'Transportation', 'Food', 'Utilities', 'Insurance', 'Healthcare', 'Savings', 'Personal'],
-    datasets: [
-      {
-        data: [35, 15, 15, 10, 5, 5, 10, 5],
+  const getCardBackground = (cardType) => {
+    const types = {
+      visa: 'from-purple-500 to-pink-500',
+      mastercard: 'from-orange-500 to-red-500',
+      rupay: 'from-indigo-500 to-blue-500',
+      amex: 'from-green-400 to-blue-500',
+      discover: 'from-yellow-400 to-orange-500'
+    }
+    return types[cardType?.toLowerCase()] || 'from-gray-500 to-gray-700'
+  }
+
+  const getCardBranding = (cardType) => {
+    const type = cardType?.toLowerCase()
+    switch(type) {
+      case 'visa':
+        return <span className="text-2xl font-bold italic">VISA</span>
+      case 'mastercard':
+        return <span className="text-2xl font-bold">MASTERCARD</span>
+      case 'rupay':
+        return <span className="text-2xl font-bold">RUPAY</span>
+      case 'american express':
+        return <span className="text-2xl font-bold">AMEX</span>
+      case 'discover':
+        return <span className="text-2xl font-bold">DISCOVER</span>
+      default:
+        return <span className="text-2xl font-bold">{cardType?.toUpperCase()}</span>
+    }
+  }
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+
+  // Calculate monthly income and expenses
+  const calculateMonthlyFinances = () => {
+    if (!userData?.expenses) return { income: 0, expenses: 0 }
+
+    const currentMonth = new Date().getMonth()
+    const currentYear = new Date().getFullYear()
+
+    const monthlyTransactions = userData.expenses.filter(expense => {
+      const expenseDate = new Date(expense.createdAt)
+      return expenseDate.getMonth() === currentMonth && 
+             expenseDate.getFullYear() === currentYear
+    })
+
+    const income = monthlyTransactions
+      .filter(t => t.amount > 0)
+      .reduce((sum, t) => sum + t.amount, 0)
+
+    const expenses = monthlyTransactions
+      .filter(t => t.amount < 0)
+      .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+
+    return { income, expenses }
+  }
+
+  // Prepare data for expense breakdown chart
+  const prepareExpenseData = () => {
+    if (!userData?.expenses) return null
+
+    const categories = {}
+    userData.expenses
+      .filter(expense => expense.amount < 0)
+      .forEach(expense => {
+        categories[expense.category] = (categories[expense.category] || 0) + Math.abs(expense.amount)
+      })
+
+    const total = Object.values(categories).reduce((sum, amount) => sum + amount, 0)
+    const percentages = Object.entries(categories).map(([category, amount]) => ({
+      category,
+      percentage: ((amount / total) * 100).toFixed(1)
+    }))
+
+    return {
+      labels: percentages.map(item => item.category),
+      datasets: [{
+        data: percentages.map(item => item.percentage),
         backgroundColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#7CFC00', '#FF69B4'
-        ],
-        hoverBackgroundColor: [
-          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#7CFC00', '#FF69B4'
+          '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', 
+          '#FF9F40', '#7CFC00', '#FF69B4'
         ]
-      }
-    ]
-  }
-
-  const incomeVsExpenseData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Income',
-        data: [4500, 4200, 4800, 5000, 4700, 5200],
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 1
-      },
-      {
-        label: 'Expense',
-        data: [3500, 3700, 3600, 3800, 3500, 3900],
-        backgroundColor: 'rgba(255, 99, 132, 0.6)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 1
-      }
-    ]
-  }
-
-  const savingsGoalData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Actual Savings',
-        data: [500, 1000, 1500, 2200, 2800, 3500],
-        borderColor: 'rgba(75, 192, 192, 1)',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderWidth: 2,
-        fill: true
-      },
-      {
-        label: 'Savings Goal',
-        data: [1000, 2000, 3000, 4000, 5000, 6000],
-        borderColor: 'rgba(255, 159, 64, 1)',
-        backgroundColor: 'rgba(255, 159, 64, 0.2)',
-        borderWidth: 2,
-        borderDash: [5, 5],
-        fill: false
-      }
-    ]
-  }
-
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: 'bottom',
-      }
+      }]
     }
   }
 
-  const barChartOptions = {
-    ...chartOptions,
-    scales: {
-      x: {
-        stacked: false,
-      },
-      y: {
-        stacked: false,
-        beginAtZero: true
-      }
+  // Prepare data for income vs expense chart
+  const prepareIncomeVsExpenseData = () => {
+    if (!userData?.expenses) return null
+
+    const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+    const currentMonth = new Date().getMonth()
+    const startMonth = currentMonth - 5
+    
+    const monthlyData = Array(6).fill(0).map((_, index) => {
+      const month = (startMonth + index + 12) % 12
+      const year = new Date().getFullYear() - (month > currentMonth ? 1 : 0)
+      
+      const monthTransactions = userData.expenses.filter(expense => {
+        const expenseDate = new Date(expense.createdAt)
+        return expenseDate.getMonth() === month && 
+               expenseDate.getFullYear() === year
+      })
+
+      const income = monthTransactions
+        .filter(t => t.amount > 0)
+        .reduce((sum, t) => sum + t.amount, 0)
+
+      const expenses = monthTransactions
+        .filter(t => t.amount < 0)
+        .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+
+      return { month: monthLabels[month], income, expenses }
+    })
+
+    return {
+      labels: monthlyData.map(d => d.month),
+      datasets: [
+        {
+          label: 'Income',
+          data: monthlyData.map(d => d.income),
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Expense',
+          data: monthlyData.map(d => d.expenses),
+          backgroundColor: 'rgba(255, 99, 132, 0.6)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }
+      ]
     }
   }
 
-  const bankData = [
-    { name: "Chase Bank", amount: "$5,750" },
-    { name: "Wells Fargo", amount: "$3,200" }
-  ]
+  // Filter transactions based on selected type
+  const getFilteredTransactions = () => {
+    if (!userData?.expenses) return []
+    
+    return userData.expenses
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .filter(transaction => {
+        if (selectedTransactionType === "all") return true
+        if (selectedTransactionType === "income") return transaction.amount > 0
+        if (selectedTransactionType === "expense") return transaction.amount < 0
+        return true
+      })
+      .slice(0, 5) // Show only last 5 transactions
+  }
 
-  const creditCardData = [
-    { name: "Chase Sapphire", amount: "$1,500", number: "4321", expiryMonth: "12", expiryYear: "25", type: "visa" },
-    { name: "American Express", amount: "$2,300", number: "9876", expiryMonth: "06", expiryYear: "24", type: "amex" }
-  ]
+  const { income: monthlyIncome, expenses: monthlyExpenses } = calculateMonthlyFinances()
+  const expenseData = prepareExpenseData()
+  const incomeVsExpenseData = prepareIncomeVsExpenseData()
 
   if (loading) {
     return (
@@ -223,10 +301,27 @@ function Dashboard() {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { title: "Total Balance", amount: "$12,750", change: "+2.5%", trend: "up", icon: Wallet },
-                { title: "Monthly Income", amount: "$5,240", change: "+3.2%", trend: "up", icon: TrendingUp },
-                { title: "Monthly Expenses", amount: "$3,890", change: "-1.5%", trend: "down", icon: CreditCard },
-                { title: "Savings Goal", amount: "$15,000", progress: "65%", icon: PieChart },
+                { 
+                  title: "Total Balance", 
+                  amount: formatCurrency(userData?.totalBalance || 0),
+                  icon: Wallet 
+                },
+                { 
+                  title: "Monthly Income", 
+                  amount: formatCurrency(monthlyIncome),
+                  icon: TrendingUp 
+                },
+                { 
+                  title: "Monthly Expenses", 
+                  amount: formatCurrency(monthlyExpenses),
+                  icon: CreditCard 
+                },
+                { 
+                  title: "Savings Goal", 
+                  amount: formatCurrency(15000), 
+                  progress: "65%", 
+                  icon: PieChart 
+                },
               ].map((item, index) => (
                 <Card key={index}>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -235,13 +330,12 @@ function Dashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">{item.amount}</div>
-                    {item.change ? (
-                      <p className={`text-xs ${item.trend === "up" ? "text-green-500" : "text-red-500"}`}>
-                        {item.change} from last month
-                      </p>
-                    ) : (
+                    {item.progress && (
                       <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div className="bg-blue-600 h-2.5 rounded-full" style={{width: item.progress}}></div>
+                        <div 
+                          className="bg-blue-600 h-2.5 rounded-full" 
+                          style={{width: item.progress}}
+                        />
                       </div>
                     )}
                   </CardContent>
@@ -249,51 +343,53 @@ function Dashboard() {
               ))}
             </div>
 
-            {/* Bank Cards */}
+            {/* Bank Accounts */}
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {bankData.map((bank, index) => (
+              {userData?.accounts
+                ?.filter(account => account.type === "Bank")
+                ?.map((account, index) => (
                 <Card key={index} className="bg-blue-50">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{bank.name}</CardTitle>
+                    <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
                     <Wallet className="h-4 w-4 text-blue-600" />
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold text-blue-600">{bank.amount}</div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {formatCurrency(account.balance)}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
 
-            {/* Credit Card Cards */}
+            {/* Credit Cards */}
             <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {creditCardData.map((card, index) => (
+              {userData?.accounts
+                ?.filter(account => account.type === "Credit")
+                ?.map((card, index) => (
                 <Card key={index} className="overflow-hidden">
                   <CardContent className="p-0">
-                    <div className={`h-48 p-6 flex flex-col justify-between ${
-                      card.type === 'amex' ? 'bg-gradient-to-br from-green-400 to-blue-500' : 'bg-gradient-to-br from-purple-500 to-pink-500'
-                    }`}>
+                    <div className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(card.cardType)}`}>
                       <div className="flex justify-between items-start">
                         <Wifi className="h-8 w-8 text-white opacity-75" />
                         <span className="text-white font-bold">{card.name}</span>
                       </div>
                       <div className="text-white">
                         <div className="mb-4">
-                          <span className="text-2xl tracking-wider">•••• •••• •••• {card.number}</span>
+                          <span className="text-2xl tracking-wider">
+                          •••• •••• •••• {card.cardNumber?.slice(-4) || '****'}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <div>
                             <p className="text-xs opacity-75">Expires</p>
-                            <p className="font-bold">{card.expiryMonth}/{card.expiryYear}</p>
+                            <p className="font-bold">{card.expiryDate || 'MM/YY'}</p>
                           </div>
                           <div>
                             <p className="text-xs opacity-75">Balance</p>
-                            <p className="font-bold">{card.amount}</p>
+                            <p className="font-bold">{formatCurrency(card.balance)}</p>
                           </div>
-                          {card.type === 'visa' ? (
-                            <span className="text-2xl font-bold italic">VISA</span>
-                          ) : (
-                            <span className="text-2xl font-bold">AMEX</span>
-                          )}
+                          {getCardBranding(card.cardType)}
                         </div>
                       </div>
                     </div>
@@ -303,24 +399,47 @@ function Dashboard() {
             </div>
 
             {/* Charts */}
-            <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Income vs Expenses</CardTitle>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <Bar data={incomeVsExpenseData} options={barChartOptions} />
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <CardTitle>Expense Breakdown</CardTitle>
-                </CardHeader>
-                <CardContent className="h-[300px]">
-                  <Doughnut data={expenseData} options={chartOptions} />
-                </CardContent>
-              </Card>
-            </div>
+            {incomeVsExpenseData && expenseData && (
+              <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Income vs Expenses</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-[300px]">
+                    <Bar 
+                      data={incomeVsExpenseData} 
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                          x: { stacked: false },
+                          y: { stacked: false, beginAtZero: true }
+                        }
+                      }} 
+                    />
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Expense Breakdown</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-[300px]">
+                  <Doughnut 
+                      data={expenseData}
+                      options={{
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                          legend: {
+                            position: 'bottom'
+                          }
+                        }
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
             {/* Savings Goal Chart */}
             <Card className="mt-8">
@@ -328,7 +447,39 @@ function Dashboard() {
                 <CardTitle>Savings Goal Progress</CardTitle>
               </CardHeader>
               <CardContent className="h-[300px]">
-                <Line data={savingsGoalData} options={chartOptions} />
+                <Line 
+                  data={{
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                      {
+                        label: 'Actual Savings',
+                        data: userData?.savingsProgress || [500, 1000, 1500, 2200, 2800, 3500],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderWidth: 2,
+                        fill: true
+                      },
+                      {
+                        label: 'Savings Goal',
+                        data: [1000, 2000, 3000, 4000, 5000, 6000],
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false
+                      }
+                    ]
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: {
+                        position: 'bottom'
+                      }
+                    }
+                  }}
+                />
               </CardContent>
             </Card>
 
@@ -336,7 +487,10 @@ function Dashboard() {
             <Card className="mt-8">
               <CardHeader className="flex justify-between items-center">
                 <CardTitle>Recent Transactions</CardTitle>
-                <Select defaultValue="all">
+                <Select 
+                  value={selectedTransactionType}
+                  onValueChange={setSelectedTransactionType}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Filter by category" />
                   </SelectTrigger>
@@ -358,20 +512,20 @@ function Dashboard() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {[
-                      { name: "Salary Deposit", category: "Income", amount: "+$3,500.00", date: "Jul 1, 2025" },
-                      { name: "Rent Payment", category: "Housing", amount: "-$1,200.00", date: "Jul 1, 2025" },
-                      { name: "Grocery Shopping", category: "Food", amount: "-$85.50", date: "Jun 30, 2025" },
-                      { name: "Freelance Work", category: "Income", amount: "+$750.00", date: "Jun 29, 2025" },
-                      { name: "Electric Bill", category: "Utilities", amount: "-$95.20", date: "Jun 28, 2025" },
-                    ].map((transaction, index) => (
+                    {getFilteredTransactions().map((transaction, index) => (
                       <TableRow key={index}>
-                        <TableCell className="font-medium">{transaction.name}</TableCell>
-                        <TableCell>{transaction.category}</TableCell>
-                        <TableCell className={transaction.amount.startsWith('+') ? 'text-green-600' : 'text-red-600'}>
-                          {transaction.amount}
+                        <TableCell className="font-medium">
+                          {transaction.description}
                         </TableCell>
-                        <TableCell>{transaction.date}</TableCell>
+                        <TableCell>{transaction.category}</TableCell>
+                        <TableCell 
+                          className={transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}
+                        >
+                          {transaction.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(transaction.createdAt).toLocaleDateString('en-IN')}
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -386,4 +540,3 @@ function Dashboard() {
 }
 
 export default Dashboard
-
