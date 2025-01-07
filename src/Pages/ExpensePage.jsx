@@ -1,19 +1,20 @@
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { auth } from "./lib/firebase"
-import { addExpense } from "./lib/userService"
-import { Calendar } from "../components/components/ui/calendar"
-import { Button } from "../components/components/ui/button"
-import { format } from "date-fns"
-import ProfileButton from './profile'
-import Sidebar from './Sidebar'
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth, db } from "./lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { addExpense } from "./lib/userService";
+import { Calendar } from "../components/components/ui/calendar";
+import { Button } from "../components/components/ui/button";
+import { format } from "date-fns";
+import ProfileButton from './profile';
+import Sidebar from './Sidebar';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/components/ui/card"
+} from "../components/components/ui/card";
 import {
   Form,
   FormControl,
@@ -21,24 +22,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../components/components/ui/form"
+} from "../components/components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/components/ui/select"
-import { Input } from "../components/components/ui/input"
-import { Textarea } from "../components/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "../components/components/ui/radio-group"
-import { Popover, PopoverContent, PopoverTrigger } from "../components/components/ui/popover"
-import { Alert, AlertDescription } from "../components/components/ui/alert"
-import { cn } from "../components/components/lib/utils"
-import { CalendarIcon, CheckCircle2 } from 'lucide-react'
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
+} from "../components/components/ui/select";
+import { Input } from "../components/components/ui/input";
+import { Textarea } from "../components/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "../components/components/ui/radio-group";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/components/ui/popover";
+import { Alert, AlertDescription } from "../components/components/ui/alert";
+import { cn } from "../components/components/lib/utils";
+import { CalendarIcon, CheckCircle2 } from 'lucide-react';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -49,11 +50,11 @@ const formSchema = z.object({
     required_error: "Please select a category",
   }),
   description: z.string().optional(),
-  paymentMethod: z.enum(["cash", "credit1", "credit2", "bank1", "bank2"], {
+  paymentMethod: z.string({
     required_error: "Please select a payment method",
   }),
-  bankPaymentType: z.enum(["upi", "debit"]).optional(),
-})
+  bankPaymentType: z.enum(["upi", "debit", "check"]).optional(),
+});
 
 function AddExpense() {
   const navigate = useNavigate();
@@ -61,6 +62,8 @@ function AddExpense() {
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [bankAccounts, setBankAccounts] = useState([]);
+  const [creditCards, setCreditCards] = useState([]);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -70,11 +73,35 @@ function AddExpense() {
   });
 
   useEffect(() => {
+    const fetchUserData = async (userId) => {
+      try {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const accounts = userData.accounts || [];
+
+          // Separate bank accounts and credit cards
+          const banks = accounts.filter(account => account.type === "Bank");
+          const cards = accounts.filter(account => account.type === "Credit");
+
+          setBankAccounts(banks);
+          setCreditCards(cards);
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) setUser(user);
-      else navigate("/login");
+      if (user) {
+        setUser(user);
+        fetchUserData(user.uid);
+      } else {
+        navigate("/login");
+      }
       setLoading(false);
     });
+
     return () => unsubscribe();
   }, [navigate]);
 
@@ -88,15 +115,22 @@ function AddExpense() {
         date: values.date.toISOString(),
       };
 
-      // Remove bankPaymentType if it's not applicable
-      if (values.paymentMethod !== "bank1" && values.paymentMethod !== "bank2") {
+      // Extract payment method type and ID
+      const [methodType, methodId] = values.paymentMethod.split('_');
+      expenseData.paymentMethodType = methodType;
+      if (methodId) {
+        expenseData.paymentMethodId = methodId;
+      }
+
+      // Remove bankPaymentType if it's not a bank payment
+      if (!values.paymentMethod.startsWith('bank_')) {
         delete expenseData.bankPaymentType;
       }
 
       await addExpense(user.uid, expenseData);
       form.reset();
       setShowSuccess(true);
-      
+
       // Hide success message after 3 seconds
       setTimeout(() => {
         setShowSuccess(false);
@@ -107,9 +141,11 @@ function AddExpense() {
   }
 
   if (loading) {
-    return <div className="flex h-screen items-center justify-center">
-      <div className="text-xl font-semibold">Loading...</div>
-    </div>
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-xl font-semibold">Loading...</div>
+      </div>
+    );
   }
 
   return (
@@ -274,12 +310,7 @@ function AddExpense() {
                           <FormLabel>Payment Method *</FormLabel>
                           <FormControl>
                             <RadioGroup
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                if (value !== "bank1" && value !== "bank2") {
-                                  form.setValue("bankPaymentType", undefined);
-                                }
-                              }}
+                              onValueChange={field.onChange}
                               value={field.value}
                               className="flex flex-wrap gap-4"
                             >
@@ -289,30 +320,30 @@ function AddExpense() {
                                 </FormControl>
                                 <FormLabel className="font-normal">Cash</FormLabel>
                               </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value="credit1" />
-                                </FormControl>
-                                <FormLabel className="font-normal">Credit Card 1</FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value="credit2" />
-                                </FormControl>
-                                <FormLabel className="font-normal">Credit Card 2</FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value="bank1" />
-                                </FormControl>
-                                <FormLabel className="font-normal">Bank 1</FormLabel>
-                              </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0">
-                                <FormControl>
-                                  <RadioGroupItem value="bank2" />
-                                </FormControl>
-                                <FormLabel className="font-normal">Bank 2</FormLabel>
-                              </FormItem>
+
+                              {creditCards.map((card) => (
+                                <FormItem
+                                  key={card.id}
+                                  className="flex items-center space-x-3 space-y-0"
+                                >
+                                  <FormControl>
+                                    <RadioGroupItem value={`credit_${card.id}`} />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">{card.name}</FormLabel>
+                                </FormItem>
+                              ))}
+
+                              {bankAccounts.map((account) => (
+                                <FormItem
+                                  key={account.id}
+                                  className="flex items-center space-x-3 space-y-0"
+                                >
+                                  <FormControl>
+                                    <RadioGroupItem value={`bank_${account.id}`} />
+                                  </FormControl>
+                                  <FormLabel className="font-normal">{account.bankName}</FormLabel>
+                                </FormItem>
+                              ))}
                             </RadioGroup>
                           </FormControl>
                           <FormMessage />
@@ -320,7 +351,7 @@ function AddExpense() {
                       )}
                     />
 
-                    {(form.watch("paymentMethod") === "bank1" || form.watch("paymentMethod") === "bank2") && (
+                    {form.watch("paymentMethod")?.startsWith('bank_') && (
                       <FormField
                         control={form.control}
                         name="bankPaymentType"
@@ -347,7 +378,7 @@ function AddExpense() {
                                 </FormItem>
                                 <FormItem className="flex items-center space-x-3 space-y-0">
                                   <FormControl>
-                                    <RadioGroupItem value="debit" />
+                                    <RadioGroupItem value="check" />
                                   </FormControl>
                                   <FormLabel className="font-normal">Check</FormLabel>
                                 </FormItem>
@@ -360,7 +391,7 @@ function AddExpense() {
                     )}
 
                     <div className="flex justify-end gap-4">
-                      <Button variant="outline" type="button" 
+                      <Button variant="outline" type="button"
                         onClick={() => form.reset()}>
                         Cancel
                       </Button>
@@ -374,8 +405,7 @@ function AddExpense() {
         </main>
       </div>
     </div>
-  )
+  );
 }
 
-export default AddExpense
-
+export default AddExpense;
