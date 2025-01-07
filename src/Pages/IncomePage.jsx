@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
 import ProfileButton from "./profile";
@@ -79,7 +78,14 @@ export default function IncomeDashboard() {
               icon: getIconComponent(account.type || account.name)
             }));
             setAccounts(displayAccounts);
-            setTotalBalance(userData.totalBalance || 0);
+            // Calculate total including credit card balances
+            const total = displayAccounts.reduce((sum, account) => {
+              if (account.type === "Credit") {
+                return sum + account.balance;
+              }
+              return sum + account.balance;
+            }, 0);
+            setTotalBalance(total);
             const passiveSalaryAccount = displayAccounts.find(account => account.name === "Passive/Salary");
             if (passiveSalaryAccount) {
               setRecurringIncome({ amount: passiveSalaryAccount.balance, type: "Passive/Salary" });
@@ -96,27 +102,6 @@ export default function IncomeDashboard() {
     return () => unsubscribe();
   }, [navigate]);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const now = new Date();
-      if (now.getDate() === 1 && recurringIncome.amount > 0) {
-        handleRecurringIncome();
-      }
-    }, 24 * 60 * 60 * 1000); // Check once a day
-
-    return () => clearInterval(timer);
-  }, [recurringIncome]);
-
-  const handleEdit = (index, field) => {
-    setEditingId(index === editingId ? null : index);
-    setEditingField(field);
-    if (field === 'balance') {
-      setEditValue(accounts[index].balance.toString());
-    } else if (field === 'recurringAmount') {
-      setEditValue(accounts[index].recurringAmount.toString());
-    }
-  };
-
   const handleValueChange = async (index, newValue) => {
     try {
       const updatedAccounts = [...accounts];
@@ -131,8 +116,15 @@ export default function IncomeDashboard() {
       setEditValue("");
 
       if (user) {
-        const result = await updateUserAccounts(user.uid, updatedAccounts);
-        setTotalBalance(result.totalBalance);
+        // Calculate new total including credit card balances
+        const newTotal = updatedAccounts.reduce((sum, account) => {
+          if (account.type === "Credit") {
+            return sum + account.balance;
+          }
+          return sum + account.balance;
+        }, 0);
+        setTotalBalance(newTotal);
+        await updateUserAccounts(user.uid, updatedAccounts);
       }
     } catch (error) {
       console.error("Error updating account:", error);
@@ -144,8 +136,8 @@ export default function IncomeDashboard() {
       try {
         const accountToAdd = {
           type: newAccount.type,
-          name: newAccount.type === "Bank" ? newAccount.bankName : 
-                newAccount.type === "Credit" ? newAccount.creditCardName : 
+          name: newAccount.type === "Bank" ? newAccount.bankName :
+                newAccount.type === "Credit" ? newAccount.creditCardName :
                 "Cash",
           balance: Number(newAccount.balance),
           icon: getIconComponent(newAccount.type),
@@ -161,10 +153,17 @@ export default function IncomeDashboard() {
 
         const updatedAccounts = [...accounts, accountToAdd];
         setAccounts(updatedAccounts);
-        
+
         if (user) {
-          const result = await updateUserAccounts(user.uid, updatedAccounts);
-          setTotalBalance(result.totalBalance);
+          // Calculate new total including credit card balances
+          const newTotal = updatedAccounts.reduce((sum, account) => {
+            if (account.type === "Credit") {
+              return sum + account.balance;
+            }
+            return sum + account.balance;
+          }, 0);
+          setTotalBalance(newTotal);
+          await updateUserAccounts(user.uid, updatedAccounts);
         }
 
         setNewAccount({
@@ -190,7 +189,7 @@ export default function IncomeDashboard() {
     try {
       const updatedAccounts = accounts.filter((_, i) => i !== index);
       setAccounts(updatedAccounts);
-      
+
       if (user) {
         const result = await updateUserAccounts(user.uid, updatedAccounts);
         setTotalBalance(result.totalBalance);
@@ -217,6 +216,12 @@ export default function IncomeDashboard() {
     } catch (error) {
       console.error("Error adding recurring income:", error);
     }
+  };
+
+  const handleEdit = (index, field) => {
+    setEditingId(index);
+    setEditingField(field);
+    setEditValue(accounts[index][field].toString());
   };
 
   if (loading) {
@@ -503,4 +508,3 @@ export default function IncomeDashboard() {
     </div>
   );
 }
-
