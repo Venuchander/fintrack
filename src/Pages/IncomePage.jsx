@@ -22,16 +22,13 @@ import {
   DialogTrigger,
 } from "../components/components/ui/dialog";
 import {
-  CreditCard,
-  Wallet,
-  PiggyBank,
-  DollarSign,
-  Smartphone,
-  Bitcoin,
-  Plus,
-  Edit,
-  Trash2,
-} from "lucide-react";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/components/ui/select";
+import { CreditCard, Wallet, PiggyBank, DollarSign, Smartphone, Bitcoin, Plus, Edit, Trash2 } from 'lucide-react';
 
 const iconMap = {
   "Credit Card": <CreditCard className="w-5 h-5" />,
@@ -40,6 +37,7 @@ const iconMap = {
   "Cash": <DollarSign className="w-5 h-5" />,
   "UPI": <Smartphone className="w-5 h-5" />,
   "Bit Coin": <Bitcoin className="w-5 h-5" />,
+  "Passive/Salary": <DollarSign className="w-5 h-5 text-green-500" />,
 };
 
 const getIconComponent = (iconType) => {
@@ -56,6 +54,8 @@ export default function IncomeDashboard() {
   const [editingId, setEditingId] = useState(null);
   const [newAccount, setNewAccount] = useState({ name: "", balance: "" });
   const [isAddingAccount, setIsAddingAccount] = useState(false);
+  const [recurringIncome, setRecurringIncome] = useState({ amount: 0, type: '' });
+  const [editValue, setEditValue] = useState(""); // Added state for edit value
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -70,6 +70,10 @@ export default function IncomeDashboard() {
             }));
             setAccounts(displayAccounts);
             setTotalBalance(userData.totalBalance || 0);
+            const passiveSalaryAccount = displayAccounts.find(account => account.name === "Passive/Salary");
+            if (passiveSalaryAccount) {
+              setRecurringIncome({ amount: passiveSalaryAccount.balance, type: "Passive/Salary" });
+            }
           }
         } catch (error) {
           console.error("Error fetching accounts:", error);
@@ -82,6 +86,17 @@ export default function IncomeDashboard() {
     return () => unsubscribe();
   }, [navigate]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      if (now.getDate() === 1 && recurringIncome.amount > 0) {
+        handleRecurringIncome();
+      }
+    }, 24 * 60 * 60 * 1000); // Check once a day
+
+    return () => clearInterval(timer);
+  }, [recurringIncome]);
+
   const handleEdit = (index) => {
     setEditingId(index === editingId ? null : index);
     setEditValue(accounts[index].balance.toString()); // Set initial edit value
@@ -93,7 +108,8 @@ export default function IncomeDashboard() {
       updatedAccounts[index].balance = Number(newBalance);
       setAccounts(updatedAccounts);
       setEditingId(null);
-      
+      setEditValue(""); // Clear edit value after update
+
       if (user) {
         const result = await updateUserAccounts(user.uid, updatedAccounts);
         setTotalBalance(result.totalBalance);
@@ -110,7 +126,9 @@ export default function IncomeDashboard() {
           name: newAccount.name,
           balance: Number(newAccount.balance),
           iconType: newAccount.name,
-          icon: getIconComponent(newAccount.name)
+          icon: getIconComponent(newAccount.name),
+          isRecurring: newAccount.name === "Passive/Salary",
+          recurringAmount: newAccount.name === "Passive/Salary" ? Number(newAccount.balance) : 0
         };
 
         const updatedAccounts = [...accounts, newAccountWithIcon];
@@ -119,6 +137,9 @@ export default function IncomeDashboard() {
         if (user) {
           const result = await updateUserAccounts(user.uid, updatedAccounts);
           setTotalBalance(result.totalBalance);
+          if (newAccount.name === "Passive/Salary") {
+            setRecurringIncome({ amount: Number(newAccount.balance), type: "Passive/Salary" });
+          }
         }
 
         setNewAccount({ name: "", balance: "" });
@@ -140,6 +161,25 @@ export default function IncomeDashboard() {
       }
     } catch (error) {
       console.error("Error deleting account:", error);
+    }
+  };
+
+  const handleRecurringIncome = async () => {
+    try {
+      const updatedAccounts = accounts.map(account => {
+        if (account.isRecurring) {
+          return { ...account, balance: account.balance + account.recurringAmount };
+        }
+        return account;
+      });
+      setAccounts(updatedAccounts);
+
+      if (user) {
+        const result = await updateUserAccounts(user.uid, updatedAccounts);
+        setTotalBalance(result.totalBalance);
+      }
+    } catch (error) {
+      console.error("Error adding recurring income:", error);
     }
   };
 
@@ -201,11 +241,16 @@ export default function IncomeDashboard() {
                             {editingId === index ? (
                               <Input
                                 type="number"
-                                value={account.balance}
+                                value={editValue}
                                 className="w-32 text-sm"
                                 autoFocus
-                                onChange={(e) => handleBalanceChange(index, e.target.value)}
-                                onBlur={() => setEditingId(null)}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                onBlur={() => handleBalanceChange(index, editValue)}
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') {
+                                    handleBalanceChange(index, editValue);
+                                  }
+                                }}
                               />
                             ) : (
                               <p className="text-sm text-muted-foreground">
@@ -252,18 +297,29 @@ export default function IncomeDashboard() {
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="name" className="text-right">
-                        Name
+                        Type
                       </Label>
-                      <Input
-                        id="name"
+                      <Select
                         value={newAccount.name}
-                        onChange={(e) => setNewAccount({ ...newAccount, name: e.target.value })}
-                        className="col-span-3"
-                      />
+                        onValueChange={(value) => setNewAccount({ ...newAccount, name: value })}
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Select account type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Credit Card">Credit Card</SelectItem>
+                          <SelectItem value="Debit Card">Debit Card</SelectItem>
+                          <SelectItem value="Savings">Savings</SelectItem>
+                          <SelectItem value="Cash">Cash</SelectItem>
+                          <SelectItem value="UPI">UPI</SelectItem>
+                          <SelectItem value="Bit Coin">Bit Coin</SelectItem>
+                          <SelectItem value="Passive/Salary">Passive/Salary Income</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="balance" className="text-right">
-                        Balance
+                        {newAccount.name === "Passive/Salary" ? "Monthly Amount" : "Balance"}
                       </Label>
                       <Input
                         id="balance"
@@ -284,3 +340,4 @@ export default function IncomeDashboard() {
     </div>
   );
 }
+
