@@ -86,6 +86,7 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
     
     try {
       let loginEmail = identifier;
@@ -97,10 +98,15 @@ const LoginPage = () => {
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-          setError("Username not found");
+          setError("Account not found. Please create an account first.");
+          setTimeout(() => {
+            navigate("/signup", { 
+              state: { message: "Please create an account to continue." } 
+            });
+          }, 2000);
           return;
         }
-
+  
         loginEmail = querySnapshot.docs[0].data().email;
       }
 
@@ -112,7 +118,16 @@ const LoginPage = () => {
       
       if (!userDoc.exists()) {
         await signOut(auth);
-        setError("Account not found. Please sign up first.");
+        setError("Account not found. Please create an account first.");
+        setTimeout(() => {
+          navigate("/signup");
+        }, 2000);
+        return;
+      }
+
+      const userData = userDoc.data();
+      if (!userData.onboardingCompleted) {
+        navigate("/phone-number");
         return;
       }
 
@@ -126,7 +141,12 @@ const LoginPage = () => {
       console.error("Login Error:", err);
       switch (err.code) {
         case 'auth/user-not-found':
-          setError("Account not found. Please sign up first.");
+          setError("Account not found. Please create an account first.");
+          setTimeout(() => {
+            navigate("/signup", { 
+              state: { message: "Please create an account to continue." } 
+            });
+          }, 2000);
           break;
         case 'auth/wrong-password':
           setError("Incorrect password. Please try again.");
@@ -140,6 +160,8 @@ const LoginPage = () => {
         default:
           setError(err.message || "Failed to log in");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 

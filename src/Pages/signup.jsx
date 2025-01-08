@@ -10,7 +10,8 @@ import {
   getDoc
 } from "firebase/firestore";
 import { auth, db } from "./lib/firebase";  // Import from your firebase.js file
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "../components/components/ui/button";
 import { Input } from "../components/components/ui/input";
 import { Eye, EyeOff } from 'lucide-react';
@@ -22,13 +23,43 @@ const SignupPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const location = useLocation();
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Show message if redirected from login
+    if (location.state?.message) {
+      setError(location.state.message);
+    }
+  }, [location]);
+
+  const validatePassword = (pass) => {
+    const minLength = 8;
+    const hasUpperCase = /[A-Z]/.test(pass);
+    const hasLowerCase = /[a-z]/.test(pass);
+    const hasNumbers = /\d/.test(pass);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pass);
+    
+    if (pass.length < minLength) return "Password must be at least 8 characters long";
+    if (!hasUpperCase) return "Password must contain at least one uppercase letter";
+    if (!hasLowerCase) return "Password must contain at least one lowercase letter";
+    if (!hasNumbers) return "Password must contain at least one number";
+    if (!hasSpecialChar) return "Password must contain at least one special character";
+    
+    return null;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-  
+
+    // Validate password
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;
@@ -37,23 +68,31 @@ const SignupPage = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
+
       await createOrUpdateUser(user.uid, {
         email: email,
         authProvider: "email",
         isEmailVerified: user.emailVerified,
         displayName: user.displayName || '',
         photoURL: user.photoURL || '',
-        status: 'active'
+        status: 'active',
+        onboardingCompleted: false,
+        createdAt: new Date().toISOString()
       });
   
       navigate("/phone-number");
     } catch (error) {
       console.error("Error during signup:", error.message);
-      setError(error.message);
+      if (error.code === 'auth/email-already-in-use') {
+        setError("This email is already registered. Please login instead.");
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      } else {
+        setError(error.message);
+      }
     }
   };
-
   const handleGoogleSignUp = async () => {
     const provider = new GoogleAuthProvider();
     try {
