@@ -15,9 +15,22 @@ import {
   Legend
 } from 'chart.js'
 import { Bar, Doughnut, Line } from "react-chartjs-2"
-import { Menu, ChevronDown, DollarSign, PieChart, MessageSquare, Brain, LogOut, Wallet, TrendingUp, CreditCard, Wifi } from 'lucide-react'
+import { 
+  Menu, 
+  ChevronDown, 
+  DollarSign, 
+  PieChart, 
+  MessageSquare, 
+  Brain, 
+  LogOut, 
+  Wallet, 
+  TrendingUp, 
+  CreditCard, 
+  Wifi,
+  ArrowUpRight
+} from 'lucide-react'
 import { Button } from "../components/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../components/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/components/ui/card"
 import { Input } from "../components/components/ui/input"
 import {
   Table as TableUI,
@@ -35,6 +48,9 @@ import {
   SelectValue,
 } from "../components/components/ui/select"
 
+import ProfileButton from './profile'
+import Sidebar from './Sidebar'
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -46,9 +62,6 @@ ChartJS.register(
   Tooltip,
   Legend
 )
-
-import ProfileButton from './profile'
-import Sidebar from './Sidebar'
 
 function Dashboard() {
   const navigate = useNavigate()
@@ -87,10 +100,18 @@ function Dashboard() {
       console.error("Error signing out:", error)
     }
   }
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+
 
   const getCardBackground = (cardType) => {
     const types = {
-      visa: 'from-purple-500 to-pink-500',
+      visa: 'from-violet-500 to-violet-900',
       mastercard: 'from-orange-500 to-red-500',
       rupay: 'from-indigo-500 to-blue-500',
       amex: 'from-green-400 to-blue-500',
@@ -116,21 +137,21 @@ function Dashboard() {
         return <span className="text-2xl font-bold">{cardType?.toUpperCase()}</span>
     }
   }
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(amount)
-  }
-
   // Calculate monthly income and expenses
   const calculateMonthlyFinances = () => {
-    if (!userData?.expenses) return { income: 0, expenses: 0 }
+    if (!userData?.expenses || !userData?.accounts) return { 
+      income: 0, 
+      expenses: 0, 
+      recurringIncome: 0 
+    }
 
     const currentMonth = new Date().getMonth()
     const currentYear = new Date().getFullYear()
+
+    // Calculate recurring income from accounts
+    const recurringIncome = userData.accounts.reduce((sum, account) => {
+      return sum + (account.isRecurringIncome ? account.recurringAmount : 0)
+    }, 0)
 
     const monthlyTransactions = userData.expenses.filter(expense => {
       const expenseDate = new Date(expense.createdAt)
@@ -146,8 +167,67 @@ function Dashboard() {
       .filter(t => t.amount < 0)
       .reduce((sum, t) => sum + Math.abs(t.amount), 0)
 
-    return { income, expenses }
+    return { income, expenses, recurringIncome }
   }
+
+  const renderFinancialCard = (account) => {
+    if (account.type === "Credit") {
+      return (
+        <Card className="overflow-hidden">
+          <CardContent className="p-0">
+            <div className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(account.cardType)}`}>
+              <div className="flex justify-between items-start">
+                <Wifi className="h-8 w-8 text-white opacity-75" />
+                <span className="text-white font-bold">{account.name}</span>
+              </div>
+              <div className="text-white">
+                <div className="mb-4">
+                  <span className="text-2xl tracking-wider">
+                    •••• •••• •••• {account.cardNumber?.slice(-4) || '****'}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-xs opacity-75">Credit Limit</p>
+                    <p className="font-bold">{formatCurrency(account.creditAmount || 0)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs opacity-75">Balance</p>
+                    <p className="font-bold">{formatCurrency(Math.abs(account.balance))}</p>
+                  </div>
+                  {getCardBranding(account.cardType)}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )
+    }
+
+    return (
+      <Card className="bg-gradient-to-br from-blue-50 to-white">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div>
+            <CardTitle className="text-lg font-semibold">{account.name}</CardTitle>
+            <CardDescription>{account.type}</CardDescription>
+          </div>
+          <Wallet className="h-5 w-5 text-blue-600" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold text-blue-600">
+            {formatCurrency(account.balance)}
+          </div>
+          {account.isRecurringIncome && (
+            <div className="mt-2 flex items-center text-sm text-green-600">
+              <ArrowUpRight className="h-4 w-4 mr-1" />
+              Monthly Income: {formatCurrency(account.recurringAmount)}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    )
+  }
+
 
   // Prepare data for expense breakdown chart
   const prepareExpenseData = () => {
@@ -240,12 +320,14 @@ function Dashboard() {
         if (selectedTransactionType === "expense") return transaction.amount < 0
         return true
       })
-      .slice(0, 5) // Show only last 5 transactions
+      .slice(0, 5)
   }
 
-  const { income: monthlyIncome, expenses: monthlyExpenses } = calculateMonthlyFinances()
+  const { income, expenses, recurringIncome } = calculateMonthlyFinances()
   const expenseData = prepareExpenseData()
   const incomeVsExpenseData = prepareIncomeVsExpenseData()
+
+  
 
   if (loading) {
     return (
@@ -254,6 +336,8 @@ function Dashboard() {
       </div>
     )
   }
+
+
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -279,6 +363,14 @@ function Dashboard() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  className="mr-4"
+                >
+                  <Menu className="h-6 w-6" />
+                </Button>
                 <h2 className="text-2xl font-semibold text-gray-900">
                   {location.pathname.split('/')[1].charAt(0).toUpperCase() + 
                    location.pathname.split('/')[1].slice(1) || "Dashboard"}
@@ -295,108 +387,78 @@ function Dashboard() {
           </div>
         </header>
 
+
         {/* Dashboard Content */}
         <main className="flex-1 overflow-y-auto bg-gray-100 p-4">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-7xl mx-auto space-y-8">
             {/* Summary Cards */}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { 
-                  title: "Total Balance", 
-                  amount: formatCurrency(userData?.totalBalance || 0),
-                  icon: Wallet 
-                },
-                { 
-                  title: "Monthly Income", 
-                  amount: formatCurrency(monthlyIncome),
-                  icon: TrendingUp 
-                },
-                { 
-                  title: "Monthly Expenses", 
-                  amount: formatCurrency(monthlyExpenses),
-                  icon: CreditCard 
-                },
-                { 
-                  title: "Savings Goal", 
-                  amount: formatCurrency(15000), 
-                  progress: "65%", 
-                  icon: PieChart 
-                },
-              ].map((item, index) => (
-                <Card key={index}>
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-                    {React.createElement(item.icon, { className: "h-4 w-4 text-muted-foreground" })}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">{item.amount}</div>
-                    {item.progress && (
-                      <div className="w-full bg-gray-200 rounded-full h-2.5">
-                        <div 
-                          className="bg-blue-600 h-2.5 rounded-full" 
-                          style={{width: item.progress}}
-                        />
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{formatCurrency(userData?.totalBalance || 0)}</div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
+                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-green-600">{formatCurrency(income)}</div>
+                  {recurringIncome > 0 && (
+                    <div className="mt-2 flex items-center text-sm text-green-600">
+                      <ArrowUpRight className="h-4 w-4 mr-1" />
+                      Passive Income: {formatCurrency(recurringIncome)}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Monthly Expenses</CardTitle>
+                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-red-600">{formatCurrency(expenses)}</div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Net Savings</CardTitle>
+                  <PieChart className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{formatCurrency(income - expenses)}</div>
+                  <div className="mt-2">
+                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-blue-600 h-2.5 rounded-full" 
+                        style={{width: `${Math.min(((income - expenses) / income) * 100, 100)}%`}}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          
+
+            {/* Financial Accounts */}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {userData?.accounts?.map((account, index) => (
+                <div key={index}>
+                  {renderFinancialCard(account)}
+                </div>
               ))}
             </div>
 
-            {/* Bank Accounts */}
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {userData?.accounts
-                ?.filter(account => account.type === "Bank")
-                ?.map((account, index) => (
-                <Card key={index} className="bg-blue-50">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
-                    <Wallet className="h-4 w-4 text-blue-600" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-blue-600">
-                      {formatCurrency(account.balance)}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
 
-            {/* Credit Cards */}
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {userData?.accounts
-                ?.filter(account => account.type === "Credit")
-                ?.map((card, index) => (
-                <Card key={index} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(card.cardType)}`}>
-                      <div className="flex justify-between items-start">
-                        <Wifi className="h-8 w-8 text-white opacity-75" />
-                        <span className="text-white font-bold">{card.name}</span>
-                      </div>
-                      <div className="text-white">
-                        <div className="mb-4">
-                          <span className="text-2xl tracking-wider">
-                          •••• •••• •••• {card.cardNumber?.slice(-4) || '****'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <div>
-                            <p className="text-xs opacity-75">Expires</p>
-                            <p className="font-bold">{card.expiryDate || 'MM/YY'}</p>
-                          </div>
-                          <div>
-                            <p className="text-xs opacity-75">Balance</p>
-                            <p className="font-bold">{formatCurrency(card.balance)}</p>
-                          </div>
-                          {getCardBranding(card.cardType)}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
 
             {/* Charts */}
             {incomeVsExpenseData && expenseData && (
