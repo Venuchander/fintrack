@@ -101,13 +101,28 @@ export const addExpense = async (uid, expenseData) => {
     const expenses = userData.expenses || [];
     const accounts = userData.accounts || [];
 
-    // Find the corresponding account
-    const account = accounts.find(
-      (acc) => acc.name === expenseData.paymentMethod
-    );
+    let account = null;
+    
+    // Handle cash transactions
+    if (expenseData.paymentMethod === "cash") {
+      // Look for existing cash account
+      account = accounts.find(acc => acc.type === "Cash") || {
+        name: "cash",
+        type: "Cash",
+        balance: 0
+      };
+      
+      // Override paymentType for cash transactions
+      expenseData.paymentType = "cash";
+    } else {
+      // Find the corresponding account for non-cash payments
+      account = accounts.find(
+        (acc) => acc.name === expenseData.paymentMethod
+      );
 
-    if (!account) {
-      throw new Error("Account not found");
+      if (!account) {
+        throw new Error("Account not found");
+      }
     }
 
     // Create expense record
@@ -118,25 +133,54 @@ export const addExpense = async (uid, expenseData) => {
       accountType: account.type,
       amount: Number(expenseData.amount),
       createdAt: new Date().toISOString(),
+      paymentType: expenseData.paymentMethod === "cash" ? "cash" : expenseData.paymentType
     };
 
     expenses.push(expense);
 
-    // Update account balance based on account type
-    const updatedAccounts = accounts.map((acc) => {
-      if (acc.name === account.name) {
-        return {
-          ...acc,
-          balance:
-            acc.type === "Credit"
-              ? Number(acc.balance) + Number(expenseData.amount)
-              : Number(acc.balance) - Number(expenseData.amount),
-        };
+    // Update accounts including cash
+    let updatedAccounts;
+    if (expenseData.paymentMethod === "cash") {
+      // If cash account exists, update it; if not, add it
+      const cashAccountExists = accounts.some(acc => acc.type === "Cash");
+      if (cashAccountExists) {
+        updatedAccounts = accounts.map(acc => {
+          if (acc.type === "Cash") {
+            return {
+              ...acc,
+              balance: Number(acc.balance) - Number(expenseData.amount)
+            };
+          }
+          return acc;
+        });
+      } else {
+        // Add new cash account with initial balance minus the expense
+        updatedAccounts = [
+          ...accounts,
+          {
+            name: "cash",
+            type: "Cash",
+            balance: -Number(expenseData.amount)
+          }
+        ];
       }
-      return acc;
-    });
+    } else {
+      // Handle non-cash accounts
+      updatedAccounts = accounts.map((acc) => {
+        if (acc.name === account.name) {
+          return {
+            ...acc,
+            balance:
+              acc.type === "Credit"
+                ? Number(acc.balance) + Number(expenseData.amount)
+                : Number(acc.balance) - Number(expenseData.amount),
+          };
+        }
+        return acc;
+      });
+    }
 
-    // Recalculate total balance including credit accounts
+    // Recalculate total balance including all accounts
     const totalBalance = updatedAccounts.reduce(
       (sum, acc) => sum + Number(acc.balance),
       0
