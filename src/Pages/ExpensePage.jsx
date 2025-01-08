@@ -54,6 +54,7 @@ const formSchema = z.object({
     required_error: "Please select a payment method",
   }),
   bankPaymentType: z.enum(["upi", "debit", "check"]).optional(),
+  cardPaymentType: z.string().optional(),
 });
 
 function AddExpense() {
@@ -68,7 +69,7 @@ function AddExpense() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      paymentMethod: "cash",
+      paymentMethod: "",
     },
   });
 
@@ -80,9 +81,16 @@ function AddExpense() {
           const userData = userDoc.data();
           const accounts = userData.accounts || [];
 
-          // Separate bank accounts and credit cards
-          const banks = accounts.filter(account => account.type === "Bank");
-          const cards = accounts.filter(account => account.type === "Credit");
+          const banks = accounts.filter(account => account.type === "Bank")
+            .map(account => ({
+              ...account,
+              id: account.name
+            }));
+          const cards = accounts.filter(account => account.type === "Credit")
+            .map(account => ({
+              ...account,
+              id: account.name
+            }));
 
           setBankAccounts(banks);
           setCreditCards(cards);
@@ -109,29 +117,23 @@ function AddExpense() {
     try {
       if (!user) return;
 
+      const selectedCard = creditCards.find(card => card.name === values.paymentMethod);
+      const selectedBank = bankAccounts.find(account => account.name === values.paymentMethod);
+
       const expenseData = {
-        ...values,
         amount: parseFloat(values.amount),
         date: values.date.toISOString(),
+        category: values.category,
+        description: values.description || "",
+        paymentMethod: values.paymentMethod,
+        paymentType: selectedBank ? values.bankPaymentType : 'credit',
+        accountType: selectedCard ? 'Credit' : (selectedBank ? 'Bank' : 'Cash'),
       };
-
-      // Extract payment method type and ID
-      const [methodType, methodId] = values.paymentMethod.split('_');
-      expenseData.paymentMethodType = methodType;
-      if (methodId) {
-        expenseData.paymentMethodId = methodId;
-      }
-
-      // Remove bankPaymentType if it's not a bank payment
-      if (!values.paymentMethod.startsWith('bank_')) {
-        delete expenseData.bankPaymentType;
-      }
 
       await addExpense(user.uid, expenseData);
       form.reset();
       setShowSuccess(true);
 
-      // Hide success message after 3 seconds
       setTimeout(() => {
         setShowSuccess(false);
       }, 3000);
@@ -149,7 +151,7 @@ function AddExpense() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       {isSidebarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
           onClick={() => setIsSidebarOpen(false)} />
@@ -161,8 +163,8 @@ function AddExpense() {
         user={user}
       />
 
-      <div className="flex-1 flex flex-col max-h-screen">
-        <header className="bg-white shadow-sm">
+      <div className="flex-1 flex flex-col">
+        <header className="bg-white shadow-sm flex-shrink-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <h2 className="text-2xl font-semibold text-gray-900">Add Expense</h2>
@@ -175,8 +177,8 @@ function AddExpense() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4">
-          <div className="max-w-2xl mx-auto space-y-4">
+        <main className="flex-1 overflow-y-auto px-4 py-4">
+          <div className="max-w-2xl mx-auto space-y-4 pb-6">
             {showSuccess && (
               <div className="animate-in slide-in-from-top-2 duration-300">
                 <Alert className="bg-green-50 border-green-200">
@@ -206,7 +208,14 @@ function AddExpense() {
                             <FormControl>
                               <div className="relative">
                                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 font-medium">₹</span>
-                                <Input placeholder="0.00" className="pl-7" {...field} />
+                                <Input 
+                                  type="number"
+                                  step="0.01"
+                                  min="0"
+                                  placeholder="0.00" 
+                                  className="pl-7" 
+                                  {...field} 
+                                />
                               </div>
                             </FormControl>
                             <FormMessage />
@@ -310,9 +319,14 @@ function AddExpense() {
                           <FormLabel>Payment Method *</FormLabel>
                           <FormControl>
                             <RadioGroup
-                              onValueChange={field.onChange}
+                              onValueChange={(value) => {
+                                field.onChange(value);
+                                if (!bankAccounts.some(account => account.name === value)) {
+                                  form.setValue('bankPaymentType', undefined);
+                                }
+                              }}
                               value={field.value}
-                              className="flex flex-wrap gap-4"
+                              className="flex flex-col space-y-2"
                             >
                               <FormItem className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
@@ -327,7 +341,7 @@ function AddExpense() {
                                   className="flex items-center space-x-3 space-y-0"
                                 >
                                   <FormControl>
-                                    <RadioGroupItem value={`credit_${card.id}`} />
+                                    <RadioGroupItem value={card.name} />
                                   </FormControl>
                                   <FormLabel className="font-normal">{card.name}</FormLabel>
                                 </FormItem>
@@ -339,7 +353,7 @@ function AddExpense() {
                                   className="flex items-center space-x-3 space-y-0"
                                 >
                                   <FormControl>
-                                    <RadioGroupItem value={`bank_${account.id}`} />
+                                    <RadioGroupItem value={account.name} />
                                   </FormControl>
                                   <FormLabel className="font-normal">{account.bankName}</FormLabel>
                                 </FormItem>
@@ -351,7 +365,8 @@ function AddExpense() {
                       )}
                     />
 
-                    {form.watch("paymentMethod")?.startsWith('bank_') && (
+                    {form.watch("paymentMethod") && 
+                     bankAccounts.some(account => account.name === form.watch("paymentMethod")) && (
                       <FormField
                         control={form.control}
                         name="bankPaymentType"
@@ -362,7 +377,7 @@ function AddExpense() {
                               <RadioGroup
                                 onValueChange={field.onChange}
                                 value={field.value}
-                                className="flex flex-wrap gap-4"
+                                className="flex flex-col space-y-2"
                               >
                                 <FormItem className="flex items-center space-x-3 space-y-0">
                                   <FormControl>
