@@ -234,7 +234,16 @@ export default function IncomeDashboard() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
+      <Sidebar isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        user={user}
+      />
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="bg-white shadow-sm">
