@@ -2,17 +2,17 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Button } from "../components/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "../components/components/ui/avatar"
-import { Badge } from "../components/components/ui/badge"
-import { Input } from "../components/components/ui/input"
+import { Button } from "../components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
+import { Badge } from "../components/ui/badge"
+import { Input } from "../components/ui/input"
 import { Lightbulb, Send, SmilePlus, Phone, X } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Layout from './Layout'
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import axios from 'axios'
-import ProfileButton from './profile'
-import Sidebar from './Sidebar'
+import ProfileButton from '../components/components/profile'
+import Sidebar from '../components/components/Sidebar'
 import { getAuth } from 'firebase/auth'
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 // Initialize Gemini AI

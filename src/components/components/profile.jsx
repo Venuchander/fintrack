@@ -1,7 +1,7 @@
 // ProfileButton.jsx
 import React from "react"
 import { ChevronDown } from 'lucide-react'
-import { Button } from "../components/components/ui/button"
+import { Button } from "../ui/button"
 
 const ProfileButton = ({ user, onMenuToggle }) => {
   return (

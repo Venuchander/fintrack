@@ -2,8 +2,8 @@
 import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { PieChart, DollarSign, MessageSquare, Brain, LogOut, Wallet } from 'lucide-react'
-import { Button } from "../components/components/ui/button"
-import { auth } from "./lib/firebase"
+import { Button } from "../ui/button"
+import { auth } from "../../Pages/lib/firebase"
 
 const Sidebar = ({ isOpen, onClose, user }) => {
   const navigate = useNavigate()

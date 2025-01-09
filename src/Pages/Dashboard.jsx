@@ -26,8 +26,8 @@ import {
   ArrowUpRight,
   Target
 } from 'lucide-react'
-import { Button } from "../components/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/components/ui/card"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card"
 import {
   Table,
   TableBody,
@@ -35,16 +35,16 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../components/components/ui/table"
+} from "../components/ui/table"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/components/ui/select"
+} from "../components/ui/select"
 
-import ProfileButton from './profile'
+import ProfileButton from '../components/components/profile'
 
 ChartJS.register(
   CategoryScale,

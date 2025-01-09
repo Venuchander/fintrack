@@ -1,34 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
-import ProfileButton from "./profile";
-import Sidebar from "./Sidebar";
+import ProfileButton from "../components/components/profile";
+import Sidebar from "../components/components/Sidebar";
 import { getUserData, updateUserAccounts } from "./lib/userService";
-import { Button } from "../components/components/ui/button";
+import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/components/ui/card";
-import { Input } from "../components/components/ui/input";
-import { Label } from "../components/components/ui/label";
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../components/components/ui/dialog";
+} from "../components/ui/dialog";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/components/ui/select";
-import { Switch } from "../components/components/ui/switch";
+} from "../components/ui/select";
+import { Switch } from "../components/ui/switch";
 import { CreditCard, Wallet, Building, DollarSign, Plus, Edit, Trash2 } from 'lucide-react';
 
 const iconMap = {

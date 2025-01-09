@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { auth } from "./lib/firebase";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../components/components/ui/button";
-import { Input } from "../components/components/ui/input";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { createOrUpdateUser } from "./lib/userService";
 
 const PhoneNumberPage = () => {

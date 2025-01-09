@@ -12,8 +12,8 @@ import {
 import { auth, db } from "./lib/firebase";  // Import from your firebase.js file
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { Button } from "../components/components/ui/button";
-import { Input } from "../components/components/ui/input";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
 import { Eye, EyeOff } from 'lucide-react';
 import { createOrUpdateUser } from "./lib/userService";
 

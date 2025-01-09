@@ -3,18 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "./lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { addExpense } from "./lib/userService";
-import { Calendar } from "../components/components/ui/calendar";
-import { Button } from "../components/components/ui/button";
+import { Calendar } from "../components/ui/calendar";
+import { Button } from "../components/ui/button";
 import { format } from "date-fns";
-import ProfileButton from './profile';
-import Sidebar from './Sidebar';
+import ProfileButton from '../components/components/profile';
+import Sidebar from '../components/components/Sidebar';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../components/components/ui/card";
+} from "../components/ui/card";
 import {
   Form,
   FormControl,
@@ -22,20 +22,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../components/components/ui/form";
+} from "../components/ui/form";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../components/components/ui/select";
-import { Input } from "../components/components/ui/input";
-import { Textarea } from "../components/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "../components/components/ui/radio-group";
-import { Popover, PopoverContent, PopoverTrigger } from "../components/components/ui/popover";
-import { Alert, AlertDescription } from "../components/components/ui/alert";
-import { cn } from "../components/components/lib/utils";
+} from "../components/ui/select";
+import { Input } from "../components/ui/input";
+import { Textarea } from "../components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
+import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
+import { Alert, AlertDescription } from "../components/ui/alert";
+import { cn } from "../components/lib/utils";
 import { CalendarIcon, CheckCircle2 } from 'lucide-react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";

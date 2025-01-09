@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
-import { Card, CardHeader, CardTitle, CardContent } from '../components/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/card';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import ProfileButton from './profile';
-import Sidebar from './Sidebar';
+import ProfileButton from '../components/components/profile';
+import Sidebar from '../components/components/Sidebar';
 
 const Insights = () => {
   const navigate = useNavigate();

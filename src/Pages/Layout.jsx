@@ -1,7 +1,7 @@
 import React from 'react'
-import Sidebar from './Sidebar'
+import Sidebar from '../components/components/Sidebar'
 import { Menu } from 'lucide-react'
-import { Button } from "../components/components/ui/button"
+import { Button } from "../components/ui/button"
 
 const Layout = ({ children }) => {
   return (
