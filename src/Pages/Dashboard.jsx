@@ -1,4 +1,3 @@
-// Dashboard.jsx
 import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { auth } from "./lib/firebase"
@@ -43,7 +42,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../components/ui/select"
-
+import Sidebar from "../components/components/Sidebar"
 import ProfileButton from '../components/components/profile'
 
 ChartJS.register(
@@ -64,6 +63,7 @@ function Dashboard() {
   const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedTransactionType, setSelectedTransactionType] = useState("all")
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -122,36 +122,31 @@ function Dashboard() {
     const currentMonth = new Date().getMonth()
     const currentYear = new Date().getFullYear()
 
+    // Calculate recurring income from accounts
     const recurringIncome = userData.accounts.reduce((sum, account) => {
       return sum + (account.isRecurringIncome ? account.recurringAmount : 0)
     }, 0)
 
     const monthlyTransactions = userData.expenses.filter(expense => {
-      const expenseDate = new Date(expense.createdAt)
+      const expenseDate = new Date(expense.date)
       return expenseDate.getMonth() === currentMonth && 
              expenseDate.getFullYear() === currentYear
     })
 
-    const income = monthlyTransactions
-      .filter(t => t.amount > 0)
-      .reduce((sum, t) => sum + t.amount, 0)
-
+    // Sum all transactions for expenses (positive amounts are expenses in your structure)
     const expenses = monthlyTransactions
-      .filter(t => t.amount < 0)
-      .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+      .reduce((sum, t) => sum + (t.amount || 0), 0)
 
-    return { income, expenses, recurringIncome }
+    return { income: recurringIncome, expenses, recurringIncome }
   }
 
   const prepareExpenseData = () => {
     if (!userData?.expenses) return null
 
     const categories = {}
-    userData.expenses
-      .filter(expense => expense.amount < 0)
-      .forEach(expense => {
-        categories[expense.category] = (categories[expense.category] || 0) + Math.abs(expense.amount)
-      })
+    userData.expenses.forEach(expense => {
+      categories[expense.category] = (categories[expense.category] || 0) + expense.amount
+    })
 
     const total = Object.values(categories).reduce((sum, amount) => sum + amount, 0)
     const percentages = Object.entries(categories).map(([category, amount]) => ({
@@ -183,20 +178,19 @@ function Dashboard() {
       const year = new Date().getFullYear() - (month > currentMonth ? 1 : 0)
       
       const monthTransactions = userData.expenses.filter(expense => {
-        const expenseDate = new Date(expense.createdAt)
+        const expenseDate = new Date(expense.date)
         return expenseDate.getMonth() === month && 
                expenseDate.getFullYear() === year
       })
 
-      const income = monthTransactions
-        .filter(t => t.amount > 0)
-        .reduce((sum, t) => sum + t.amount, 0)
+      const recurringIncome = userData.accounts.reduce((sum, account) => {
+        return sum + (account.isRecurringIncome ? account.recurringAmount : 0)
+      }, 0)
 
       const expenses = monthTransactions
-        .filter(t => t.amount < 0)
-        .reduce((sum, t) => sum + Math.abs(t.amount), 0)
+        .reduce((sum, t) => sum + t.amount, 0)
 
-      return { month: monthLabels[month], income, expenses }
+      return { month: monthLabels[month], income: recurringIncome, expenses }
     })
 
     return {
@@ -220,6 +214,24 @@ function Dashboard() {
     }
   }
 
+  const getSavingsProgress = () => {
+    if (!userData?.userDetails?.savingsGoal) return {
+      current: 0,
+      goal: 10000,
+      percentage: 0
+    }
+    
+    const monthlyGoal = userData.userDetails.savingsGoal
+    const totalBalance = userData.userDetails.totalBalance || 0
+    const progressPercentage = Math.min((totalBalance / monthlyGoal) * 100, 100)
+    
+    return {
+      current: totalBalance,
+      goal: monthlyGoal,
+      percentage: progressPercentage
+    }
+  }
+
   const getFilteredTransactions = () => {
     if (!userData?.expenses) return []
     
@@ -227,23 +239,17 @@ function Dashboard() {
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .filter(transaction => {
         if (selectedTransactionType === "all") return true
-        if (selectedTransactionType === "income") return transaction.amount > 0
-        if (selectedTransactionType === "expense") return transaction.amount < 0
+        if (selectedTransactionType === "income") return transaction.paymentType === "credit"
+        if (selectedTransactionType === "expense") return transaction.paymentType === "debit"
         return true
       })
+      .map(transaction => ({
+        ...transaction,
+        displayAmount: transaction.paymentType === "debit"
+          ? `-${formatCurrency(transaction.amount)}` 
+          : `+${formatCurrency(transaction.amount)}`
+      }))
       .slice(0, 5)
-  }
-
-  const getSavingsProgress = () => {
-    const monthlyGoal = userData?.savingsGoal?.monthly || 10000
-    const currentSavings = calculateMonthlyFinances().income - calculateMonthlyFinances().expenses
-    const progressPercentage = Math.min((currentSavings / monthlyGoal) * 100, 100)
-    
-    return {
-      current: currentSavings,
-      goal: monthlyGoal,
-      percentage: progressPercentage
-    }
   }
 
   if (loading) {
@@ -266,13 +272,43 @@ function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
-            <ProfileButton 
-              user={user}
-              onLogout={handleLogout}
-            />
+            <div className="flex items-center space-x-4">
+              <Button
+                variant="ghost"
+                className="lg:hidden"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </Button>
+              <ProfileButton 
+                user={user}
+                onLogout={handleLogout}
+              />
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Sidebar */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        user={user}
+      />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -285,7 +321,7 @@ function Dashboard() {
                 <Wallet className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(userData?.totalBalance || 0)}</div>
+                <div className="text-2xl font-bold">{formatCurrency(userData?.userDetails?.totalBalance || 0)}</div>
               </CardContent>
             </Card>
 
@@ -341,99 +377,124 @@ function Dashboard() {
             </Card>
           </div>
 
-          {/* Financial Accounts */}
-          <div className="space-y-6">
-            {/* Bank Accounts */}
-            {userData?.accounts?.filter(account => account.type !== "Credit").length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {userData.accounts
-                    .filter(account => account.type !== "Credit")
-                    .map((account, index) => (
-                      <Card key={index} className="bg-gradient-to-br from-blue-50 to-white">
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                          <div>
-                            <CardTitle className="text-lg font-semibold">{account.name}</CardTitle>
-                            <CardDescription>{account.type}</CardDescription>
-                          </div>
-                          <Wallet className="h-5 w-5 text-blue-600" />
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold text-blue-600">
-                            {formatCurrency(account.balance)}
-                          </div>
-                          {account.isRecurringIncome && (
-                            <div className="mt-2 flex items-center text-sm text-green-600">
-                              <ArrowUpRight className="h-4 w-4 mr-1" />
-                              Monthly Income: {formatCurrency(account.recurringAmount)}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))}
+{/* Financial Accounts */}
+<div className="space-y-6">
+  {/* Bank Accounts */}
+  {userData?.accounts?.filter(account => account.type !== "Credit").length > 0 && (
+    <div>
+      <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {userData.accounts
+          .filter(account => account.type !== "Credit")
+          .map((account, index) => (
+            <Card
+              key={index}
+              className="bg-gradient-to-br from-blue-50 to-white"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div>
+                  <CardTitle className="text-lg font-semibold">
+                    {account.name}
+                  </CardTitle>
+                  <CardDescription>{account.type}</CardDescription>
                 </div>
-              </div>
-            )}
+                <Wallet className="h-5 w-5 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-600">
+                  {formatCurrency(account.balance)}
+                </div>
+                {account.isRecurringIncome && (
+                  <div className="mt-2 flex items-center text-sm text-green-600">
+                    <ArrowUpRight className="h-4 w-4 mr-1" />
+                    Monthly Income: {formatCurrency(account.recurringAmount)}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+      </div>
+    </div>
+  )}
 
-            {/* Credit Cards */}
-            {userData?.accounts?.filter(account => account.type === "Credit").length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Credit Cards</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {userData.accounts.filter(account => account.type === "Credit")
-                    .map((account, index) => (
-                      <Card key={index} className="overflow-hidden">
-                        <CardContent className="p-0">
-                          <div className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(account.cardType)}`}>
-                            <div className="flex justify-between items-start">
-                              <Wifi className="h-8 w-8 text-white opacity-75" />
-                              <div className="text-white text-right">
-                                <p className="font-bold">{account.name}</p>
-                                <p className="text-sm opacity-75">Valid thru: {account.expiryDate}</p>
-                              </div>
-                            </div>
-                            <div className="text-white">
-                              <div className="mb-4">
-                                <span className="text-xl tracking-widest">
-                                  •••• •••• •••• {account.cardNumber?.slice(-4) || '****'}
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-end">
-                                <div>
-                                  <p className="text-xs opacity-75">Available Credit</p>
-                                  <p className="font-bold">{formatCurrency(account.creditAmount - Math.abs(account.balance))}</p>
-                                </div>
-                                <div>
-                                  <p className="text-xs opacity-75">Total Credit</p>
-                                  <p className="font-bold">{formatCurrency(account.creditAmount)}</p>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="p-4">
-                            <div className="mb-2">
-                              <p className="text-sm text-gray-600">Credit Utilization</p>
-                              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                                <div 
-                                  className="bg-blue-600 h-2.5 rounded-full"
-                                  style={{
-                                    width: `${(Math.abs(account.balance) / account.creditAmount) * 100}%`
-                                  }}
-                                />
-                              </div>
-                            </div>
-                            <p className="text-sm text-gray-600">
-                              Current Balance: {formatCurrency(Math.abs(account.balance))}
-                            </p>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+  {/* Credit Cards */}
+  {userData?.accounts?.filter(account => account.type === "Credit").length > 0 && (
+    <div>
+      <h3 className="text-lg font-semibold mb-4">Credit Cards</h3>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {userData.accounts
+          .filter(account => account.type === "Credit")
+          .map((account, index) => (
+            <Card key={index} className="overflow-hidden">
+              <CardContent className="p-0">
+                <div
+                  className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(
+                    account.cardType
+                  )}`}
+                >
+                  <div className="flex justify-between items-start">
+                    <Wifi className="h-8 w-8 text-white opacity-75" />
+                    <div className="text-white text-right">
+                      <p className="font-bold">{account.name}</p>
+                      <p className="text-sm opacity-75">
+                        Valid thru: {account.expiryDate}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-white">
+                    <div className="mb-4">
+                      <span className="text-xl tracking-widest">
+                        •••• •••• ••••{" "}
+                        {account.cardNumber?.slice(-4) || "****"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-end">
+                      <div>
+                        <p className="text-xs opacity-75">Available Credit</p>
+                        <p className="font-bold">
+                          {formatCurrency(
+                            account.creditAmount - Math.abs(account.balance)
+                          )}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs opacity-75">Total Credit</p>
+                        <p className="font-bold">
+                          {formatCurrency(account.creditAmount)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+                <div className="p-4">
+                  <div className="mb-2">
+                    <p className="text-sm text-gray-600">Credit Utilization</p>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                      <div
+                        className="bg-blue-600 h-2.5 rounded-full"
+                        style={{
+                          width: `${
+                            (Math.abs(account.balance) /
+                              account.creditAmount) *
+                            100
+                          }%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Current Balance:{" "}
+                    {formatCurrency(Math.abs(account.balance))}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+      </div>
+    </div>
+  )}
+</div>
+
 
           {/* Charts */}
           {incomeVsExpenseData && expenseData && (
@@ -514,12 +575,12 @@ function Dashboard() {
                       </TableCell>
                       <TableCell>{transaction.category}</TableCell>
                       <TableCell 
-                        className={transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}
+                        className={transaction.paymentType === "credit" ? 'text-green-600' : 'text-red-600'}
                       >
-                        {transaction.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+                        {transaction.displayAmount}
                       </TableCell>
                       <TableCell>
-                        {new Date(transaction.createdAt).toLocaleDateString('en-IN')}
+                        {new Date(transaction.date).toLocaleDateString('en-IN')}
                       </TableCell>
                     </TableRow>
                   ))}
