@@ -1,5 +1,6 @@
+// Dashboard.jsx
 import React, { useState, useEffect } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { auth } from "./lib/firebase"
 import { getUserData } from "./lib/userService"
 import { 
@@ -16,24 +17,19 @@ import {
 } from 'chart.js'
 import { Bar, Doughnut, Line } from "react-chartjs-2"
 import { 
-  Menu, 
-  ChevronDown, 
   DollarSign, 
   PieChart, 
-  MessageSquare, 
-  Brain, 
-  LogOut, 
   Wallet, 
   TrendingUp, 
   CreditCard, 
   Wifi,
-  ArrowUpRight
+  ArrowUpRight,
+  Target
 } from 'lucide-react'
 import { Button } from "../components/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/components/ui/card"
-import { Input } from "../components/components/ui/input"
 import {
-  Table as TableUI,
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -49,7 +45,6 @@ import {
 } from "../components/components/ui/select"
 
 import ProfileButton from './profile'
-import Sidebar from './Sidebar'
 
 ChartJS.register(
   CategoryScale,
@@ -65,14 +60,11 @@ ChartJS.register(
 
 function Dashboard() {
   const navigate = useNavigate()
-  const location = useLocation()
   const [user, setUser] = useState(null)
   const [userData, setUserData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [selectedTransactionType, setSelectedTransactionType] = useState("all")
 
-  // Fetch user data when auth state changes
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -100,6 +92,7 @@ function Dashboard() {
       console.error("Error signing out:", error)
     }
   }
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -108,36 +101,17 @@ function Dashboard() {
     }).format(amount)
   }
 
-
   const getCardBackground = (cardType) => {
     const types = {
-      visa: 'from-violet-500 to-violet-900',
-      mastercard: 'from-orange-500 to-red-500',
-      rupay: 'from-indigo-500 to-blue-500',
-      amex: 'from-green-400 to-blue-500',
-      discover: 'from-yellow-400 to-orange-500'
+      visa: 'from-[#1A1F71] to-[#4B1F71]',
+      mastercard: 'from-[#EB001B] to-[#F79E1B]',
+      rupay: 'from-[#097DC6] to-[#9C27B0]',
+      amex: 'from-[#006FCF] to-[#00AEEF]',
+      discover: 'from-[#FF6000] to-[#FFA500]'
     }
-    return types[cardType?.toLowerCase()] || 'from-gray-500 to-gray-700'
+    return types[cardType?.toLowerCase()] || 'from-gray-700 to-gray-900'
   }
 
-  const getCardBranding = (cardType) => {
-    const type = cardType?.toLowerCase()
-    switch(type) {
-      case 'visa':
-        return <span className="text-2xl font-bold italic">VISA</span>
-      case 'mastercard':
-        return <span className="text-2xl font-bold">MASTERCARD</span>
-      case 'rupay':
-        return <span className="text-2xl font-bold">RUPAY</span>
-      case 'american express':
-        return <span className="text-2xl font-bold">AMEX</span>
-      case 'discover':
-        return <span className="text-2xl font-bold">DISCOVER</span>
-      default:
-        return <span className="text-2xl font-bold">{cardType?.toUpperCase()}</span>
-    }
-  }
-  // Calculate monthly income and expenses
   const calculateMonthlyFinances = () => {
     if (!userData?.expenses || !userData?.accounts) return { 
       income: 0, 
@@ -148,7 +122,6 @@ function Dashboard() {
     const currentMonth = new Date().getMonth()
     const currentYear = new Date().getFullYear()
 
-    // Calculate recurring income from accounts
     const recurringIncome = userData.accounts.reduce((sum, account) => {
       return sum + (account.isRecurringIncome ? account.recurringAmount : 0)
     }, 0)
@@ -170,66 +143,6 @@ function Dashboard() {
     return { income, expenses, recurringIncome }
   }
 
-  const renderFinancialCard = (account) => {
-    if (account.type === "Credit") {
-      return (
-        <Card className="overflow-hidden">
-          <CardContent className="p-0">
-            <div className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(account.cardType)}`}>
-              <div className="flex justify-between items-start">
-                <Wifi className="h-8 w-8 text-white opacity-75" />
-                <span className="text-white font-bold">{account.name}</span>
-              </div>
-              <div className="text-white">
-                <div className="mb-4">
-                  <span className="text-2xl tracking-wider">
-                    •••• •••• •••• {account.cardNumber?.slice(-4) || '****'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-xs opacity-75">Credit Limit</p>
-                    <p className="font-bold">{formatCurrency(account.creditAmount || 0)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs opacity-75">Balance</p>
-                    <p className="font-bold">{formatCurrency(Math.abs(account.balance))}</p>
-                  </div>
-                  {getCardBranding(account.cardType)}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )
-    }
-
-    return (
-      <Card className="bg-gradient-to-br from-blue-50 to-white">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <div>
-            <CardTitle className="text-lg font-semibold">{account.name}</CardTitle>
-            <CardDescription>{account.type}</CardDescription>
-          </div>
-          <Wallet className="h-5 w-5 text-blue-600" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-blue-600">
-            {formatCurrency(account.balance)}
-          </div>
-          {account.isRecurringIncome && (
-            <div className="mt-2 flex items-center text-sm text-green-600">
-              <ArrowUpRight className="h-4 w-4 mr-1" />
-              Monthly Income: {formatCurrency(account.recurringAmount)}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    )
-  }
-
-
-  // Prepare data for expense breakdown chart
   const prepareExpenseData = () => {
     if (!userData?.expenses) return null
 
@@ -258,7 +171,6 @@ function Dashboard() {
     }
   }
 
-  // Prepare data for income vs expense chart
   const prepareIncomeVsExpenseData = () => {
     if (!userData?.expenses) return null
 
@@ -308,7 +220,6 @@ function Dashboard() {
     }
   }
 
-  // Filter transactions based on selected type
   const getFilteredTransactions = () => {
     if (!userData?.expenses) return []
     
@@ -323,11 +234,17 @@ function Dashboard() {
       .slice(0, 5)
   }
 
-  const { income, expenses, recurringIncome } = calculateMonthlyFinances()
-  const expenseData = prepareExpenseData()
-  const incomeVsExpenseData = prepareIncomeVsExpenseData()
-
-  
+  const getSavingsProgress = () => {
+    const monthlyGoal = userData?.savingsGoal?.monthly || 10000
+    const currentSavings = calculateMonthlyFinances().income - calculateMonthlyFinances().expenses
+    const progressPercentage = Math.min((currentSavings / monthlyGoal) * 100, 100)
+    
+    return {
+      current: currentSavings,
+      goal: monthlyGoal,
+      percentage: progressPercentage
+    }
+  }
 
   if (loading) {
     return (
@@ -337,266 +254,281 @@ function Dashboard() {
     )
   }
 
-
+  const { income, expenses, recurringIncome } = calculateMonthlyFinances()
+  const savingsProgress = getSavingsProgress()
+  const expenseData = prepareExpenseData()
+  const incomeVsExpenseData = prepareIncomeVsExpenseData()
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar Component */}
-      <Sidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)}
-        user={user}
-      />
+    <div className="min-h-screen bg-gray-100">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
+            <ProfileButton 
+              user={user}
+              onLogout={handleLogout}
+            />
+          </div>
+        </div>
+      </header>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <div className="flex items-center">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                  className="mr-4"
-                >
-                  <Menu className="h-6 w-6" />
-                </Button>
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  {location.pathname.split('/')[1].charAt(0).toUpperCase() + 
-                   location.pathname.split('/')[1].slice(1) || "Dashboard"}
-                </h2>
-              </div>
-              <div className="flex items-center gap-4">
-                <ProfileButton 
-                  user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                  onLogout={handleLogout}
-                />
-              </div>
-            </div>
-          </div>
-        </header>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(userData?.totalBalance || 0)}</div>
+              </CardContent>
+            </Card>
 
-
-        {/* Dashboard Content */}
-        <main className="flex-1 overflow-y-auto bg-gray-100 p-4">
-          <div className="max-w-7xl mx-auto space-y-8">
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-                  <Wallet className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{formatCurrency(userData?.totalBalance || 0)}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-green-600">{formatCurrency(income)}</div>
-                  {recurringIncome > 0 && (
-                    <div className="mt-2 flex items-center text-sm text-green-600">
-                      <ArrowUpRight className="h-4 w-4 mr-1" />
-                      Passive Income: {formatCurrency(recurringIncome)}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Monthly Expenses</CardTitle>
-                  <CreditCard className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-red-600">{formatCurrency(expenses)}</div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Net Savings</CardTitle>
-                  <PieChart className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{formatCurrency(income - expenses)}</div>
-                  <div className="mt-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
-                      <div 
-                        className="bg-blue-600 h-2.5 rounded-full" 
-                        style={{width: `${Math.min(((income - expenses) / income) * 100, 100)}%`}}
-                      />
-                    </div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">{formatCurrency(income)}</div>
+                {recurringIncome > 0 && (
+                  <div className="mt-2 flex items-center text-sm text-green-600">
+                    <ArrowUpRight className="h-4 w-4 mr-1" />
+                    Passive Income: {formatCurrency(recurringIncome)}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
-          
+                )}
+              </CardContent>
+            </Card>
 
-            {/* Financial Accounts */}
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {userData?.accounts?.map((account, index) => (
-                <div key={index}>
-                  {renderFinancialCard(account)}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Monthly Expenses</CardTitle>
+                <CreditCard className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-600">{formatCurrency(expenses)}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Savings Goal</CardTitle>
+                <Target className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(savingsProgress.current)}</div>
+                <div className="mt-2">
+                  <div className="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>Progress</span>
+                    <span>{savingsProgress.percentage.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div 
+                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
+                      style={{width: `${savingsProgress.percentage}%`}}
+                    />
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">
+                    Goal: {formatCurrency(savingsProgress.goal)}
+                  </p>
                 </div>
-              ))}
-            </div>
+              </CardContent>
+            </Card>
+          </div>
 
-
-
-            {/* Charts */}
-            {incomeVsExpenseData && expenseData && (
-              <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Income vs Expenses</CardTitle>
-                  </CardHeader>
-                  <CardContent className="h-[300px]">
-                    <Bar 
-                      data={incomeVsExpenseData} 
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: {
-                          x: { stacked: false },
-                          y: { stacked: false, beginAtZero: true }
-                        }
-                      }} 
-                    />
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Expense Breakdown</CardTitle>
-                  </CardHeader>
-                  <CardContent className="h-[300px]">
-                  <Doughnut 
-                      data={expenseData}
-                      options={{
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                          legend: {
-                            position: 'bottom'
-                          }
-                        }
-                      }}
-                    />
-                  </CardContent>
-                </Card>
+          {/* Financial Accounts */}
+          <div className="space-y-6">
+            {/* Bank Accounts */}
+            {userData?.accounts?.filter(account => account.type !== "Credit").length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {userData.accounts
+                    .filter(account => account.type !== "Credit")
+                    .map((account, index) => (
+                      <Card key={index} className="bg-gradient-to-br from-blue-50 to-white">
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <div>
+                            <CardTitle className="text-lg font-semibold">{account.name}</CardTitle>
+                            <CardDescription>{account.type}</CardDescription>
+                          </div>
+                          <Wallet className="h-5 w-5 text-blue-600" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold text-blue-600">
+                            {formatCurrency(account.balance)}
+                          </div>
+                          {account.isRecurringIncome && (
+                            <div className="mt-2 flex items-center text-sm text-green-600">
+                              <ArrowUpRight className="h-4 w-4 mr-1" />
+                              Monthly Income: {formatCurrency(account.recurringAmount)}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
               </div>
             )}
 
-            {/* Savings Goal Chart */}
-            <Card className="mt-8">
-              <CardHeader>
-                <CardTitle>Savings Goal Progress</CardTitle>
-              </CardHeader>
-              <CardContent className="h-[300px]">
-                <Line 
-                  data={{
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                    datasets: [
-                      {
-                        label: 'Actual Savings',
-                        data: userData?.savingsProgress || [500, 1000, 1500, 2200, 2800, 3500],
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderWidth: 2,
-                        fill: true
-                      },
-                      {
-                        label: 'Savings Goal',
-                        data: [1000, 2000, 3000, 4000, 5000, 6000],
-                        borderColor: 'rgba(255, 159, 64, 1)',
-                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                        borderWidth: 2,
-                        borderDash: [5, 5],
-                        fill: false
-                      }
-                    ]
-                  }}
-                  options={{
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                      legend: {
-                        position: 'bottom'
-                      }
-                    }
-                  }}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Recent Transactions */}
-            <Card className="mt-8">
-              <CardHeader className="flex justify-between items-center">
-                <CardTitle>Recent Transactions</CardTitle>
-                <Select 
-                  value={selectedTransactionType}
-                  onValueChange={setSelectedTransactionType}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Filter by category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    <SelectItem value="income">Income</SelectItem>
-                    <SelectItem value="expense">Expense</SelectItem>
-                  </SelectContent>
-                </Select>
-              </CardHeader>
-              <CardContent>
-                <TableUI>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Transaction</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {getFilteredTransactions().map((transaction, index) => (
-                      <TableRow key={index}>
-                        <TableCell className="font-medium">
-                          {transaction.description}
-                        </TableCell>
-                        <TableCell>{transaction.category}</TableCell>
-                        <TableCell 
-                          className={transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}
-                        >
-                          {transaction.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(transaction.createdAt).toLocaleDateString('en-IN')}
-                        </TableCell>
-                      </TableRow>
+            {/* Credit Cards */}
+            {userData?.accounts?.filter(account => account.type === "Credit").length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Credit Cards</h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {userData.accounts.filter(account => account.type === "Credit")
+                    .map((account, index) => (
+                      <Card key={index} className="overflow-hidden">
+                        <CardContent className="p-0">
+                          <div className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(account.cardType)}`}>
+                            <div className="flex justify-between items-start">
+                              <Wifi className="h-8 w-8 text-white opacity-75" />
+                              <div className="text-white text-right">
+                                <p className="font-bold">{account.name}</p>
+                                <p className="text-sm opacity-75">Valid thru: {account.expiryDate}</p>
+                              </div>
+                            </div>
+                            <div className="text-white">
+                              <div className="mb-4">
+                                <span className="text-xl tracking-widest">
+                                  •••• •••• •••• {account.cardNumber?.slice(-4) || '****'}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-end">
+                                <div>
+                                  <p className="text-xs opacity-75">Available Credit</p>
+                                  <p className="font-bold">{formatCurrency(account.creditAmount - Math.abs(account.balance))}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs opacity-75">Total Credit</p>
+                                  <p className="font-bold">{formatCurrency(account.creditAmount)}</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <div className="mb-2">
+                              <p className="text-sm text-gray-600">Credit Utilization</p>
+                              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                <div 
+                                  className="bg-blue-600 h-2.5 rounded-full"
+                                  style={{
+                                    width: `${(Math.abs(account.balance) / account.creditAmount) * 100}%`
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              Current Balance: {formatCurrency(Math.abs(account.balance))}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
                     ))}
-                  </TableBody>
-                </TableUI>
-              </CardContent>
-            </Card>
+                </div>
+              </div>
+            )}
           </div>
-        </main>
-      </div>
+
+          {/* Charts */}
+          {incomeVsExpenseData && expenseData && (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Income vs Expenses</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <Bar 
+                    data={incomeVsExpenseData} 
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      scales: {
+                        x: { stacked: false },
+                        y: { stacked: false, beginAtZero: true }
+                      }
+                    }} 
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Expense Breakdown</CardTitle>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                  <Doughnut 
+                    data={expenseData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: 'bottom'
+                        }
+                      }
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Recent Transactions */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Recent Transactions</CardTitle>
+              <Select 
+                value={selectedTransactionType}
+                onValueChange={setSelectedTransactionType}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter transactions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Transactions</SelectItem>
+                  <SelectItem value="income">Income</SelectItem>
+                  <SelectItem value="expense">Expenses</SelectItem>
+                </SelectContent>
+              </Select>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Date</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {getFilteredTransactions().map((transaction, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">
+                        {transaction.description}
+                      </TableCell>
+                      <TableCell>{transaction.category}</TableCell>
+                      <TableCell 
+                        className={transaction.amount > 0 ? 'text-green-600' : 'text-red-600'}
+                      >
+                        {transaction.amount > 0 ? '+' : '-'}{formatCurrency(Math.abs(transaction.amount))}
+                      </TableCell>
+                      <TableCell>
+                        {new Date(transaction.createdAt).toLocaleDateString('en-IN')}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
     </div>
   )
 }
