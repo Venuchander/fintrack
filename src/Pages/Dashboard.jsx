@@ -126,7 +126,7 @@ function Dashboard() {
     const recurringIncome = userData.accounts.reduce((sum, account) => {
       return sum + (account.isRecurringIncome ? account.recurringAmount : 0)
     }, 0)
-
+    
     const monthlyTransactions = userData.expenses.filter(expense => {
       const expenseDate = new Date(expense.date)
       return expenseDate.getMonth() === currentMonth && 
@@ -134,10 +134,23 @@ function Dashboard() {
     })
 
     // Sum all transactions for expenses (positive amounts are expenses in your structure)
-    const expenses = monthlyTransactions
-      .reduce((sum, t) => sum + (t.amount || 0), 0)
+    const { income: monthlyIncome, expenses: monthlyExpenses } = monthlyTransactions.reduce(
+      (acc, transaction) => {
+        if (transaction.paymentType === "credit" || transaction.paymentType === "income") {
+          acc.income += transaction.amount
+        } else {
+          acc.expenses += transaction.amount
+        }
+        return acc
+      },
+      { income: 0, expenses: 0 }
+    )
 
-    return { income: recurringIncome, expenses, recurringIncome }
+    return { 
+      income: monthlyIncome + recurringIncome, 
+      expenses: monthlyExpenses,
+      recurringIncome 
+    }
   }
 
   const prepareExpenseData = () => {
@@ -239,15 +252,20 @@ function Dashboard() {
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .filter(transaction => {
         if (selectedTransactionType === "all") return true
-        if (selectedTransactionType === "income") return transaction.paymentType === "credit"
-        if (selectedTransactionType === "expense") return transaction.paymentType === "debit"
+        if (selectedTransactionType === "income") {
+          return transaction.paymentType === "credit" || transaction.paymentType === "income"
+        }
+        if (selectedTransactionType === "expense") {
+          return transaction.paymentType === "debit" || transaction.paymentType === "cash"
+        }
         return true
       })
       .map(transaction => ({
         ...transaction,
-        displayAmount: transaction.paymentType === "debit"
+        displayAmount: (transaction.paymentType === "debit" || transaction.paymentType === "cash")
           ? `-${formatCurrency(transaction.amount)}` 
-          : `+${formatCurrency(transaction.amount)}`
+          : `+${formatCurrency(transaction.amount)}`,
+        isIncome: transaction.paymentType === "credit" || transaction.paymentType === "income"
       }))
       .slice(0, 5)
   }
@@ -333,7 +351,9 @@ function Dashboard() {
                 <Wallet className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(userData?.userDetails?.totalBalance || 0)}</div>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(userData?.totalBalance || 0)}
+                </div>
               </CardContent>
             </Card>
 
@@ -343,11 +363,13 @@ function Dashboard() {
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">{formatCurrency(income)}</div>
+                <div className="text-2xl font-bold text-green-600">
+                  {formatCurrency(income)}
+                </div>
                 {recurringIncome > 0 && (
                   <div className="mt-2 flex items-center text-sm text-green-600">
-                    <ArrowUpRight className="h-4 w-4 mr-1" />
-                    Passive Income: {formatCurrency(recurringIncome)}
+                    {/* <ArrowUpRight className="h-4 w-4 mr-1" />
+                    Passive Income: {formatCurrency(recurringIncome)} */}
                   </div>
                 )}
               </CardContent>
@@ -359,7 +381,9 @@ function Dashboard() {
                 <CreditCard className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">{formatCurrency(expenses)}</div>
+                <div className="text-2xl font-bold text-red-600">
+                  {formatCurrency(expenses)}
+                </div>
               </CardContent>
             </Card>
 
@@ -369,144 +393,133 @@ function Dashboard() {
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(savingsProgress.current)}</div>
-                <div className="mt-2">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Progress</span>
-                    <span>{savingsProgress.percentage.toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5">
-                    <div 
-                      className="bg-blue-600 h-2.5 rounded-full transition-all duration-300" 
-                      style={{width: `${savingsProgress.percentage}%`}}
-                    />
-                  </div>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Goal: {formatCurrency(savingsProgress.goal)}
-                  </p>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(userData?.savingsGoal || 0)}
                 </div>
+                {/* <p className="text-sm text-muted-foreground mt-1">
+                  Monthly Target
+                </p> */}
               </CardContent>
             </Card>
           </div>
 
-{/* Financial Accounts */}
-<div className="space-y-6">
-  {/* Bank Accounts */}
-  {userData?.accounts?.filter(account => account.type !== "Credit").length > 0 && (
-    <div>
-      <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {userData.accounts
-          .filter(account => account.type !== "Credit")
-          .map((account, index) => (
-            <Card
-              key={index}
-              className="bg-gradient-to-br from-blue-50 to-white"
-            >
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div>
-                  <CardTitle className="text-lg font-semibold">
-                    {account.name}
-                  </CardTitle>
-                  <CardDescription>{account.type}</CardDescription>
-                </div>
-                <Wallet className="h-5 w-5 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">
-                  {formatCurrency(account.balance)}
-                </div>
-                {account.isRecurringIncome && (
-                  <div className="mt-2 flex items-center text-sm text-green-600">
-                    <ArrowUpRight className="h-4 w-4 mr-1" />
-                    Monthly Income: {formatCurrency(account.recurringAmount)}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-      </div>
-    </div>
-  )}
-
-  {/* Credit Cards */}
-  {userData?.accounts?.filter(account => account.type === "Credit").length > 0 && (
-    <div>
-      <h3 className="text-lg font-semibold mb-4">Credit Cards</h3>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {userData.accounts
-          .filter(account => account.type === "Credit")
-          .map((account, index) => (
-            <Card key={index} className="overflow-hidden">
-              <CardContent className="p-0">
-                <div
-                  className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(
-                    account.cardType
-                  )}`}
-                >
-                  <div className="flex justify-between items-start">
-                    <Wifi className="h-8 w-8 text-white opacity-75" />
-                    <div className="text-white text-right">
-                      <p className="font-bold">{account.name}</p>
-                      <p className="text-sm opacity-75">
-                        Valid thru: {account.expiryDate}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-white">
-                    <div className="mb-4">
-                      <span className="text-xl tracking-widest">
-                        •••• •••• ••••{" "}
-                        {account.cardNumber?.slice(-4) || "****"}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-end">
-                      <div>
-                        <p className="text-xs opacity-75">Available Credit</p>
-                        <p className="font-bold">
-                          {formatCurrency(
-                            account.creditAmount - Math.abs(account.balance)
+          {/* Financial Accounts */}
+          <div className="space-y-6">
+            {/* Bank Accounts */}
+            {userData?.accounts?.filter(account => account.type !== "Credit").length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {userData.accounts
+                    .filter(account => account.type !== "Credit")
+                    .map((account, index) => (
+                      <Card
+                        key={index}
+                        className="bg-gradient-to-br from-blue-50 to-white"
+                      >
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <div>
+                            <CardTitle className="text-lg font-semibold">
+                              {account.name}
+                            </CardTitle>
+                            <CardDescription>{account.type}</CardDescription>
+                          </div>
+                          <Wallet className="h-5 w-5 text-blue-600" />
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold text-blue-600">
+                            {formatCurrency(account.balance)}
+                          </div>
+                          {account.isRecurringIncome && (
+                            <div className="mt-2 flex items-center text-sm text-green-600">
+                              {/* <ArrowUpRight className="h-4 w-4 mr-1" />
+                              Monthly Income: {formatCurrency(account.recurringAmount)} */}
+                            </div>
                           )}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs opacity-75">Total Credit</p>
-                        <p className="font-bold">
-                          {formatCurrency(account.creditAmount)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                        </CardContent>
+                      </Card>
+                    ))}
                 </div>
-                <div className="p-4">
-                  <div className="mb-2">
-                    <p className="text-sm text-gray-600">Credit Utilization</p>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
-                      <div
-                        className="bg-blue-600 h-2.5 rounded-full"
-                        style={{
-                          width: `${
-                            (Math.abs(account.balance) /
-                              account.creditAmount) *
-                            100
-                          }%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Current Balance:{" "}
-                    {formatCurrency(Math.abs(account.balance))}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-      </div>
-    </div>
-  )}
-</div>
+              </div>
+            )}
 
+            {/* Credit Cards */}
+            {userData?.accounts?.filter(account => account.type === "Credit").length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold mb-4">Credit Cards</h3>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {userData.accounts
+                    .filter(account => account.type === "Credit")
+                    .map((account, index) => (
+                      <Card key={index} className="overflow-hidden">
+                        <CardContent className="p-0">
+                          <div
+                            className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(
+                              account.cardType
+                            )}`}
+                          >
+                            <div className="flex justify-between items-start">
+                              <Wifi className="h-8 w-8 text-white opacity-75" />
+                              <div className="text-white text-right">
+                                <p className="font-bold">{account.name}</p>
+                                <p className="text-sm opacity-75">
+                                  Valid thru: {account.expiryDate}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-white">
+                              <div className="mb-4">
+                                <span className="text-xl tracking-widest">
+                                  •••• •••• ••••{" "}
+                                  {account.cardNumber?.slice(-4) || "****"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-end">
+                                <div>
+                                  <p className="text-xs opacity-75">Available Credit</p>
+                                  <p className="font-bold">
+                                    {formatCurrency(
+                                      account.creditAmount - Math.abs(account.balance)
+                                    )}
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs opacity-75">Total Credit</p>
+                                  <p className="font-bold">
+                                    {formatCurrency(account.creditAmount)}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <div className="mb-2">
+                              <p className="text-sm text-gray-600">Credit Utilization</p>
+                              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                                <div
+                                  className="bg-blue-600 h-2.5 rounded-full"
+                                  style={{
+                                    width: `${
+                                      (Math.abs(account.balance) /
+                                        account.creditAmount) *
+                                      100
+                                    }%`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              Current Balance:{" "}
+                              {formatCurrency(Math.abs(account.balance))}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Charts */}
           {incomeVsExpenseData && expenseData && (
@@ -577,6 +590,7 @@ function Dashboard() {
                     <TableHead>Category</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Date</TableHead>
+                    <TableHead>Type</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -587,12 +601,21 @@ function Dashboard() {
                       </TableCell>
                       <TableCell>{transaction.category}</TableCell>
                       <TableCell 
-                        className={transaction.paymentType === "credit" ? 'text-green-600' : 'text-red-600'}
+                        className={transaction.isIncome ? 'text-green-600' : 'text-red-600'}
                       >
                         {transaction.displayAmount}
                       </TableCell>
                       <TableCell>
                         {new Date(transaction.date).toLocaleDateString('en-IN')}
+                      </TableCell>
+                      <TableCell>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          transaction.isIncome 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {transaction.isIncome ? 'Income' : 'Expense'}
+                        </span>
                       </TableCell>
                     </TableRow>
                   ))}
