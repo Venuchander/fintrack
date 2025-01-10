@@ -267,6 +267,17 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100">
+      {isSidebarOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setIsSidebarOpen(false)} />
+      )}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        user={user}
+      />
+
+      
       {/* Header */}
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -294,9 +305,10 @@ function Dashboard() {
                   <line x1="3" y1="18" x2="21" y2="18"></line>
                 </svg>
               </Button>
-              <ProfileButton 
+              <ProfileButton
                 user={user}
-                onLogout={handleLogout}
+                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                onLogout={() => auth.signOut()}
               />
             </div>
           </div>
