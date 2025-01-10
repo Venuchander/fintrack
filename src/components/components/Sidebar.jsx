@@ -1,7 +1,7 @@
 // Sidebar.jsx
 import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { PieChart, DollarSign, MessageSquare, Brain, LogOut, Wallet } from 'lucide-react'
+import { PieChart, DollarSign, MessageSquare, Brain, LogOut, Wallet, Settings } from 'lucide-react'
 import { Button } from "../ui/button"
 import { auth } from "../../Pages/lib/firebase"
 
@@ -15,6 +15,7 @@ const Sidebar = ({ isOpen, onClose, user }) => {
     { name: "Expenses", icon: DollarSign, path: "/expense" },
     { name: "Chatbot", icon: MessageSquare, path: "/chatbot" },
     { name: "AI Insights", icon: Brain, path: "/insights" },
+    {name: "Settings", icon: Settings, path: "/settings"}
   ]
 
   const handleNavigation = (path) => {
