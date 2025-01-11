@@ -248,30 +248,73 @@ function Dashboard() {
   }
 
   const getFilteredTransactions = () => {
-    if (!userData?.expenses) return []
+    if (!userData?.expenses || !userData?.accounts) return []
     
-    return userData.expenses
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    // Get all income transactions from accounts (bank, cash, credit, recurring)
+    const incomeTransactions = userData.accounts
+      .flatMap(account => {
+        const transactions = []
+
+        // Add regular balance as income if it's positive
+        if (account.balance > 0) {
+          transactions.push({
+            description: `Balance from ${account.name}`,
+            category: account.type || 'Income',
+            amount: account.balance,
+            date: account.updatedAt || new Date().toISOString(),
+            paymentType: 'income',
+            accountType: account.type,
+            isIncome: true
+          })
+        }
+
+        // Add recurring income if present
+        if (account.isRecurringIncome && account.recurringAmount > 0) {
+          transactions.push({
+            description: `Recurring Income from ${account.name}`,
+            category: account.type || 'Income',
+            amount: account.recurringAmount,
+            date: new Date().toISOString(),
+            paymentType: 'income',
+            accountType: account.type,
+            isIncome: true
+          })
+        }
+
+        return transactions
+      })
+
+    // Get expense transactions
+    const expenseTransactions = userData.expenses.map(transaction => ({
+      ...transaction,
+      isIncome: false
+    }))
+
+    // Combine and sort all transactions
+    const allTransactions = [...incomeTransactions, ...expenseTransactions]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
       .filter(transaction => {
         if (selectedTransactionType === "all") return true
-        if (selectedTransactionType === "income") {
-          return transaction.paymentType === "credit" || transaction.paymentType === "income"
-        }
-        if (selectedTransactionType === "expense") {
-          return transaction.paymentType === "debit" || transaction.paymentType === "cash"
-        }
+        if (selectedTransactionType === "income") return transaction.isIncome
+        if (selectedTransactionType === "expense") return !transaction.isIncome
         return true
       })
       .map(transaction => ({
         ...transaction,
-        displayAmount: (transaction.paymentType === "debit" || transaction.paymentType === "cash")
-          ? `-${formatCurrency(transaction.amount)}` 
-          : `+${formatCurrency(transaction.amount)}`,
-        isIncome: transaction.paymentType === "credit" || transaction.paymentType === "income"
+        displayAmount: transaction.isIncome
+          ? `+${formatCurrency(transaction.amount)}`
+          : `-${formatCurrency(transaction.amount)}`,
+        // Format category to show account type for income
+        category: transaction.isIncome 
+          ? `${transaction.category} ${transaction.accountType ? `(${transaction.accountType})` : ''}`
+          : transaction.category
       }))
       .slice(0, 5)
+
+    return allTransactions
   }
 
+  
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -598,28 +641,28 @@ function Dashboard() {
                 <TableBody>
                   {getFilteredTransactions().map((transaction, index) => (
                     <TableRow key={index}>
-                      <TableCell className="font-medium">
-                        {transaction.description}
-                      </TableCell>
-                      <TableCell>{transaction.category}</TableCell>
-                      <TableCell 
-                        className={transaction.isIncome ? 'text-green-600' : 'text-red-600'}
-                      >
-                        {transaction.displayAmount}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(transaction.date).toLocaleDateString('en-IN')}
-                      </TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          transaction.isIncome 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {transaction.isIncome ? 'Income' : 'Expense'}
-                        </span>
-                      </TableCell>
-                    </TableRow>
+                    <TableCell className="font-medium">
+                      {transaction.description}
+                    </TableCell>
+                    <TableCell>{transaction.category}</TableCell>
+                    <TableCell 
+                      className={transaction.isIncome ? 'text-green-600' : 'text-red-600'}
+                    >
+                      {transaction.displayAmount}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(transaction.date).toLocaleDateString('en-IN')}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        transaction.isIncome 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {transaction.isIncome ? 'Income' : 'Expense'}
+                      </span>
+                    </TableCell>
+                  </TableRow>
                   ))}
                 </TableBody>
               </Table>
