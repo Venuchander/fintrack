@@ -322,9 +322,9 @@ Security Guidelines:
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 bg-blue-500">
-                  <AvatarImage src="/placeholder.svg" />
+                  <AvatarImage src="src\components\components\Images\robot.png" />
                   <AvatarFallback>
-                    <Lightbulb className="h-5 w-5 text-white" />
+                    🤖 {/* You can also add a different emoji or text */}
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -357,18 +357,27 @@ Security Guidelines:
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-start gap-1`}
             >
+              {/* Avatar for Bot */}
+              {message.sender === 'bot' && (
+                <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0">
+                  <AvatarImage src="src\components\components\Images\robot.png" />
+                </Avatar>
+              )}
+              
+              {/* Chat Bubble */}
               <div className="flex flex-col gap-1 max-w-[80%]">
                 <div
                   className={`rounded-2xl px-4 py-2 ${
                     message.sender === 'user'
-                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-800'
+                      ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white' // User message style
+                      : 'bg-green-100 text-green-800 border border-green-300' // Bot message style
                   }`}
                 >
                   {message.text}
                 </div>
+                {/* Timestamp */}
                 <span className={`text-xs text-gray-500 ${
                   message.sender === 'user' ? 'text-right' : 'text-left'
                 }`}>
