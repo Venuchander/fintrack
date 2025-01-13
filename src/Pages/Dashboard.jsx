@@ -20,13 +20,16 @@ import {
   PieChart, 
   Wallet, 
   IndianRupee,
+  IndianRupeeIcon,
   TrendingUp, 
   CreditCard, 
   Wifi,
   ArrowUpRight,
   ArrowDownRight,
   Target,
-  TrendingDown
+  TrendingDown,
+  ReceiptIndianRupee,
+  ReceiptIndianRupeeIcon
 } from 'lucide-react'
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card"
@@ -488,41 +491,47 @@ function Dashboard() {
           <div className="space-y-6">
             {/* Bank Accounts */}
             {userData?.accounts?.filter(account => account.type !== "Credit").length > 0 && (
-              <div>
-                <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {userData.accounts
-                    .filter(account => account.type !== "Credit")
-                    .map((account, index) => (
-                      <Card
-                        key={index}
-                        className="bg-gradient-to-br from-blue-50 to-white"
-                      >
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                          <div>
-                            <CardTitle className="text-lg font-semibold">
-                              {account.name}
-                            </CardTitle>
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {userData.accounts
+                  .filter(account => account.type !== "Credit")
+                  .map((account, index) => (
+                    <Card
+                      key={index}
+                      className="bg-gradient-to-br from-blue-50 to-white"
+                    >
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <div>
+                          <CardTitle className="text-lg font-semibold">
+                            {account.name}
+                          </CardTitle>
+                          {!(account.type === "Cash" || account.name.toLowerCase() === "cash") && (
                             <CardDescription>{account.type}</CardDescription>
-                          </div>
-                          <Wallet className="h-5 w-5 text-blue-600" />
-                        </CardHeader>
-                        <CardContent>
-                          <div className="text-2xl font-bold text-blue-600">
-                            {formatCurrency(account.balance)}
-                          </div>
-                          {account.isRecurringIncome && (
-                            <div className="mt-2 flex items-center text-sm text-green-600">
-                              {/* <ArrowUpRight className="h-4 w-4 mr-1" />
-                              Monthly Income: {formatCurrency(account.recurringAmount)} */}
-                            </div>
                           )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                </div>
+                        </div>
+                        {(account.type === "Cash" || account.name.toLowerCase() === "cash") ? (
+                          <ReceiptIndianRupeeIcon className="h-5 w-5 text-blue-600" />
+                        ) : (
+                          <Wallet className="h-5 w-5 text-blue-600" />
+                        )}
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-blue-600">
+                          {formatCurrency(account.balance)}
+                        </div>
+                        {account.isRecurringIncome && (
+                          <div className="mt-2 flex items-center text-sm text-green-600">
+                            {/* <ArrowUpRight className="h-4 w-4 mr-1" />
+                            Monthly Income: {formatCurrency(account.recurringAmount)} */}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
               </div>
-            )}
+            </div>
+          )}
 
             {/* Credit Cards */}
             {userData?.accounts?.filter(account => account.type === "Credit").length > 0 && (
