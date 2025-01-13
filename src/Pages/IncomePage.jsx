@@ -44,7 +44,7 @@ const getIconComponent = (iconType) => {
 export default function IncomeDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [totalBalance, setTotalBalance] = useState(0);
@@ -97,7 +97,7 @@ export default function IncomeDashboard() {
       } else {
         navigate("/login");
       }
-      setLoading(false);
+      setIsLoading(false);
     });
     return () => unsubscribe();
   }, [navigate]);
@@ -224,10 +224,10 @@ export default function IncomeDashboard() {
     setEditValue(accounts[index][field].toString());
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-xl font-semibold">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
   }

@@ -60,7 +60,7 @@ const formSchema = z.object({
 function AddExpense() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [bankAccounts, setBankAccounts] = useState([]);
@@ -107,7 +107,7 @@ function AddExpense() {
       } else {
         navigate("/login");
       }
-      setLoading(false);
+      setIsLoading(false);
     });
 
     return () => unsubscribe();
@@ -142,14 +142,13 @@ function AddExpense() {
     }
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-xl font-semibold">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
-
   return (
     <div className="flex min-h-screen bg-gray-100">
       {isSidebarOpen && (

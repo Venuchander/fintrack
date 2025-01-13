@@ -90,7 +90,7 @@ const Insights = () => {
     monthly: [],
     yearly: []
   });
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Fetch user data and generate insights
@@ -127,23 +127,24 @@ const Insights = () => {
               yearly: yearlyResponse.response.text().split('\n').filter(item => item.trim())
             });
           }
-          setLoading(false);
+          setIsLoading(false);
         });
 
         return () => unsubscribe();
       } catch (error) {
         console.error('Error generating insights:', error);
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchDataAndGenerateInsights();
   }, [navigate]);
 
-  if (loading) {
+
+  if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
         <div className="ml-2 text-xl font-semibold">Generating insights...</div>
       </div>
     );

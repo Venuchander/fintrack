@@ -63,7 +63,7 @@ function Dashboard() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [userData, setUserData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedTransactionType, setSelectedTransactionType] = useState("all")
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
@@ -80,7 +80,7 @@ function Dashboard() {
       } else {
         navigate("/login")
       }
-      setLoading(false)
+      setIsLoading(false)
     })
 
     return () => unsubscribe()
@@ -315,12 +315,12 @@ function Dashboard() {
   }
 
   
-  if (loading) {
+  if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-xl font-semibold">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
-    )
+    );
   }
 
   const { income, expenses, recurringIncome } = calculateMonthlyFinances()
