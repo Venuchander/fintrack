@@ -1,7 +1,7 @@
 // Sidebar.jsx
 import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { PieChart, DollarSign, MessageSquare, Brain, LogOut, Wallet, Settings } from 'lucide-react'
+import { PieChart, IndianRupee, MessageSquare, Brain, LogOut, Wallet, Settings, Bot } from 'lucide-react'
 import { Button } from "../ui/button"
 import { auth } from "../../Pages/lib/firebase"
 
@@ -12,9 +12,9 @@ const Sidebar = ({ isOpen, onClose, user }) => {
   const navigationItems = [
     { name: "Dashboard", icon: PieChart, path: "/dashboard" },
     { name: "Income", icon: Wallet, path: "/income" },
-    { name: "Expenses", icon: DollarSign, path: "/expense" },
+    { name: "Expenses", icon: IndianRupee, path: "/expense" },
     { name: "Chatbot", icon: MessageSquare, path: "/chatbot" },
-    { name: "AI Insights", icon: Brain, path: "/insights" },
+    { name: "AI Insights", icon: Bot, path: "/insights" },
     {name: "Settings", icon: Settings, path: "/settings"}
   ]
 
