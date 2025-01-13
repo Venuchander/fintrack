@@ -79,7 +79,6 @@ const PhoneNumberPage = () => {
               className="h-11"
               placeholder="Enter your phone number"
             />
-            <p className="text-xs text-gray-500">Format: +91XXXXXXXXXX</p>
           </div>
 
           <div className="space-y-2">
