@@ -19,6 +19,7 @@ import {
   DollarSign, 
   PieChart, 
   Wallet, 
+  IndianRupee,
   TrendingUp, 
   CreditCard, 
   Wifi,
@@ -73,6 +74,40 @@ function Dashboard() {
         setUser(user)
         try {
           const data = await getUserData(user.uid)
+          // Process accounts to combine cash accounts
+          if (data?.accounts) {
+            const processedAccounts = data.accounts.reduce((acc, account) => {
+              if (account.type === "Cash" || account.name.toLowerCase() === "cash") {
+                // Find existing cash account
+                const existingCashIndex = acc.findIndex(a => 
+                  a.type === "Cash" || a.name.toLowerCase() === "cash"
+                );
+
+                if (existingCashIndex !== -1) {
+                  // Update existing cash account
+                  acc[existingCashIndex] = {
+                    ...acc[existingCashIndex],
+                    balance: acc[existingCashIndex].balance + account.balance,
+                    // Combine recurring amounts if present
+                    recurringAmount: (acc[existingCashIndex].recurringAmount || 0) + 
+                                   (account.recurringAmount || 0),
+                    isRecurringIncome: acc[existingCashIndex].isRecurringIncome || 
+                                     account.isRecurringIncome
+                  };
+                } else {
+                  // Add new cash account
+                  acc.push(account);
+                }
+              } else {
+                // Add non-cash account as is
+                acc.push(account);
+              }
+              return acc;
+            }, []);
+
+            // Update the data with processed accounts
+            data.accounts = processedAccounts;
+          }
           setUserData(data)
         } catch (error) {
           console.error("Error fetching user data:", error)
@@ -128,7 +163,8 @@ function Dashboard() {
     const recurringIncome = userData.accounts.reduce((sum, account) => {
       return sum + (account.isRecurringIncome ? account.recurringAmount : 0)
     }, 0)
-    
+
+
     const monthlyTransactions = userData.expenses.filter(expense => {
       const expenseDate = new Date(expense.date)
       return expenseDate.getMonth() === currentMonth && 
