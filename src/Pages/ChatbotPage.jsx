@@ -326,7 +326,7 @@ Security Guidelines:
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 bg-blue-500">
-                  <AvatarImage src="src\assets\robot.png" />
+                  <AvatarImage src="/assets/robot.png" />
                 </Avatar>
                 <div>
                   <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
@@ -363,7 +363,7 @@ Security Guidelines:
               {/* Avatar for Bot */}
               {message.sender === 'bot' && (
                 <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0">
-                  <AvatarImage src="src\assets\robot.png" />
+                  <AvatarImage src="/assets/robot.png" />
                 </Avatar>
               )}
               
