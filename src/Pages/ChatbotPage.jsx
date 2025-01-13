@@ -327,9 +327,6 @@ Security Guidelines:
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 bg-blue-500">
                   <AvatarImage src="src\assets\robot.png" />
-                  <AvatarFallback>
-                    🤖 {/* You can also add a different emoji or text */}
-                  </AvatarFallback>
                 </Avatar>
                 <div>
                   <h1 className="text-xl font-bold text-gray-800">AI Assistant</h1>
