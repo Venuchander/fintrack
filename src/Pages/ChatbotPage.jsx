@@ -16,7 +16,7 @@ import { getAuth } from 'firebase/auth'
 import { getFirestore, doc, getDoc, collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore'
 
 // Initialize Gemini AI
-const genAI = new GoogleGenerativeAI("Gemini API Key")
+const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEN_AI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 
 const auth = getAuth()
@@ -24,7 +24,7 @@ const db = getFirestore()
 
 // Utility function to generate context-aware prompts
 const generateContextualPrompt = (userData, messages, userInput) => {
-  return `You are an intelligent financial assistant. Here is the user's current financial data:
+  return `You are an intelligent financial assistant. Here is the user's current financial data, remember that data is based on the INR/₹ not dollar:
 
 Financial Overview:
 - Total Balance: ${userData?.totalBalance || 0}
@@ -178,7 +178,7 @@ export default function ChatbotPage() {
         return
       }
 
-      const BLAND_API_KEY = "Bland API Key"
+      const BLAND_API_KEY = import.meta.env.VITE_BLAND_API_KEY;
       
       // Create a detailed task description using the same financial data as Gemini
       const taskDescription = `
