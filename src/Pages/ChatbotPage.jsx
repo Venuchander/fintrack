@@ -322,7 +322,7 @@ Security Guidelines:
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10 bg-blue-500">
-                  <AvatarImage src="src\components\components\Images\robot.png" />
+                  <AvatarImage src="src\assets\robot.png" />
                   <AvatarFallback>
                     🤖 {/* You can also add a different emoji or text */}
                   </AvatarFallback>
@@ -362,7 +362,7 @@ Security Guidelines:
               {/* Avatar for Bot */}
               {message.sender === 'bot' && (
                 <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0">
-                  <AvatarImage src="src\components\components\Images\robot.png" />
+                  <AvatarImage src="src\assets\robot.png" />
                 </Avatar>
               )}
               
