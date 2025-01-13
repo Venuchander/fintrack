@@ -2,15 +2,16 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
+require('dotenv').config();
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAfRdxmjoD8E4p5_iI5EhYDd3SbF6oSFpE",
-  authDomain: "fintrack-e16d2.firebaseapp.com",
-  projectId: "fintrack-e16d2",
-  storageBucket: "fintrack-e16d2.firebasestorage.app",
-  messagingSenderId: "86110773640",
-  appId: "1:86110773640:web:f5842b39ee383458249a3d",
-  measurementId: "G-DTMLDQQJPJ"
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 };
 
 const app = initializeApp(firebaseConfig);
