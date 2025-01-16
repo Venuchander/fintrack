@@ -1,22 +1,28 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Moon, Sun, Bell } from 'lucide-react'
+import { Moon, Sun, Bell, Phone } from 'lucide-react'
 import { useNavigate } from "react-router-dom"
 import { auth } from "./lib/firebase"
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../components/ui/card'
 import { Switch } from '../components/ui/switch'
 import { Label } from '../components/ui/label'
+import { Input } from '../components/ui/input'
+import { Button } from '../components/ui/button'
 import Sidebar from '../components/components/Sidebar'
 import ProfileButton from '../components/components/profile'
+import { createOrUpdateUser, getUserData } from './lib/userService'
 
 const SettingsPage = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [isEditingPhone, setIsEditingPhone] = useState(false)
+  const [isUpdatingPhone, setIsUpdatingPhone] = useState(false)
 
   // Handle dark mode toggle
   const toggleDarkMode = () => {
@@ -24,22 +30,65 @@ const SettingsPage = () => {
     document.documentElement.classList.toggle('dark')
   }
 
-  // Check authentication state
+  // Fetch user data including phone number
+  const fetchUserData = async (uid) => {
+    try {
+      const userData = await getUserData(uid)
+      if (userData && userData.phoneNumber) {
+        // Remove +91 prefix if it exists for display
+        setPhoneNumber(userData.phoneNumber.replace('+91', ''))
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error)
+    }
+  }
+
+  // Check authentication state and load user data
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) setUser(user)
-      else navigate("/login")
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        setUser(user)
+        await fetchUserData(user.uid)
+      } else {
+        navigate("/login")
+      }
       setIsLoading(false)
     })
     return () => unsubscribe()
   }, [navigate])
+
+  // Handle phone number update
+  const handlePhoneUpdate = async () => {
+    if (!phoneNumber.trim()) return
+
+    try {
+      setIsUpdatingPhone(true)
+      await createOrUpdateUser(user.uid, {
+        phoneNumber: `+91${phoneNumber.trim()}`
+      })
+      setIsEditingPhone(false)
+    } catch (error) {
+      console.error('Error updating phone number:', error)
+    } finally {
+      setIsUpdatingPhone(false)
+    }
+  }
+
+  // Handle phone number input change
+  const handlePhoneChange = (e) => {
+    const value = e.target.value
+    // Only allow digits and limit to 10 characters
+    if (/^\d{0,10}$/.test(value)) {
+      setPhoneNumber(value)
+    }
+  }
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -79,6 +128,60 @@ const SettingsPage = () => {
         {/* Settings Section */}
         <main className="flex-1 overflow-y-auto p-4">
           <div className="max-w-2xl mx-auto space-y-8">
+            {/* Phone Number Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Phone Number</CardTitle>
+                <CardDescription>Update your contact information</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Phone className="w-4 h-4" />
+                    {isEditingPhone ? (
+                      <div className="flex-1 flex space-x-2">
+                        <div className="flex-1 flex">
+                          <div className="bg-gray-100 flex items-center px-3 rounded-l-md border border-r-0 border-gray-200 text-gray-500">
+                            +91
+                          </div>
+                          <Input
+                            type="tel"
+                            value={phoneNumber}
+                            onChange={handlePhoneChange}
+                            placeholder="Enter 10-digit number"
+                            className="rounded-l-none"
+                          />
+                        </div>
+                        <Button 
+                          onClick={handlePhoneUpdate}
+                          disabled={isUpdatingPhone || phoneNumber.length !== 10}
+                        >
+                          {isUpdatingPhone ? 'Saving...' : 'Save'}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsEditingPhone(false)}
+                          disabled={isUpdatingPhone}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex-1 flex items-center justify-between">
+                        <span>{phoneNumber ? `+91 ${phoneNumber}` : 'No phone number set'}</span>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsEditingPhone(true)}
+                        >
+                          Edit
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Notifications */}
             <Card>
               <CardHeader>
