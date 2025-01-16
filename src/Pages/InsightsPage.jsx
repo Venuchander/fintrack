@@ -13,68 +13,93 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const db = getFirestore();
 
+
+const formatInsight = (insight) => {
+  return insight
+    // Remove asterisks around words while preserving the content
+    .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove double asterisks around words
+    .replace(/\*([^*]+)\*/g, '$1')     // Remove single asterisks around words
+    // Remove bullet points at start
+    .replace(/^\* /g, '')
+    // Clean up extra spaces
+    .replace(/\s+/g, ' ')
+    // Clean up spacing around colons
+    .split(':')
+    .map(part => part.trim())
+    .join(': ');
+};
+
+
 // Generate prompts for different timeframes
 const generatePrompts = (userData) => {
+  // Helper function to format currency in INR
+  const formatINR = (amount) => {
+    return `₹${amount?.toLocaleString('en-IN') || 0}`;
+  };
+
+  // Helper function to calculate date ranges
+  const getDateRangeExpenses = (days) => {
+    return userData?.expenses?.filter(exp => 
+      new Date(exp.date) >= new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+    );
+  };
+
   const dailyPrompt = `
-    Analyze this user's daily financial activity:
-    - Total Balance: ${userData?.totalBalance || 0}
-    - Daily Transactions: ${JSON.stringify(userData?.expenses?.filter(exp => 
+    Analyze this user's daily financial activity (all amounts in INR):
+    - Total Balance: ${formatINR(userData?.totalBalance)}
+    - Daily Transactions: ${JSON.stringify(userData?.expenses?.filter(exp =>
       new Date(exp.date).toDateString() === new Date().toDateString()
     ))}
-    - Daily Income: ${userData?.accounts?.reduce((sum, acc) => 
-      sum + (acc.isRecurringIncome ? acc.recurringAmount / 30 : 0), 0) || 0}
-    
+    - Daily Income: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
+      sum + (acc.isRecurringIncome ? acc.recurringAmount / 30 : 0), 0))}
+   
     Provide 3 specific, actionable daily insights focusing on:
     1. Today's spending compared to daily average
     2. Specific recommendations for tomorrow
-    3. Progress towards daily savings goals
-    
+    3. Progress towards daily savings goals in INR
+   
     Format as bullet points without any introductory text.`;
 
   const weeklyPrompt = `
-    Analyze this user's weekly financial activity:
-    - Weekly Expenses: ${JSON.stringify(userData?.expenses?.filter(exp => 
-      new Date(exp.date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    ))}
-    - Weekly Income: ${userData?.accounts?.reduce((sum, acc) => 
-      sum + (acc.isRecurringIncome ? acc.recurringAmount / 4 : 0), 0) || 0}
-    - Savings Goal Progress: ${userData?.savingsGoal || 0}
-    
+    Analyze this user's weekly financial activity (all amounts in INR):
+    - Weekly Expenses: ${JSON.stringify(getDateRangeExpenses(7))}
+    - Weekly Income: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
+      sum + (acc.isRecurringIncome ? acc.recurringAmount / 4 : 0), 0))}
+    - Savings Goal Progress: ${formatINR(userData?.savingsGoal)}
+   
     Provide 3 specific, actionable weekly insights focusing on:
     1. Highest expense category analysis
     2. Week-over-week comparison
     3. Areas for improvement
-    
+   
     Format as bullet points without any introductory text.`;
 
   const monthlyPrompt = `
-    Analyze this user's monthly financial activity:
-    - Monthly Income: ${userData?.accounts?.reduce((sum, acc) => 
-      sum + (acc.isRecurringIncome ? acc.recurringAmount : 0), 0) || 0}
-    - Monthly Expenses: ${JSON.stringify(userData?.expenses?.filter(exp => 
-      new Date(exp.date) >= new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-    ))}
-    - Monthly Savings: ${userData?.monthlySavings || 0}
-    
+    Analyze this user's monthly financial activity (all amounts in INR):
+    - Monthly Income: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
+      sum + (acc.isRecurringIncome ? acc.recurringAmount : 0), 0))}
+    - Monthly Expenses: ${JSON.stringify(getDateRangeExpenses(30))}
+    - Monthly Savings: ${formatINR(userData?.monthlySavings)}
+   
     Provide 3 specific, actionable monthly insights focusing on:
     1. Savings progress
     2. Recurring expenses analysis
     3. Recommendations for improvement
-    
+   
     Format as bullet points without any introductory text.`;
 
   const yearlyPrompt = `
-    Analyze this user's yearly financial trajectory:
-    - Annual Income: ${(userData?.accounts?.reduce((sum, acc) => 
-      sum + (acc.isRecurringIncome ? acc.recurringAmount * 12 : 0), 0) || 0)}
-    - Savings Goal: ${userData?.savingsGoal || 0}
+    Analyze this user's yearly financial trajectory (all amounts in INR):
+    - Annual Income: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
+      sum + (acc.isRecurringIncome ? acc.recurringAmount * 12 : 0), 0))}
+    - Savings Goal: ${formatINR(userData?.savingsGoal)}
     - Investment Portfolio: ${userData?.investments || 'None'}
-    
+   
     Provide 3 specific, actionable yearly insights focusing on:
     1. Progress towards annual goals
     2. Investment recommendations
     3. Long-term financial planning
-    
+   
     Format as bullet points without any introductory text.`;
 
   return { dailyPrompt, weeklyPrompt, monthlyPrompt, yearlyPrompt };
@@ -121,10 +146,22 @@ const Insights = () => {
             ]);
 
             setInsights({
-              daily: dailyResponse.response.text().split('\n').filter(item => item.trim()),
-              weekly: weeklyResponse.response.text().split('\n').filter(item => item.trim()),
-              monthly: monthlyResponse.response.text().split('\n').filter(item => item.trim()),
-              yearly: yearlyResponse.response.text().split('\n').filter(item => item.trim())
+              daily: dailyResponse.response.text()
+                .split('\n')
+                .filter(item => item.trim())
+                .map(formatInsight),
+              weekly: weeklyResponse.response.text()
+                .split('\n')
+                .filter(item => item.trim())
+                .map(formatInsight),
+              monthly: monthlyResponse.response.text()
+                .split('\n')
+                .filter(item => item.trim())
+                .map(formatInsight),
+              yearly: yearlyResponse.response.text()
+                .split('\n')
+                .filter(item => item.trim())
+                .map(formatInsight)
             });
           }
           setIsLoading(false);
@@ -149,6 +186,31 @@ const Insights = () => {
       </div>
     );
   }
+
+  const renderInsight = (insight, index) => {
+    // Split insight into title and content if it contains a colon
+    const [title, content] = insight.includes(': ') 
+      ? insight.split(': ')
+      : [null, insight];
+
+    return (
+      <li key={index} className="flex items-start">
+        <span className="flex-shrink-0 w-4 h-4 mt-1 mr-2 bg-purple-100 rounded-full flex items-center justify-center">
+          <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
+        </span>
+        <span className="text-gray-700">
+          {title ? (
+            <>
+              <span className="font-semibold">{title}: </span>
+              {content}
+            </>
+          ) : (
+            content
+          )}
+        </span>
+      </li>
+    );
+  };
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -189,14 +251,7 @@ const Insights = () => {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="font-semibold text-lg mb-4 text-blue-600">Daily Insights</h3>
                 <ul className="space-y-3">
-                  {insights.daily.map((insight, index) => (
-                    <li key={`daily-${index}`} className="flex items-start">
-                      <span className="flex-shrink-0 w-4 h-4 mt-1 mr-2 bg-blue-100 rounded-full flex items-center justify-center">
-                        <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                      </span>
-                      <span className="text-gray-700">{insight}</span>
-                    </li>
-                  ))}
+                  {insights.daily.map((insight, index) => renderInsight(insight, `daily-${index}`))}
                 </ul>
               </div>
 
@@ -204,14 +259,7 @@ const Insights = () => {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="font-semibold text-lg mb-4 text-green-600">Weekly Analysis</h3>
                 <ul className="space-y-3">
-                  {insights.weekly.map((insight, index) => (
-                    <li key={`weekly-${index}`} className="flex items-start">
-                      <span className="flex-shrink-0 w-4 h-4 mt-1 mr-2 bg-green-100 rounded-full flex items-center justify-center">
-                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                      </span>
-                      <span className="text-gray-700">{insight}</span>
-                    </li>
-                  ))}
+                  {insights.weekly.map((insight, index) => renderInsight(insight, `weekly-${index}`))}
                 </ul>
               </div>
 
@@ -219,14 +267,7 @@ const Insights = () => {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="font-semibold text-lg mb-4 text-purple-600">Monthly Overview</h3>
                 <ul className="space-y-3">
-                  {insights.monthly.map((insight, index) => (
-                    <li key={`monthly-${index}`} className="flex items-start">
-                      <span className="flex-shrink-0 w-4 h-4 mt-1 mr-2 bg-purple-100 rounded-full flex items-center justify-center">
-                        <span className="w-2 h-2 bg-purple-500 rounded-full"></span>
-                      </span>
-                      <span className="text-gray-700">{insight}</span>
-                    </li>
-                  ))}
+                  {insights.monthly.map((insight, index) => renderInsight(insight, `monthly-${index}`))}
                 </ul>
               </div>
 
@@ -234,14 +275,7 @@ const Insights = () => {
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h3 className="font-semibold text-lg mb-4 text-orange-600">Yearly Projections</h3>
                 <ul className="space-y-3">
-                  {insights.yearly.map((insight, index) => (
-                    <li key={`yearly-${index}`} className="flex items-start">
-                      <span className="flex-shrink-0 w-4 h-4 mt-1 mr-2 bg-orange-100 rounded-full flex items-center justify-center">
-                        <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
-                      </span>
-                      <span className="text-gray-700">{insight}</span>
-                    </li>
-                  ))}
+                  {insights.yearly.map((insight, index) => renderInsight(insight, `yearly-${index}`))}
                 </ul>
               </div>
             </div>
