@@ -4,25 +4,39 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { createOrUpdateUser } from "./lib/userService";
+import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "../components/ui/alert";
 
 const PhoneNumberPage = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [savingsGoal, setSavingsGoal] = useState("");
   const [error, setError] = useState("");
+  const [isShaking, setIsShaking] = useState(false);
   const navigate = useNavigate();
 
   const validatePhoneNumber = (number) => {
-    const phoneRegex = /^(\+91)?[6-9]\d{9}$/;
+    const phoneRegex = /^[6-9]\d{9}$/;
     return phoneRegex.test(number);
   };
 
-  const handleSaveUserDetails = async () => {
-    const formattedPhoneNumber = phoneNumber.startsWith("+91")
-      ? phoneNumber
-      : `+91${phoneNumber}`;
+  const handlePhoneNumberChange = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
+    
+    if (value.length <= 10) {
+      setPhoneNumber(value);
+      setError("");
+    } else {
+      setIsShaking(true);
+      setError("Phone number cannot exceed 10 digits");
+      setTimeout(() => setIsShaking(false), 650);
+    }
+  };
 
-    if (!validatePhoneNumber(formattedPhoneNumber)) {
-      setError("Please enter a valid Indian phone number");
+  const handleSaveUserDetails = async () => {
+    if (!validatePhoneNumber(phoneNumber)) {
+      setError("Please enter a valid 10-digit Indian phone number");
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 650);
       return;
     }
 
@@ -36,7 +50,7 @@ const PhoneNumberPage = () => {
     if (user) {
       try {
         await createOrUpdateUser(user.uid, {
-          phoneNumber: formattedPhoneNumber,
+          phoneNumber: `+91${phoneNumber}`,
           savingsGoal: Number(savingsGoal),
           onboardingCompleted: true
         });
@@ -63,22 +77,35 @@ const PhoneNumberPage = () => {
         </div>
 
         {error && (
-          <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg">
-            {error}
-          </div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         )}
 
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">Phone Number*</label>
-            <Input
-              type="tel"
-              required
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              className="h-11"
-              placeholder="Enter your phone number"
-            />
+            <div className="flex">
+              <div className="flex items-center px-3 bg-gray-100 border border-r-0 border-gray-200 rounded-l-md">
+                <span className="text-gray-500 text-sm">+91</span>
+              </div>
+              <Input
+                type="tel"
+                required
+                value={phoneNumber}
+                onChange={handlePhoneNumberChange}
+                className={`h-11 rounded-l-none ${isShaking ? 'animate-shake' : ''}`}
+                placeholder="Enter 10-digit number"
+                style={{
+                  "@keyframes shake": {
+                    "0%, 100%": { transform: "translateX(0)" },
+                    "25%": { transform: "translateX(8px)" },
+                    "75%": { transform: "translateX(-8px)" },
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -103,6 +130,17 @@ const PhoneNumberPage = () => {
           </Button>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          25% { transform: translateX(8px); }
+          75% { transform: translateX(-8px); }
+        }
+        .animate-shake {
+          animation: shake 0.65s cubic-bezier(.36,.07,.19,.97) both;
+        }
+      `}</style>
     </div>
   );
 };
