@@ -115,7 +115,7 @@ const PhoneNumberPage = () => {
               required
               value={savingsGoal}
               onChange={(e) => setSavingsGoal(e.target.value)}
-              className="h-11"
+              className="h-11 no-spinner"
               placeholder="Enter your monthly savings goal"
               min="0"
             />
@@ -132,13 +132,26 @@ const PhoneNumberPage = () => {
       </div>
 
       <style jsx>{`
+        /* Keyframes for shake animation */
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
           25% { transform: translateX(8px); }
           75% { transform: translateX(-8px); }
         }
+
         .animate-shake {
           animation: shake 0.65s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        /* CSS to remove spinner buttons */
+        .no-spinner::-webkit-inner-spin-button,
+        .no-spinner::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+
+        .no-spinner {
+          -moz-appearance: textfield; /* Firefox */
         }
       `}</style>
     </div>
