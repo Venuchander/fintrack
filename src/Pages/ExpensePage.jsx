@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Alert, AlertDescription } from "../components/ui/alert";
 import { auth, db } from "./lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { addExpense } from "./lib/userService";
@@ -34,9 +35,8 @@ import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
 import { Popover, PopoverContent, PopoverTrigger } from "../components/ui/popover";
-import { Alert, AlertDescription } from "../components/ui/alert";
 import { cn } from "../components/lib/utils";
-import { CalendarIcon, CheckCircle2 } from 'lucide-react';
+import { CalendarIcon, CheckCircle2, AlertCircle  } from 'lucide-react';
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -52,7 +52,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   paymentMethod: z.string({
     required_error: "Please select a payment method",
-  }),
+  }).min(1, "Please select a payment method"),
   bankPaymentType: z.enum(["upi", "debit", "check"]).optional(),
   cardPaymentType: z.string().optional(),
 });
@@ -116,6 +116,15 @@ function AddExpense() {
   async function onSubmit(values) {
     try {
       if (!user) return;
+
+
+      if (!values.paymentMethod) {
+        form.setError("paymentMethod", {
+          type: "manual",
+          message: "Please select a payment method"
+        });
+        return;
+      }
 
       const selectedCard = creditCards.find(card => card.name === values.paymentMethod);
       const selectedBank = bankAccounts.find(account => account.name === values.paymentMethod);
@@ -323,6 +332,8 @@ function AddExpense() {
                                 if (!bankAccounts.some(account => account.name === value)) {
                                   form.setValue('bankPaymentType', undefined);
                                 }
+                                // Clear any existing error when a selection is made
+                                form.clearErrors("paymentMethod");
                               }}
                               value={field.value}
                               className="flex flex-col space-y-2"
@@ -359,7 +370,15 @@ function AddExpense() {
                               ))}
                             </RadioGroup>
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage className="text-red-500" />
+                          {form.formState.errors.paymentMethod && (
+                            <Alert variant="destructive" className="mt-2">
+                              <AlertCircle className="h-4 w-4" />
+                              <AlertDescription>
+                                {form.formState.errors.paymentMethod.message}
+                              </AlertDescription>
+                            </Alert>
+                          )}
                         </FormItem>
                       )}
                     />
