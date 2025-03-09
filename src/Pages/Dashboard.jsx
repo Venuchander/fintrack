@@ -26,7 +26,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import Sidebar from "../components/components/Sidebar";
 import ProfileButton from '../components/components/profile';
 import BankAccounts from "../components/components/bankAccounts";
-import CreditCards from "../components/components/CreditCards";
+import CreditCards from "../components/components/creditCards";
 import FinancialCharts from '../components/components/FinancialCharts';
 import RecentTransactions from '../components/components/RecentTransactions';
 
