@@ -200,17 +200,23 @@ const RecentTransactions = ({
   };
 
   // Generate PDF and download directly (using jsPDF)
-  const exportToPDF = () => {
-    if (filteredTransactions.length === 0) {
-      alert("No transactions to export");
-      return;
-    }
-    
-    setIsExporting(true);
-    
+  // Generate PDF and download directly (using jsPDF)
+const exportToPDF = () => {
+  if (filteredTransactions.length === 0) {
+    alert("No transactions to export");
+    return;
+  }
+  
+  setIsExporting(true);
+  
+  setTimeout(() => {
     try {
-      // Create PDF document
-      const doc = new jsPDF();
+      // Create PDF document with explicit settings
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
       
       // Add title
       doc.setFontSize(18);
@@ -221,9 +227,7 @@ const RecentTransactions = ({
       doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN', { 
         year: 'numeric', 
         month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+        day: 'numeric'
       })}`, 14, 30);
       
       // Add summary section
@@ -264,7 +268,7 @@ const RecentTransactions = ({
         t.isIncome ? 'Income' : 'Expense'
       ]);
       
-      // Add transaction table
+      // Add transaction table with simpler settings
       doc.setFontSize(12);
       doc.text("Transaction Details", 14, 90);
       
@@ -275,57 +279,40 @@ const RecentTransactions = ({
         theme: 'grid',
         styles: { fontSize: 9 },
         headStyles: { fillColor: [66, 66, 66] },
-        alternateRowStyles: { fillColor: [240, 240, 240] },
-        rowStyles: { 
-          0: { cellWidth: 'auto' }, 
-          1: { cellWidth: 'auto' },
-          2: { cellWidth: 'auto' },
-          3: { cellWidth: 'auto' },
-          4: { cellWidth: 'auto' }
-        },
-        columnStyles: {
-          0: { cellWidth: 60 },
-          1: { cellWidth: 40 },
-          2: { cellWidth: 30, halign: 'right' },
-          3: { cellWidth: 30, halign: 'center' },
-          4: { cellWidth: 30, halign: 'center' }
-        },
-        didDrawCell: (data) => {
-          if (data.section === 'body' && data.column.index === 2) {
-            const cell = data.cell;
-            const raw = filteredTransactions[data.row.index];
-            if (raw && raw.isIncome) {
-              doc.setTextColor(34, 197, 94); // Green color
-            } else {
-              doc.setTextColor(239, 68, 68); // Red color
-            }
-          }
-        }
+        alternateRowStyles: { fillColor: [240, 240, 240] }
       });
       
-      // Footer
+      // Footer with simpler implementation
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
         doc.setFontSize(8);
-        doc.setTextColor(100);
         doc.text(
           `Page ${i} of ${pageCount}`,
-          doc.internal.pageSize.getWidth() / 2,
-          doc.internal.pageSize.getHeight() - 10,
+          doc.internal.pageSize.width / 2,
+          doc.internal.pageSize.height - 10,
           { align: 'center' }
         );
       }
       
-      // Save the PDF
-      doc.save(`transaction_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      // Force download with explicit blob handling
+      const pdfBlob = doc.output('blob');
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = pdfUrl;
+      downloadLink.download = `transaction_report_${new Date().toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      URL.revokeObjectURL(pdfUrl);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to generate PDF. Please try again.");
     } finally {
       setIsExporting(false);
     }
-  };
+  }, 100); // Small delay to allow UI to update
+};
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -362,9 +349,9 @@ const RecentTransactions = ({
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-col space-y-3 sm:space-y-4">
+      <CardHeader className="flex flex-col space-y-3 sm:space-y-4 p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-          <CardTitle className="text-xl">
+          <CardTitle className="text-lg sm:text-xl">
             {showAllTransactions ? "All Transactions" : "Recent Transactions"}
             {selectedCategories.length > 0 && (
               <Badge variant="outline" className="ml-2 font-normal text-xs">
@@ -389,7 +376,7 @@ const RecentTransactions = ({
         </div>
         
         {showAllTransactions && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             <div className="relative w-full">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
@@ -508,7 +495,7 @@ const RecentTransactions = ({
         
         {/* Show summary data when available */}
         {summary && showAllTransactions && filteredTransactions.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 mt-2 bg-muted/30 p-3 rounded-md">
+          <div className="grid grid-cols-2 gap-2 mt-2 bg-muted/30 p-2 sm:p-3 rounded-md sm:grid-cols-3 lg:grid-cols-6">
             <div className="flex flex-col">
               <span className="text-xs text-muted-foreground">Transactions</span>
               <span className="font-medium">{summary.totalTransactions}</span>
@@ -537,57 +524,61 @@ const RecentTransactions = ({
         )}
       </CardHeader>
       
-      <CardContent>
-        <div className="overflow-x-auto -mx-4 sm:mx-0">
-          <div className="min-w-[640px] p-1">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Type</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedTransactions.length > 0 ? (
-                  paginatedTransactions.map((transaction, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium max-w-[200px] truncate">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span className="cursor-help">{transaction.description}</span>
-                            </TooltipTrigger>
-                            <TooltipContent side="right" className="max-w-xs">
-                              <p>{transaction.description}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </TableCell>
-                      <TableCell className="max-w-[120px] truncate">{transaction.category}</TableCell>
-                      <TableCell 
-                        className={transaction.isIncome ? 'text-green-600 whitespace-nowrap font-medium' : 'text-red-600 whitespace-nowrap font-medium'}
+      <CardContent className="p-0 sm:p-6">
+        <div className="overflow-x-auto">
+          <Table className="min-w-full">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-1/3 sm:w-auto">Description</TableHead>
+                <TableHead className="hidden sm:table-cell">Category</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead className="hidden sm:table-cell">Date</TableHead>
+                <TableHead>Type</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedTransactions.length > 0 ? (
+                paginatedTransactions.map((transaction, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="cursor-help">{transaction.description}</span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" align="start" className="max-w-xs">
+                            <p>{transaction.description}</p>
+                            {/* Show hidden info on mobile */}
+                            <div className="block sm:hidden mt-1 text-xs">
+                              <p>Category: {transaction.category}</p>
+                              <p>Date: {new Date(transaction.date).toLocaleDateString('en-IN')}</p>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell max-w-[120px] truncate">{transaction.category}</TableCell>
+                    <TableCell 
+                      className={transaction.isIncome ? 'text-green-600 whitespace-nowrap font-medium' : 'text-red-600 whitespace-nowrap font-medium'}
+                    >
+                      {transaction.displayAmount}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell whitespace-nowrap">
+                      {new Date(transaction.date).toLocaleDateString('en-IN')}
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={transaction.isIncome ? "success" : "destructive"} 
+                        className="rounded-md text-xs sm:text-sm"
                       >
-                        {transaction.displayAmount}
-                      </TableCell>
-                      <TableCell className="whitespace-nowrap">
-                        {new Date(transaction.date).toLocaleDateString('en-IN')}
-                      </TableCell>
-                      <TableCell>
-                        <Badge 
-                          variant={transaction.isIncome ? "success" : "destructive"} 
-                          className="rounded-md"
-                        >
-                          {transaction.isIncome ? 'Income' : 'Expense'}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-32 text-center">
+                        {transaction.isIncome ? 'Income' : 'Expense'}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 sm:h-32 text-center">
                       <div className="flex flex-col items-center justify-center gap-1 p-4">
                         <Info className="h-8 w-8 text-muted-foreground/60" />
                         <p className="text-lg font-medium">No transactions found</p>
@@ -608,26 +599,25 @@ const RecentTransactions = ({
                           </Button>
                         )}
                       </div>
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      </CardContent>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
       
-      <CardFooter className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setPage(1)}
-            disabled={page === 1}
-            className="h-8 w-8 p-0"
-          >
-            1
-          </Button>
+          <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-6">
+          <div className="flex items-center gap-1 sm:gap-2 order-2 sm:order-1 mt-3 sm:mt-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(1)}
+              disabled={page === 1}
+              className="h-7 w-7 sm:h-8 sm:w-8 p-0"
+            >
+              1
+            </Button>
           
           {page > 2 && (
             <Button
@@ -674,26 +664,29 @@ const RecentTransactions = ({
           )}
         </div>
         
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => {
-              setShowAllTransactions(!showAllTransactions);
-              setPage(1); // Reset page when switching views
-              clearFilters(); // Clear filters when switching views
-            }}
-          >
-            {showAllTransactions ? "Show Recent Only" : "View All Transactions"}
-          </Button>
-          
+        <div className="flex items-center gap-2 w-full sm:w-auto order-1 sm:order-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setShowAllTransactions(!showAllTransactions);
+            setPage(1);
+            clearFilters();
+          }}
+          className="flex-1 sm:flex-initial text-xs sm:text-sm"
+        >
+          {showAllTransactions ? "Recent Only" : "View All"}
+        </Button>
+        
+        <div className="flex items-center gap-1">
           <Button
             variant="outline"
             size="icon"
             onClick={() => setPage(prev => Math.max(prev - 1, 1))}
             disabled={page === 1}
-            className="h-8 w-8"
+            className="h-7 w-7 sm:h-8 sm:w-8"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
           
           <Button
@@ -701,12 +694,13 @@ const RecentTransactions = ({
             size="icon"
             onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
             disabled={page === totalPages}
-            className="h-8 w-8"
+            className="h-7 w-7 sm:h-8 sm:w-8"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
-      </CardFooter>
+      </div>
+    </CardFooter>
     </Card>
   );
 };
