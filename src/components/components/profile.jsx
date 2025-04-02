@@ -1,9 +1,9 @@
-// ProfileButton.jsx
+// ProfileButton.jsx - Modified
 import React from "react"
 import { ChevronDown } from 'lucide-react'
 import { Button } from "../ui/button"
 
-const ProfileButton = ({ user, onMenuToggle }) => {
+const ProfileButton = ({ user, onMenuToggle, hideNameOnMobile = false }) => {
   return (
     <Button 
       variant="ghost" 
@@ -24,7 +24,7 @@ const ProfileButton = ({ user, onMenuToggle }) => {
           </span>
         </div>
       )}
-      <span className="ml-2 text-sm font-medium text-gray-700">
+      <span className={`ml-2 text-sm font-medium text-gray-700 ${hideNameOnMobile ? 'hidden sm:inline' : ''}`}>
         {user?.displayName ||
           (user?.email
             ? user.email
