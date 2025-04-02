@@ -201,15 +201,14 @@ const RecentTransactions = ({
 
   // Generate PDF and download directly (using jsPDF)
   // Generate PDF and download directly (using jsPDF)
-const exportToPDF = () => {
-  if (filteredTransactions.length === 0) {
-    alert("No transactions to export");
-    return;
-  }
-  
-  setIsExporting(true);
-  
-  setTimeout(() => {
+  const exportToPDF = () => {
+    if (filteredTransactions.length === 0) {
+      alert("No transactions to export");
+      return;
+    }
+    
+    setIsExporting(true);
+    
     try {
       // Create PDF document with explicit settings
       const doc = new jsPDF({
@@ -234,20 +233,40 @@ const exportToPDF = () => {
       doc.setFontSize(12);
       doc.text("Summary", 14, 40);
       
+      // Safer parsing of currency values
+      const parseCurrency = (str) => {
+        try {
+          if (typeof str !== 'string') {
+            return typeof str === 'number' ? str : 0;
+          }
+          // Remove currency symbols, commas, and other non-numeric chars except decimal point and minus
+          const cleaned = str.replace(/[^\d.-]/g, '');
+          const value = parseFloat(cleaned);
+          return isNaN(value) ? 0 : value;
+        } catch (e) {
+          console.warn("Failed to parse amount:", str, e);
+          return 0;
+        }
+      };
+      
       const totalIncome = filteredTransactions
         .filter(t => t.isIncome)
-        .reduce((sum, t) => sum + parseFloat(t.displayAmount.replace(/[^\d.-]/g, '')), 0);
+        .reduce((sum, t) => sum + parseCurrency(t.displayAmount), 0);
         
       const totalExpense = filteredTransactions
         .filter(t => !t.isIncome)
-        .reduce((sum, t) => sum + parseFloat(t.displayAmount.replace(/[^\d.-]/g, '')), 0);
+        .reduce((sum, t) => sum + parseCurrency(t.displayAmount), 0);
       
+      // Custom format currency function that uses "Rs. " prefix instead of the rupee symbol
       const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-IN', {
-          style: 'currency',
-          currency: 'INR',
+        const formatter = new Intl.NumberFormat('en-IN', {
           maximumFractionDigits: 0
-        }).format(amount);
+        });
+        
+        const prefix = amount >= 0 ? "Rs. " : "-Rs. ";
+        const absAmount = Math.abs(amount);
+        
+        return `${prefix}${formatter.format(absAmount)}`;
       };
       
       doc.setFontSize(10);
@@ -255,34 +274,149 @@ const exportToPDF = () => {
       doc.text(`Income Transactions: ${filteredTransactions.filter(t => t.isIncome).length}`, 14, 54);
       doc.text(`Expense Transactions: ${filteredTransactions.filter(t => !t.isIncome).length}`, 14, 60);
       doc.text(`Total Income: ${formatCurrency(totalIncome)}`, 14, 66);
-      doc.text(`Total Expenses: ${formatCurrency(totalExpense)}`, 14, 72);
+      doc.text(`Total Expenses: ${formatCurrency(-totalExpense)}`, 14, 72);
       doc.text(`Net Balance: ${formatCurrency(totalIncome - totalExpense)}`, 14, 78);
       
-      // Define the table structure and data for transactions
-      const tableColumn = ["Description", "Category", "Amount", "Date", "Type"];
-      const tableRows = filteredTransactions.map(t => [
-        t.description || '',
-        t.category || '',
-        t.displayAmount || '',
-        new Date(t.date).toLocaleDateString('en-IN'),
-        t.isIncome ? 'Income' : 'Expense'
-      ]);
-      
-      // Add transaction table with simpler settings
+      // Add transaction table
       doc.setFontSize(12);
       doc.text("Transaction Details", 14, 90);
       
-      doc.autoTable({
-        startY: 95,
-        head: [tableColumn],
-        body: tableRows,
-        theme: 'grid',
-        styles: { fontSize: 9 },
-        headStyles: { fillColor: [66, 66, 66] },
-        alternateRowStyles: { fillColor: [240, 240, 240] }
+      // Define column headers and widths
+      const columns = [
+        { header: "Description", width: 50 },
+        { header: "Category", width: 30 },
+        { header: "Amount", width: 25 },
+        { header: "Date", width: 25 },
+        { header: "Type", width: 20 }
+      ];
+      
+      // Draw header row
+      let startY = 95;
+      let startX = 14;
+      
+      // Draw header background
+      doc.setFillColor(66, 66, 66);
+      doc.rect(startX, startY, columns.reduce((sum, col) => sum + col.width, 0), 7, 'F');
+      
+      // Draw header text
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
+      
+      columns.forEach(col => {
+        doc.text(col.header, startX + 2, startY + 5);
+        startX += col.width;
       });
       
-      // Footer with simpler implementation
+      // Reset text color
+      doc.setTextColor(0, 0, 0);
+      
+      // Draw data rows
+      startY += 7; // Move down after header
+      
+      // Process all transactions
+      for (let i = 0; i < filteredTransactions.length; i++) {
+        const t = filteredTransactions[i];
+        
+        // Set row background - alternate colors
+        if (i % 2 === 1) {
+          doc.setFillColor(240, 240, 240);
+          doc.rect(14, startY, columns.reduce((sum, col) => sum + col.width, 0), 7, 'F');
+        }
+        
+        startX = 14;
+        
+        // Handle potentially null or undefined values
+        const description = ((t.description || '') + '').substring(0, 20); // Limit length for PDF
+        const category = (t.category || '') + '';
+        
+        // Format amount with "Rs." prefix to avoid encoding issues
+        let amountStr = '';
+        try {
+          const amountValue = parseCurrency(t.displayAmount);
+          const isNegative = amountValue < 0 || (typeof t.displayAmount === 'string' && t.displayAmount.includes('-'));
+          
+          // Use plain "Rs." with no special characters
+          const prefix = !isNegative ? "+" : "-";
+          const absAmount = Math.abs(amountValue);
+          
+          amountStr = `${prefix}Rs. ${new Intl.NumberFormat('en-IN', {
+            maximumFractionDigits: 0
+          }).format(absAmount)}`;
+        } catch (e) {
+          amountStr = t.displayAmount || '0';
+        }
+        
+        // Format date
+        let dateStr = '';
+        try {
+          if (t.date) {
+            const dateObj = new Date(t.date);
+            if (!isNaN(dateObj.getTime())) {
+              dateStr = dateObj.toLocaleDateString('en-IN', {
+                day: 'numeric',
+                month: 'numeric',
+                year: 'numeric'
+              }).replace(/\//g, '/'); // Ensure consistent date separator
+            }
+          }
+        } catch (e) {
+          dateStr = '';
+        }
+        
+        const type = t.isIncome ? 'Income' : 'Expense';
+        
+        // Draw cell values
+        const rowData = [description, category, amountStr, dateStr, type];
+        
+        for (let j = 0; j < columns.length; j++) {
+          // Align amount to right
+          if (j === 2) { // Amount column
+            const textWidth = doc.getStringUnitWidth(rowData[j]) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+            doc.text(rowData[j], startX + columns[j].width - textWidth - 2, startY + 5);
+          } else {
+            doc.text(rowData[j], startX + 2, startY + 5);
+          }
+          startX += columns[j].width;
+        }
+        
+        startY += 7; // Move to next row
+        
+        // Add new page if needed
+        if (startY > 270) {
+          doc.addPage();
+          startY = 20;
+          
+          // Add header on new page
+          startX = 14;
+          doc.setFillColor(66, 66, 66);
+          doc.rect(startX, startY, columns.reduce((sum, col) => sum + col.width, 0), 7, 'F');
+          
+          doc.setTextColor(255, 255, 255);
+          columns.forEach(col => {
+            doc.text(col.header, startX + 2, startY + 5);
+            startX += col.width;
+          });
+          
+          doc.setTextColor(0, 0, 0);
+          startY += 7;
+        }
+      }
+      
+      // Draw borders around the table
+      doc.setLineWidth(0.1);
+      doc.line(14, 95, 14 + columns.reduce((sum, col) => sum + col.width, 0), 95); // Top border
+      doc.line(14, 95, 14, startY); // Left border
+      doc.line(14 + columns.reduce((sum, col) => sum + col.width, 0), 95, 14 + columns.reduce((sum, col) => sum + col.width, 0), startY); // Right border
+      doc.line(14, startY, 14 + columns.reduce((sum, col) => sum + col.width, 0), startY); // Bottom border
+      
+      // Draw column separators
+      let colX = 14;
+      for (let i = 0; i < columns.length - 1; i++) {
+        colX += columns[i].width;
+        doc.line(colX, 95, colX, startY);
+      }
+      
+      // Footer
       const pageCount = doc.internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
@@ -295,24 +429,16 @@ const exportToPDF = () => {
         );
       }
       
-      // Force download with explicit blob handling
-      const pdfBlob = doc.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const downloadLink = document.createElement('a');
-      downloadLink.href = pdfUrl;
-      downloadLink.download = `transaction_report_${new Date().toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-      URL.revokeObjectURL(pdfUrl);
+      // Save file with date in filename
+      doc.save(`transaction_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
+      alert(`Failed to generate PDF: ${error.message}`);
     } finally {
       setIsExporting(false);
     }
-  }, 100); // Small delay to allow UI to update
-};
+  };
 
   // Format currency for display
   const formatCurrency = (amount) => {
