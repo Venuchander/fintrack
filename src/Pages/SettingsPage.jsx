@@ -200,25 +200,6 @@ const SettingsPage = () => {
                 />
               </CardContent>
             </Card>
-
-            {/* Appearance */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Appearance</CardTitle>
-                <CardDescription>Customize your display settings</CardDescription>
-              </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  {isDarkMode ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
-                  <Label htmlFor="dark-mode">Dark mode</Label>
-                </div>
-                <Switch
-                  id="dark-mode"
-                  checked={isDarkMode}
-                  onChange={toggleDarkMode}
-                />
-              </CardContent>
-            </Card>
           </div>
         </main>
       </div>
