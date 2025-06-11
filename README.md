@@ -119,7 +119,7 @@ All financial data is encrypted and securely stored using Firebase security rule
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
@@ -128,3 +128,8 @@ For support and questions, please open an issue in the GitHub repository.
 ---
 
 Built with modern web technologies for secure and efficient personal finance management.
+
+## Documentation
+
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Contributing Guidelines](CONTRIBUTING.md)
