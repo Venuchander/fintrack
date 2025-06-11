@@ -204,4 +204,4 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ---
 
-Thank you for contributing to FinTrack! Your contributions help make personal finance management accessible to everyone. 🚀
+Thank you for contributing to FinTrack! Your contributions help make personal finance management accessible to everyone.
