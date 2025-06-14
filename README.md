@@ -133,3 +133,7 @@ Built with modern web technologies for secure and efficient personal finance man
 
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
+
+## Contributors
+
+![Contributors](https://contrib.rocks/image?repo=Venuchander/fintrack)
