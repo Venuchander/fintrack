@@ -422,10 +422,13 @@ function AddExpense() {
                         )}
                       />
                     )}
-
+                    {/*Cancel button*/}
                     <div className="flex justify-end gap-4">
-                      <Button variant="outline" type="button"
-                        onClick={() => form.reset()}>
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => navigate('/dashboard')}
+                      >
                         Cancel
                       </Button>
                       <Button type="submit">Add Expense</Button>
