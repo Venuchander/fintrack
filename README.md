@@ -136,7 +136,4 @@ Built with modern web technologies for secure and efficient personal finance man
 
 ## Contributors
 
-<a href = "https://github.com/imsuryya/fintrack/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo = imsuryya/fintrack"/>
-</a>
-
+![Contributors](https://contrib.rocks/image?repo=imsuryya/fintrack)
