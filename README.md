@@ -1,4 +1,3 @@
-test
 # FinTrack
 
 A comprehensive personal finance management web application that helps users track income and expenses while providing AI-powered financial insights and recommendations.
