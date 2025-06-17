@@ -410,6 +410,7 @@ function AddExpense() {
                           </FormItem>
                         )}
                       />
+<<<<<<< HEAD
 
                       {form.watch("paymentMethod") && 
                       bankAccounts.some(account => account.name === form.watch("paymentMethod")) && (
@@ -465,6 +466,26 @@ function AddExpense() {
             </div>
           </main>
         </div>
+=======
+                    )}
+                    {/*Cancel button*/}
+                    <div className="flex justify-end gap-4">
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => navigate('/dashboard')}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit">Add Expense</Button>
+                    </div>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </div>
+        </main>
+>>>>>>> 604c7bbde2e9fa40a8a029f52954fd50d20b3682
       </div>
 
       <ToastContainer position="top-center" />
