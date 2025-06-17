@@ -51,13 +51,9 @@ A comprehensive personal finance management web application that helps users tra
 - [ Contributors](#contributors)
 
 
----
-
 ## Overview
 
 FinTrack enables users to manage their personal finances effectively through an intuitive interface combined with advanced AI capabilities. The platform offers comprehensive tracking, analysis, and reporting features to support informed financial decision-making.
-
----
 
 ## Features
 
@@ -77,7 +73,6 @@ FinTrack enables users to manage their personal finances effectively through an 
 - **Real-time Sync**: Instant data synchronization across devices
 - **Data Export**: Multiple export options for backup and analysis
 
----
 
 ## Technology Stack
 
@@ -103,7 +98,6 @@ FinTrack enables users to manage their personal finances effectively through an 
 - **Autoprefixer** for CSS compatibility
 - **PostCSS** for advanced CSS processing
 
----
 
 ## Installation
 
@@ -136,7 +130,6 @@ VITE_BLAND_API_KEY=your_key
 ```bash
 npm run dev
 ```
----
 
 ## Usage
 
@@ -156,7 +149,6 @@ npm run dev
 - Export data in PDF or Excel format for external analysis
 - View historical trends and spending patterns
 
----
 
 ## Scripts
 
@@ -164,8 +156,6 @@ npm run dev
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint for code quality checks
-
----
 
 ## Contributing
 
@@ -175,32 +165,23 @@ npm run dev
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
----
-
 ## Security
 
 All financial data is encrypted and securely stored using Firebase security rules. The application follows industry best practices for handling sensitive financial information.
-
----
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
-
 ## Support
 
 For support and questions, please open an issue in the GitHub repository.
-
----
 
 ## Documentation
 
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
 
----
 
 ## Contributors
 
