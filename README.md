@@ -2,9 +2,56 @@
 
 A comprehensive personal finance management web application that helps users track income and expenses while providing AI-powered financial insights and recommendations.
 
+<table align="center">
+    <thead align="center">
+        <tr border: 2px;>
+            <td><b>🌟 Stars</b></td>
+            <td><b>🍴 Forks</b></td>
+            <td><b>🐛 Issues</b></td>
+            <td><b>🔔 Open PRs</b></td>
+            <td><b>🔕 Close PRs</b></td>
+        </tr>
+     </thead>
+    <tbody>
+         <tr>
+            <td><img alt="Stars" src="https://img.shields.io/github/stars/imsuryya/fintrack?style=flat&logo=github"/></td>
+             <td><img alt="Forks" src="https://img.shields.io/github/forks/imsuryya/fintrack?style=flat&logo=github"/></td>
+            <td><img alt="Issues" src="https://img.shields.io/github/issues/imsuryya/fintrack?style=flat&logo=github"/></td>
+            <td><img alt="Open Pull Requests" src="https://img.shields.io/github/issues-pr/imsuryya/fintrack?style=flat&logo=github"/></td>
+           <td><img alt="Close Pull Requests" src="https://img.shields.io/github/issues-pr-closed/imsuryya/fintrack?style=flat&color=green&logo=github"/></td>
+        </tr>
+    </tbody>
+</table>
+
+---
+
+## 📚 Table of Contents
+
+- [Overview](#-overview)
+- [Features](#-features)
+  - [Core Financial Management](#core-financial-management)
+  - [AI-Powered Features](#ai-powered-features)
+  - [Data Management](#data-management)
+- [Technology Stack](#-technology-stack)
+- [Installation](#-installation)
+- [Usage](#-usage)
+  - [AI Features](#ai-features)
+  - [Reports](#reports)
+- [Scripts](#-scripts)
+- [Contributing](#-contributing)
+- [Security](#-security)
+- [License](#-license)
+- [Support](#-support)
+- [Documentation](#-documentation)
+- [Repository Stats](#-repository-stats)
+
+---
+
 ## Overview
 
 FinTrack enables users to manage their personal finances effectively through an intuitive interface combined with advanced AI capabilities. The platform offers comprehensive tracking, analysis, and reporting features to support informed financial decision-making.
+
+---
 
 ## Features
 
@@ -23,6 +70,8 @@ FinTrack enables users to manage their personal finances effectively through an 
 - **Secure Storage**: All financial data securely stored using Firebase
 - **Real-time Sync**: Instant data synchronization across devices
 - **Data Export**: Multiple export options for backup and analysis
+
+---
 
 ## Technology Stack
 
@@ -47,6 +96,8 @@ FinTrack enables users to manage their personal finances effectively through an 
 - **ESLint** for code quality and consistency
 - **Autoprefixer** for CSS compatibility
 - **PostCSS** for advanced CSS processing
+
+---
 
 ## Installation
 
@@ -79,6 +130,7 @@ VITE_BLAND_API_KEY=your_key
 ```bash
 npm run dev
 ```
+---
 
 ## Usage
 
@@ -98,12 +150,16 @@ npm run dev
 - Export data in PDF or Excel format for external analysis
 - View historical trends and spending patterns
 
+---
+
 ## Scripts
 
 - `npm run dev` - Start development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint for code quality checks
+
+---
 
 ## Contributing
 
@@ -113,13 +169,19 @@ npm run dev
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+---
+
 ## Security
 
 All financial data is encrypted and securely stored using Firebase security rules. The application follows industry best practices for handling sensitive financial information.
 
+---
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## Support
 
@@ -129,10 +191,14 @@ For support and questions, please open an issue in the GitHub repository.
 
 Built with modern web technologies for secure and efficient personal finance management.
 
+---
+
 ## Documentation
 
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
+
+---
 
 ## Contributors
 
