@@ -64,28 +64,28 @@ const PhoneNumberPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4">
+    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4 animate__animated animate__fadeInDown animate__slow">
       <div className="space-y-6 w-full max-w-md">
         <div className="space-y-2">
           <div className="flex items-center mb-8">
-            <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
+            <div className="text-indigo-600 font-bold text-xl animate__animated animate__fadeInDown">Fintrack</div>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Complete Your Profile</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight animate__animated animate__fadeInDown">Complete Your Profile</h1>
+          <p className="text-sm text-muted-foreground animate__animated animate__fadeInDown">
             Enter your details to complete the setup:
           </p>
         </div>
 
         {error && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertCircle className="h-4 w-4 animate__animated animate__fadeInDown" />
+            <AlertDescription className="animate__animated animate__fadeInDown">{error}</AlertDescription>
           </Alert>
         )}
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Phone Number*</label>
+            <label className="text-sm font-medium animate__animated animate__fadeInDown">Phone Number*</label>
             <div className="flex">
               <div className="flex items-center px-3 bg-gray-100 border border-r-0 border-gray-200 rounded-l-md">
                 <span className="text-gray-500 text-sm">+91</span>
@@ -108,7 +108,7 @@ const PhoneNumberPage = () => {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 animate__animated animate__fadeInDown">
             <label className="text-sm font-medium">Monthly Savings Goal (₹)*</label>
             <Input
               type="number"
@@ -124,7 +124,7 @@ const PhoneNumberPage = () => {
           <Button
             type="button"
             onClick={handleSaveUserDetails}
-            className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+            className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 animate__animated animate__fadeInUp"
           >
             Complete Setup
           </Button>

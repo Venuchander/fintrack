@@ -7,7 +7,7 @@ const ProfileButton = ({ user, onMenuToggle, hideNameOnMobile = false }) => {
   return (
     <Button 
       variant="ghost" 
-      className="inline-flex items-center"
+      className="inline-flex items-center animate__animated animate__fadeInDown"
       onClick={onMenuToggle}
     >
       {user?.providerData[0]?.providerId === "google.com" ? (

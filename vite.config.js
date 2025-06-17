@@ -9,6 +9,7 @@ export default defineConfig({
     port: 5173,
     watch: {
       usePolling: true,
-    },
+    }
+    //allowedHosts:["testing_through_rok.ngrok-free.app"]  --for testing ui
   },
 })

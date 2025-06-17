@@ -8,12 +8,12 @@ const FinancialCharts = ({ incomeVsExpenseData, expenseData }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-      <Card>
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 animate__animated animate__fadeInUp" >
+      <Card data-aos="fade-up">
         <CardHeader>
-          <CardTitle>Income vs Expenses</CardTitle>
+          <CardTitle className="animate__animated animate__fadeInRight">Income vs Expenses</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px]">
+        <CardContent className="h-[300px] animate__animated animate__fadeInRight">
           <Bar 
             data={incomeVsExpenseData} 
             options={{
@@ -27,11 +27,11 @@ const FinancialCharts = ({ incomeVsExpenseData, expenseData }) => {
           />
         </CardContent>
       </Card>
-      <Card>
+      <Card data-aos="fade-up">
         <CardHeader>
-          <CardTitle>Expense Breakdown</CardTitle>
+          <CardTitle className="animate__animated animate__fadeInRight">Expense Breakdown</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px]">
+        <CardContent className="h-[300px] animate__animated animate__fadeInRight">
           <Doughnut 
             data={expenseData}
             options={{

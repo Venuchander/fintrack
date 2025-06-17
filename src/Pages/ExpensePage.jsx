@@ -172,10 +172,10 @@ function AddExpense() {
       />
 
       <div className="flex-1 flex flex-col">
-        <header className="bg-white shadow-sm flex-shrink-0">
+        <header className="bg-white shadow-sm flex-shrink-0 animate__animated animate__slideInDown">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
-              <h2 className="text-2xl font-semibold text-gray-900">Expense</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 animate__animated animate__slideInDown">Expense</h2>
               <ProfileButton
                 user={user}
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -189,19 +189,19 @@ function AddExpense() {
           <div className="max-w-2xl mx-auto space-y-4 pb-6">
             {showSuccess && (
               <div className="animate-in slide-in-from-top-2 duration-300">
-                <Alert className="bg-green-50 border-green-200">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  <AlertDescription className="text-green-800">
+                <Alert className="bg-green-50 border-green-200 animate__animated animate__slideInDown">
+                  <CheckCircle2 className="h-4 w-4 text-green-600 animate__animated animate__fadeInUp" />
+                  <AlertDescription className="text-green-800 animate__animated animate__fadeInUp">
                     Expense added successfully!
                   </AlertDescription>
                 </Alert>
               </div>
             )}
 
-            <Card>
+            <Card className="animate__animated animate__fadeInDown">
               <CardHeader>
-                <CardTitle>Add New Expense</CardTitle>
-                <CardDescription>Track your spending by adding a new expense</CardDescription>
+                <CardTitle className="animate__animated animate__fadeInDown animate__delay-1s">Add New Expense</CardTitle>
+                <CardDescription className="animate__animated animate__fadeInDown animate__delay-1s">Track your spending by adding a new expense</CardDescription>
               </CardHeader>
               <CardContent>
                 <Form {...form}>
@@ -212,9 +212,9 @@ function AddExpense() {
                         name="amount"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Amount *</FormLabel>
+                            <FormLabel className="animate__animated animate__fadeInDown animate__delay-1s">Amount *</FormLabel>
                             <FormControl>
-                              <div className="relative">
+                              <div className="relative animate__animated animate__fadeInDown animate__delay-1s">
                                 <span className="absolute left-3 top-1/2 transform -translate-y-1/2 font-medium">₹</span>
                                 <Input 
                                   type="number"
@@ -236,14 +236,14 @@ function AddExpense() {
                         name="date"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Date *</FormLabel>
+                            <FormLabel className="animate__animated animate__fadeInDown animate__delay-1s">Date *</FormLabel>
                             <Popover>
                               <PopoverTrigger asChild>
                                 <FormControl>
                                   <Button
                                     variant="outline"
                                     className={cn(
-                                      "w-full pl-3 text-left font-normal",
+                                      "w-full pl-3 text-left font-normal animate__animated animate__fadeInDown animate__delay-1s",
                                       !field.value && "text-muted-foreground"
                                     )}
                                   >
@@ -252,7 +252,7 @@ function AddExpense() {
                                     ) : (
                                       <span>Pick a date</span>
                                     )}
-                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50 animate__animated animate__fadeInRight animate__delay-1s" />
                                   </Button>
                                 </FormControl>
                               </PopoverTrigger>
@@ -279,21 +279,21 @@ function AddExpense() {
                       name="category"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Category *</FormLabel>
+                          <FormLabel className="animate__animated animate__fadeInDown animate__delay-1s">Category *</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
+                            <FormControl className="animate__animated animate__fadeInDown animate__delay-1s">
                               <SelectTrigger>
-                                <SelectValue placeholder="Select a category" />
+                                <SelectValue placeholder="Select a category"/>
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="food">Food & Dining</SelectItem>
-                              <SelectItem value="transport">Transportation</SelectItem>
-                              <SelectItem value="utilities">Utilities</SelectItem>
-                              <SelectItem value="shopping">Shopping</SelectItem>
-                              <SelectItem value="entertainment">Entertainment</SelectItem>
-                              <SelectItem value="health">Healthcare</SelectItem>
-                              <SelectItem value="other">Other</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInDown animate__delay" value="food">Food & Dining</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInDown animate__delay" value="transport">Transportation</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInDown animate__delay" value="utilities">Utilities</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInDown animate__delay" value="shopping">Shopping</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInDown animate__delay" value="entertainment">Entertainment</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInDown animate__delay" value="health">Healthcare</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInDown animate__delay" value="other">Other</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -306,11 +306,11 @@ function AddExpense() {
                       name="description"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Description</FormLabel>
+                          <FormLabel className="animate__animated animate__fadeInDown animate__delay-1s">Description</FormLabel>
                           <FormControl>
                             <Textarea
                               placeholder="Add details about this expense"
-                              className="resize-none"
+                              className="resize-none animate__animated animate__fadeInDown animate__delay-1s"
                               {...field}
                             />
                           </FormControl>
@@ -324,7 +324,7 @@ function AddExpense() {
                       name="paymentMethod"
                       render={({ field }) => (
                         <FormItem className="space-y-3">
-                          <FormLabel>Payment Method *</FormLabel>
+                          <FormLabel className="animate__animated animate__fadeInDown animate__delay-1s">Payment Method *</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={(value) => {
@@ -336,7 +336,7 @@ function AddExpense() {
                                 form.clearErrors("paymentMethod");
                               }}
                               value={field.value}
-                              className="flex flex-col space-y-2"
+                              className="flex flex-col space-y-2 animate__animated animate__fadeInDown animate__delay-1s"
                             >
                               <FormItem className="flex items-center space-x-3 space-y-0">
                                 <FormControl>
@@ -344,7 +344,7 @@ function AddExpense() {
                                 </FormControl>
                                 <FormLabel className="font-normal">Cash</FormLabel>
                               </FormItem>
-
+  {/*===No Animation added below fields===*/}
                               {creditCards.map((card) => (
                                 <FormItem
                                   key={card.id}
@@ -372,7 +372,7 @@ function AddExpense() {
                           </FormControl>
                           <FormMessage className="text-red-500" />
                           {form.formState.errors.paymentMethod && (
-                            <Alert variant="destructive" className="mt-2">
+                            <Alert variant="destructive" className="mt-2 animate__animated animate__fadeInDown">
                               <AlertCircle className="h-4 w-4" />
                               <AlertDescription>
                                 {form.formState.errors.paymentMethod.message}
@@ -382,7 +382,7 @@ function AddExpense() {
                         </FormItem>
                       )}
                     />
-
+                
                     {form.watch("paymentMethod") && 
                      bankAccounts.some(account => account.name === form.watch("paymentMethod")) && (
                       <FormField
@@ -423,12 +423,12 @@ function AddExpense() {
                       />
                     )}
 
-                    <div className="flex justify-end gap-4">
+                    <div className="flex justify-end gap-4 animate__animated animate__fadeInDown animate__Delay-1s">
                       <Button variant="outline" type="button"
-                        onClick={() => form.reset()}>
+                        onClick={() => form.reset()} className="animate__animated animate__fadeInDown animate__Delay-1s">
                         Cancel
                       </Button>
-                      <Button type="submit">Add Expense</Button>
+                      <Button type="submit" className="animate__animated animate__fadeInDown animate__Delay-1s">Add Expense</Button>
                     </div>
                   </form>
                 </Form>

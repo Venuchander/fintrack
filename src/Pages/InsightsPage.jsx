@@ -182,11 +182,11 @@ const Insights = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-        <div className="ml-2 text-xl font-semibold">Generating insights...</div>
+        <div className="ml-2 text-xl font-semibold animate__animated animate__fadeInUp">Generating insights...</div>
       </div>
     );
   }
-
+  
   const renderInsight = (insight, index) => {
     // Split insight into title and content if it contains a colon
     const [title, content] = insight.includes(': ') 
@@ -211,6 +211,7 @@ const Insights = () => {
       </li>
     );
   };
+  
 
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
@@ -228,10 +229,10 @@ const Insights = () => {
       />
 
       <div className="flex-1 flex flex-col">
-        <header className="bg-white shadow-sm">
+        <header className="bg-white shadow-sm animate__animated animate__fadeInDown">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
-              <h2 className="text-2xl font-semibold text-gray-900">AI Financial Insights</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 animate__animated animate__fadeInDown">AI Financial Insights</h2>
               <ProfileButton
                 user={user}
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -243,37 +244,37 @@ const Insights = () => {
 
         <main className="flex-1 overflow-y-auto p-6 bg-gray-100">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+            <h2 className="text-2xl font-semibold mb-6 text-gray-900 animate__animated animate__fadeInDown">
               Personalized Financial Recommendations
             </h2>
             <div className="space-y-6">
               {/* Daily Insights */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 text-blue-600">Daily Insights</h3>
+              <div className="bg-white rounded-lg shadow-sm p-6 animate__animated animate__fadeInUp">
+                <h3 className="font-semibold text-lg mb-4 text-blue-600 animate__animated animate__fadeInUp">Daily Insights</h3>
                 <ul className="space-y-3">
                   {insights.daily.map((insight, index) => renderInsight(insight, `daily-${index}`))}
                 </ul>
               </div>
 
               {/* Weekly Analysis */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 text-green-600">Weekly Analysis</h3>
+              <div className="bg-white rounded-lg shadow-sm p-6 animate__animated animate__fadeInUp">
+                <h3 className="font-semibold text-lg mb-4 text-green-600 animate__animated animate__fadeInUp">Weekly Analysis</h3>
                 <ul className="space-y-3">
                   {insights.weekly.map((insight, index) => renderInsight(insight, `weekly-${index}`))}
                 </ul>
               </div>
 
               {/* Monthly Overview */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 text-purple-600">Monthly Overview</h3>
+              <div className="bg-white rounded-lg shadow-sm p-6 animate__animated animate__fadeInUp">
+                <h3 className="font-semibold text-lg mb-4 text-purple-600 animate__animated animate__fadeInUp">Monthly Overview</h3>
                 <ul className="space-y-3">
                   {insights.monthly.map((insight, index) => renderInsight(insight, `monthly-${index}`))}
                 </ul>
               </div>
 
               {/* Yearly Projections */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 text-orange-600">Yearly Projections</h3>
+              <div className="bg-white rounded-lg shadow-sm p-6 animate__animated animate__fadeInUp">
+                <h3 className="font-semibold text-lg mb-4 text-orange-600 animate__animated animate__fadeInUp">Yearly Projections</h3>
                 <ul className="space-y-3">
                   {insights.yearly.map((insight, index) => renderInsight(insight, `yearly-${index}`))}
                 </ul>

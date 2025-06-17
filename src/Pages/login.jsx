@@ -184,16 +184,16 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 animate__animated animate__fadeInDown animate__slow">
       <div className="w-full max-w-[400px] p-6">
         <div className="mb-8">
           <div className="flex items-center mb-8">
-            <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
+            <div className="text-indigo-600 font-bold text-xl animate__animated animate__fadeInDown">Fintrack</div>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+          <h1 className="text-2xl font-semibold text-gray-900 mb-2 animate__animated animate__fadeInDown">
             {currentUser ? "Already Logged In" : "Login"}
           </h1>
-          <p className="text-gray-600">
+          <p className="text-gray-600 animate__animated animate__fadeInDown">
             {currentUser 
               ? `Welcome back, ${currentUser.email}` 
               : "Hi, Welcome back 👋"}
@@ -201,7 +201,7 @@ const LoginPage = () => {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm animate__animated animate__fadeInUp animate__Delay-2s">
             {error}
           </div>
         )}
@@ -209,19 +209,19 @@ const LoginPage = () => {
         <div className="space-y-6">
           {currentUser ? (
             <div className="space-y-4">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-gray-600 animate__animated animate__fadeInDown">
                 You are currently logged in. You can:
               </p>
               <Button
                 onClick={() => navigate("/dashboard")}
-                className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+                className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 animate__animated animate__fadeInUp"
               >
                 Go to dashboard
               </Button>
               <Button
                 onClick={handleLogout}
                 variant="outline"
-                className="w-full py-5"
+                className="w-full py-5 animate__animated animate__fadeInUp"
               >
                 Logout
               </Button>
@@ -229,7 +229,7 @@ const LoginPage = () => {
           ) : (
             <>
               <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
+                <div className="space-y-2 animate__animated animate__fadeInDown">
                   <label className="text-sm font-medium text-gray-700">
                     Email or Username
                   </label>
@@ -243,7 +243,7 @@ const LoginPage = () => {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 animate__animated animate__fadeInDown">
                   <label className="text-sm font-medium text-gray-700">
                     Password
                   </label>
@@ -259,7 +259,7 @@ const LoginPage = () => {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 animate__animated animate__fadeInRight"
                     >
                       {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                     </button>
@@ -267,7 +267,7 @@ const LoginPage = () => {
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 animate__animated animate__fadeInDown">
                     <Checkbox
                       id="remember"
                       checked={rememberMe}
@@ -279,7 +279,7 @@ const LoginPage = () => {
                   </div>
                   <Link
                     to="/forgot-password"
-                    className="text-sm text-indigo-600 hover:text-indigo-500"
+                    className="text-sm text-indigo-600 hover:text-indigo-500 animate__animated animate__fadeInDown"
                   >
                     Forgot Password?
                   </Link>
@@ -287,7 +287,7 @@ const LoginPage = () => {
 
                 <Button
                   type="submit"
-                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 animate__animated animate__fadeInUp"
                 >
                   Login
                 </Button>
@@ -297,7 +297,7 @@ const LoginPage = () => {
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
-                <div className="relative flex justify-center text-xs uppercase">
+                <div className="relative flex justify-center text-xs uppercase animate__animated animate__fadeInDown">
                   <span className="bg-slate-50 px-2 text-gray-500">
                     or login with Google
                   </span>
@@ -306,22 +306,22 @@ const LoginPage = () => {
 
               <Button
                 variant="outline"
-                className="w-full justify-center gap-2 py-5 font-normal text-gray-700"
+                className="w-full justify-center gap-2 py-5 font-normal text-gray-700 animate__animated animate__fadeInUp"
                 onClick={handleGoogleSignIn}
               >
                 <img
                   src="https://www.google.com/favicon.ico"
                   alt="Google"
-                  className="w-4 h-4"
+                  className="w-4 h-4 animate__animated animate__fadeInRight"
                 />
                 Login with Google
               </Button>
 
-              <p className="text-center text-sm text-gray-600 mt-4">
+              <p className="text-center text-sm text-gray-600 mt-4 animate__animated animate__fadeInDown">
                 Not registered yet?{" "}
                 <Link
                   to="/signup"
-                  className="text-indigo-600 hover:text-indigo-500 font-medium"
+                  className="text-indigo-600 hover:text-indigo-500 font-medium animate__animated animate__fadeInDown"
                 >
                   Create an account
                 </Link>

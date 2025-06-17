@@ -326,17 +326,17 @@ Security Guidelines:
     {/* Main content area - full width with no constraints */}
     <div className="flex-1 flex flex-col w-full">
       {/* Header - full width */}
-      <header className="bg-white shadow-sm sticky top-0 z-10 w-full">
+      <header className="bg-white shadow-sm sticky top-0 z-10 w-full animate__animated animate__fadeInDown">
         <div className="w-full px-4 py-3">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-500">
+              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-500 animate__animated animate__fadeInLeft">
                 <AvatarImage src="/assets/robot.png" alt="AI Assistant" />
                 <AvatarFallback>AI</AvatarFallback>
               </Avatar>
               <div>
-                <h1 className="text-base sm:text-xl font-semibold text-gray-800">AI Assistant</h1>
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 hover:bg-green-100">
+                <h1 className="text-base sm:text-xl font-semibold text-gray-800 animate__animated animate__fadeInDown">AI Assistant</h1>
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 hover:bg-green-100 animate__animated animate__fadeInUp">
                   {isLoading ? 'Thinking...' : 'Online'}
                 </Badge>
               </div>
@@ -345,9 +345,9 @@ Security Guidelines:
               <Button
                 onClick={handleCall}
                 variant="outline"
-                className="text-xs sm:text-sm px-2 py-1 rounded-full border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                className="text-xs sm:text-sm px-2 py-1 rounded-full border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors animate__animated animate__fadeInDown"
               >
-                <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 mr-1 sm:mr-2" />
+                <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 mr-1 sm:mr-2 animate__animated animate__fadeInDown" />
                 <span className="hidden sm:inline">Call</span>
               </Button>
               
@@ -372,7 +372,7 @@ Security Guidelines:
             >
               {/* Avatar for Bot */}
               {message.sender === 'bot' && (
-                <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0 mt-1">
+                <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0 mt-1 animate__animated animate__fadeInUp">
                   <AvatarImage src="/assets/robot.png" alt="AI" />
                   <AvatarFallback>AI</AvatarFallback>
                 </Avatar>
@@ -383,9 +383,9 @@ Security Guidelines:
                 <div
                   className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${
                     message.sender === 'user'
-                      ? 'bg-blue-500 text-white' 
+                      ? 'bg-blue-500 text-black' 
                       : 'bg-gray-100 text-gray-800'
-                  }`}
+                  } animate__animated animate__slideInUp`}
                 >
                   <div className="text-sm sm:text-base whitespace-pre-wrap">
                     {message.text}
@@ -393,14 +393,14 @@ Security Guidelines:
                 </div>
                 
                 {/* Timestamp */}
-                <span className="text-xs text-gray-500 px-1">
+                <span className="text-xs text-gray-500 px-1 animate__animated animate__slideInUp">
                   {formatTime(message.timestamp)}
                 </span>
               </div>
               
               {/* User Avatar */}
               {message.sender === 'user' && (
-                <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
+                <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1 animate__animated animate__fadeInDown">
                   <AvatarFallback className="text-white">{user?.displayName?.[0] || 'U'}</AvatarFallback>
                 </Avatar>
               )}
@@ -412,8 +412,8 @@ Security Guidelines:
 
       {/* Input area - full width */}
       <footer className="bg-white border-t p-3 sticky bottom-0 z-10 w-full">
-        <div className="flex items-center gap-2">
-          <div className="relative">
+        <div className="flex items-center gap-2 animate__animated animate__fadeInDown">
+          <div className="relative animate__animated animate__fadeInDown">
             <Button
               variant="ghost"
               size="icon"
@@ -423,7 +423,7 @@ Security Guidelines:
               {showEmojiPicker ? (
                 <X className="h-5 w-5" />
               ) : (
-                <SmilePlus className="h-5 w-5" />
+                <SmilePlus className="h-5 w-5 animate__animated animate__fadeInUp" />
               )}
             </Button>
             {showEmojiPicker && (
