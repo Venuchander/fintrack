@@ -35,6 +35,7 @@ A comprehensive personal finance management web application that helps users tra
 - [Technology Stack](#-technology-stack)
 - [Installation](#-installation)
 - [Usage](#-usage)
+  - [Getting Started](#getting-started)
   - [AI Features](#ai-features)
   - [Reports](#reports)
 - [Scripts](#-scripts)
@@ -43,7 +44,7 @@ A comprehensive personal finance management web application that helps users tra
 - [License](#-license)
 - [Support](#-support)
 - [Documentation](#-documentation)
-- [Repository Stats](#-repository-stats)
+- [Contributors](#-contributors)
 
 ---
 
@@ -186,10 +187,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 For support and questions, please open an issue in the GitHub repository.
-
----
-
-Built with modern web technologies for secure and efficient personal finance management.
 
 ---
 
