@@ -423,9 +423,13 @@ function AddExpense() {
                       />
                     )}
 
-                    <div className="flex justify-end gap-4 animate__animated animate__fadeInDown animate__Delay-1s">
-                      <Button variant="outline" type="button"
-                        onClick={() => form.reset()} className="animate__animated animate__fadeInDown animate__Delay-1s">
+                    {/*Cancel button*/}
+                    <div className="flex justify-end gap-4">
+                      <Button
+                        variant="outline"
+                        type="button"
+                        onClick={() => navigate('/dashboard')}
+                      >
                         Cancel
                       </Button>
                       <Button type="submit" className="animate__animated animate__fadeInDown animate__Delay-1s">Add Expense</Button>
