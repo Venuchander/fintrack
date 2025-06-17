@@ -13,6 +13,8 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const db = getFirestore();
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const formatInsight = (insight) => {
   return insight
@@ -118,6 +120,29 @@ const Insights = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+useEffect(() => {
+    const handleOffline = () => {
+      toast.error("You're offline. Please check your Internet Connection.", {
+        toastId: "offline-toast",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      });
+    };
+
+    const handleOnline = () => {
+      toast.dismiss("offline-toast");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
+
   // Fetch user data and generate insights
   useEffect(() => {
     const fetchDataAndGenerateInsights = async () => {
@@ -213,76 +238,80 @@ const Insights = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 overflow-hidden">
-      {isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
-          onClick={() => setIsSidebarOpen(false)} 
+    <div>
+      <div className="flex h-screen bg-gray-100 overflow-hidden">
+        {isSidebarOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-20"
+            onClick={() => setIsSidebarOpen(false)} 
+          />
+        )}
+
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          user={user}
         />
-      )}
 
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        user={user}
-      />
-
-      <div className="flex-1 flex flex-col">
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <h2 className="text-2xl font-semibold text-gray-900">AI Financial Insights</h2>
-              <ProfileButton
-                user={user}
-                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                onLogout={() => auth.signOut()}
-              />
-            </div>
-          </div>
-        </header>
-
-        <main className="flex-1 overflow-y-auto p-6 bg-gray-100">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-900">
-              Personalized Financial Recommendations
-            </h2>
-            <div className="space-y-6">
-              {/* Daily Insights */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 text-blue-600">Daily Insights</h3>
-                <ul className="space-y-3">
-                  {insights.daily.map((insight, index) => renderInsight(insight, `daily-${index}`))}
-                </ul>
-              </div>
-
-              {/* Weekly Analysis */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 text-green-600">Weekly Analysis</h3>
-                <ul className="space-y-3">
-                  {insights.weekly.map((insight, index) => renderInsight(insight, `weekly-${index}`))}
-                </ul>
-              </div>
-
-              {/* Monthly Overview */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 text-purple-600">Monthly Overview</h3>
-                <ul className="space-y-3">
-                  {insights.monthly.map((insight, index) => renderInsight(insight, `monthly-${index}`))}
-                </ul>
-              </div>
-
-              {/* Yearly Projections */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="font-semibold text-lg mb-4 text-orange-600">Yearly Projections</h3>
-                <ul className="space-y-3">
-                  {insights.yearly.map((insight, index) => renderInsight(insight, `yearly-${index}`))}
-                </ul>
+        <div className="flex-1 flex flex-col">
+          <header className="bg-white shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center py-4">
+                <h2 className="text-2xl font-semibold text-gray-900">AI Financial Insights</h2>
+                <ProfileButton
+                  user={user}
+                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onLogout={() => auth.signOut()}
+                />
               </div>
             </div>
-          </div>
-        </main>
+          </header>
+
+          <main className="flex-1 overflow-y-auto p-6 bg-gray-100">
+            <div className="max-w-7xl mx-auto">
+              <h2 className="text-2xl font-semibold mb-6 text-gray-900">
+                Personalized Financial Recommendations
+              </h2>
+              <div className="space-y-6">
+                {/* Daily Insights */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="font-semibold text-lg mb-4 text-blue-600">Daily Insights</h3>
+                  <ul className="space-y-3">
+                    {insights.daily.map((insight, index) => renderInsight(insight, `daily-${index}`))}
+                  </ul>
+                </div>
+
+                {/* Weekly Analysis */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="font-semibold text-lg mb-4 text-green-600">Weekly Analysis</h3>
+                  <ul className="space-y-3">
+                    {insights.weekly.map((insight, index) => renderInsight(insight, `weekly-${index}`))}
+                  </ul>
+                </div>
+
+                {/* Monthly Overview */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="font-semibold text-lg mb-4 text-purple-600">Monthly Overview</h3>
+                  <ul className="space-y-3">
+                    {insights.monthly.map((insight, index) => renderInsight(insight, `monthly-${index}`))}
+                  </ul>
+                </div>
+
+                {/* Yearly Projections */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <h3 className="font-semibold text-lg mb-4 text-orange-600">Yearly Projections</h3>
+                  <ul className="space-y-3">
+                    {insights.yearly.map((insight, index) => renderInsight(insight, `yearly-${index}`))}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+
+      <ToastContainer position="top-center" />
+  </div>
   );
 };
 

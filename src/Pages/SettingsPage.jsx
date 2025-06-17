@@ -13,6 +13,9 @@ import Sidebar from '../components/components/Sidebar'
 import ProfileButton from '../components/components/profile'
 import { createOrUpdateUser, getUserData } from './lib/userService'
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const SettingsPage = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
@@ -42,6 +45,29 @@ const SettingsPage = () => {
       console.error('Error fetching user data:', error)
     }
   }
+
+  useEffect(() => {
+      const handleOffline = () => {
+        toast.error("You're offline. Please check your Internet Connection.", {
+          toastId: "offline-toast",
+          autoClose: false,
+          closeOnClick: false,
+          draggable: false,
+        });
+      };
+  
+      const handleOnline = () => {
+        toast.dismiss("offline-toast");
+      };
+  
+      window.addEventListener("offline", handleOffline);
+      window.addEventListener("online", handleOnline);
+  
+      return () => {
+        window.removeEventListener("offline", handleOffline);
+        window.removeEventListener("online", handleOnline);
+      };
+    }, []);
 
   // Check authentication state and load user data
   useEffect(() => {
@@ -92,117 +118,121 @@ const SettingsPage = () => {
   }
 
   return (
-    <div className={`flex h-screen bg-gray-100 overflow-hidden ${isDarkMode ? 'dark' : ''}`}>
-      {/* Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
-          onClick={() => setIsSidebarOpen(false)}
-          aria-label="Close sidebar"
+    <div>
+      <div className={`flex h-screen bg-gray-100 overflow-hidden ${isDarkMode ? 'dark' : ''}`}>
+        {/* Sidebar Overlay */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-20"
+            onClick={() => setIsSidebarOpen(false)}
+            aria-label="Close sidebar"
+          />
+        )}
+
+        {/* Sidebar */}
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          user={user}
         />
-      )}
 
-      {/* Sidebar */}
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-        user={user}
-      />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
-              <ProfileButton
-                user={user}
-                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                onLogout={() => auth.signOut()}
-              />
-            </div>
-          </div>
-        </header>
-
-        {/* Settings Section */}
-        <main className="flex-1 overflow-y-auto p-4">
-          <div className="max-w-2xl mx-auto space-y-8">
-            {/* Phone Number Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Phone Number</CardTitle>
-                <CardDescription>Update your contact information</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Phone className="w-4 h-4" />
-                    {isEditingPhone ? (
-                      <div className="flex-1 flex space-x-2">
-                        <div className="flex-1 flex">
-                          <div className="bg-gray-100 flex items-center px-3 rounded-l-md border border-r-0 border-gray-200 text-gray-500">
-                            +91
-                          </div>
-                          <Input
-                            type="tel"
-                            value={phoneNumber}
-                            onChange={handlePhoneChange}
-                            placeholder="Enter 10-digit number"
-                            className="rounded-l-none"
-                          />
-                        </div>
-                        <Button 
-                          onClick={handlePhoneUpdate}
-                          disabled={isUpdatingPhone || phoneNumber.length !== 10}
-                        >
-                          {isUpdatingPhone ? 'Saving...' : 'Save'}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsEditingPhone(false)}
-                          disabled={isUpdatingPhone}
-                        >
-                          Cancel
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="flex-1 flex items-center justify-between">
-                        <span>{phoneNumber ? `+91 ${phoneNumber}` : 'No phone number set'}</span>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsEditingPhone(true)}
-                        >
-                          Edit
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Notifications */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>Manage your notification preferences</CardDescription>
-              </CardHeader>
-              <CardContent className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Bell className="w-4 h-4" />
-                  <Label htmlFor="notifications">Enable notifications</Label>
-                </div>
-                <Switch
-                  id="notifications"
-                  checked={notificationsEnabled}
-                  onChange={(e) => setNotificationsEnabled(e.target.checked)}
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Header */}
+          <header className="bg-white shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center py-4">
+                <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
+                <ProfileButton
+                  user={user}
+                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onLogout={() => auth.signOut()}
                 />
-              </CardContent>
-            </Card>
-          </div>
-        </main>
+              </div>
+            </div>
+          </header>
+
+          {/* Settings Section */}
+          <main className="flex-1 overflow-y-auto p-4">
+            <div className="max-w-2xl mx-auto space-y-8">
+              {/* Phone Number Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Phone Number</CardTitle>
+                  <CardDescription>Update your contact information</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Phone className="w-4 h-4" />
+                      {isEditingPhone ? (
+                        <div className="flex-1 flex space-x-2">
+                          <div className="flex-1 flex">
+                            <div className="bg-gray-100 flex items-center px-3 rounded-l-md border border-r-0 border-gray-200 text-gray-500">
+                              +91
+                            </div>
+                            <Input
+                              type="tel"
+                              value={phoneNumber}
+                              onChange={handlePhoneChange}
+                              placeholder="Enter 10-digit number"
+                              className="rounded-l-none"
+                            />
+                          </div>
+                          <Button 
+                            onClick={handlePhoneUpdate}
+                            disabled={isUpdatingPhone || phoneNumber.length !== 10}
+                          >
+                            {isUpdatingPhone ? 'Saving...' : 'Save'}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsEditingPhone(false)}
+                            disabled={isUpdatingPhone}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex-1 flex items-center justify-between">
+                          <span>{phoneNumber ? `+91 ${phoneNumber}` : 'No phone number set'}</span>
+                          <Button
+                            variant="outline"
+                            onClick={() => setIsEditingPhone(true)}
+                          >
+                            Edit
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Notifications */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Notifications</CardTitle>
+                  <CardDescription>Manage your notification preferences</CardDescription>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Bell className="w-4 h-4" />
+                    <Label htmlFor="notifications">Enable notifications</Label>
+                  </div>
+                  <Switch
+                    id="notifications"
+                    checked={notificationsEnabled}
+                    onChange={(e) => setNotificationsEnabled(e.target.checked)}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        </div>
       </div>
+
+      <ToastContainer position="top-center" />
     </div>
   )
 }
