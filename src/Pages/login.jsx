@@ -22,6 +22,9 @@ import { Input } from "../components/ui/input";
 import { Checkbox } from "../components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 const LoginPage = () => {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +34,30 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+
+  //✨ Toast network status
+  useEffect(() => {
+    const handleOffline = () => {
+      toast.error("You're offline. Please check your Internet Connection.", {
+        toastId: "offline-toast",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      });
+    };
+
+    const handleOnline = () => {
+      toast.dismiss("offline-toast");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -184,153 +211,158 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <div className="w-full max-w-[400px] p-6">
-        <div className="mb-8">
-          <div className="flex items-center mb-8">
-            <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
-          </div>
-          <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-            {currentUser ? "Already Logged In" : "Login"}
-          </h1>
-          <p className="text-gray-600">
-            {currentUser 
-              ? `Welcome back, ${currentUser.email}` 
-              : "Hi, Welcome back 👋"}
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
-            {error}
-          </div>
-        )}
-
-        <div className="space-y-6">
-          {currentUser ? (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                You are currently logged in. You can:
-              </p>
-              <Button
-                onClick={() => navigate("/dashboard")}
-                className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
-              >
-                Go to dashboard
-              </Button>
-              <Button
-                onClick={handleLogout}
-                variant="outline"
-                className="w-full py-5"
-              >
-                Logout
-              </Button>
+    <div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="w-full max-w-[400px] p-6">
+          <div className="mb-8">
+            <div className="flex items-center mb-8">
+              <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
             </div>
-          ) : (
-            <>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Email or Username
-                  </label>
-                  <Input
-                    type="text"
-                    value={identifier}
-                    onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="name@example.com or username"
-                    required
-                    className="py-5"
-                  />
-                </div>
+            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+              {currentUser ? "Already Logged In" : "Login"}
+            </h1>
+            <p className="text-gray-600">
+              {currentUser 
+                ? `Welcome back, ${currentUser.email}` 
+                : "Hi, Welcome back 👋"}
+            </p>
+          </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <div className="relative">
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+
+          <div className="space-y-6">
+            {currentUser ? (
+              <div className="space-y-4">
+                <p className="text-sm text-gray-600">
+                  You are currently logged in. You can:
+                </p>
+                <Button
+                  onClick={() => navigate("/dashboard")}
+                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+                >
+                  Go to dashboard
+                </Button>
+                <Button
+                  onClick={handleLogout}
+                  variant="outline"
+                  className="w-full py-5"
+                >
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <>
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Email or Username
+                    </label>
                     <Input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
+                      type="text"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      placeholder="name@example.com or username"
                       required
                       className="py-5"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    >
-                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                    </button>
                   </div>
-                </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="remember"
-                      checked={rememberMe}
-                      onCheckedChange={setRememberMe}
-                    />
-                    <label htmlFor="remember" className="text-sm text-gray-600">
-                      Remember Me
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      Password
                     </label>
+                    <div className="relative">
+                      <Input
+                        type={showPassword ? "text" : "password"}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="••••••••"
+                        required
+                        className="py-5"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      >
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                      </button>
+                    </div>
                   </div>
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-indigo-600 hover:text-indigo-500"
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="remember"
+                        checked={rememberMe}
+                        onCheckedChange={setRememberMe}
+                      />
+                      <label htmlFor="remember" className="text-sm text-gray-600">
+                        Remember Me
+                      </label>
+                    </div>
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm text-indigo-600 hover:text-indigo-500"
+                    >
+                      Forgot Password?
+                    </Link>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
                   >
-                    Forgot Password?
-                  </Link>
+                    Login
+                  </Button>
+                </form>
+
+                <div className="relative mt-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-slate-50 px-2 text-gray-500">
+                      or login with Google
+                    </span>
+                  </div>
                 </div>
 
                 <Button
-                  type="submit"
-                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+                  variant="outline"
+                  className="w-full justify-center gap-2 py-5 font-normal text-gray-700"
+                  onClick={handleGoogleSignIn}
                 >
-                  Login
+                  <img
+                    src="https://www.google.com/favicon.ico"
+                    alt="Google"
+                    className="w-4 h-4"
+                  />
+                  Login with Google
                 </Button>
-              </form>
 
-              <div className="relative mt-6">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-slate-50 px-2 text-gray-500">
-                    or login with Google
-                  </span>
-                </div>
-              </div>
-
-              <Button
-                variant="outline"
-                className="w-full justify-center gap-2 py-5 font-normal text-gray-700"
-                onClick={handleGoogleSignIn}
-              >
-                <img
-                  src="https://www.google.com/favicon.ico"
-                  alt="Google"
-                  className="w-4 h-4"
-                />
-                Login with Google
-              </Button>
-
-              <p className="text-center text-sm text-gray-600 mt-4">
-                Not registered yet?{" "}
-                <Link
-                  to="/signup"
-                  className="text-indigo-600 hover:text-indigo-500 font-medium"
-                >
-                  Create an account
-                </Link>
-              </p>
-            </>
-          )}
+                <p className="text-center text-sm text-gray-600 mt-4">
+                  Not registered yet?{" "}
+                  <Link
+                    to="/signup"
+                    className="text-indigo-600 hover:text-indigo-500 font-medium"
+                  >
+                    Create an account
+                  </Link>
+                </p>
+              </>
+            )}
+          </div>
         </div>
       </div>
+
+      <ToastContainer position="top-center" />
     </div>
+    
   );
 };
 

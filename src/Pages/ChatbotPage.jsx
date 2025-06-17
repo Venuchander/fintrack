@@ -22,6 +22,9 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
 const auth = getAuth()
 const db = getFirestore()
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 // Utility function to generate context-aware prompts
 const generateContextualPrompt = (userData, messages, userInput) => {
   return `You are an intelligent financial assistant. Here is the user's current financial data, remember that data is based on the INR/₹ not dollar:
@@ -69,6 +72,31 @@ export default function ChatbotPage() {
   const [user, setUser] = useState(null)
   const [userData, setUserData] = useState(null)
   const messagesEndRef = useRef(null)
+
+  //✨ Toast network status
+    useEffect(() => {
+      const handleOffline = () => {
+        toast.error("You're offline. Please check your Internet Connection.", {
+          toastId: "offline-toast",
+          autoClose: false,
+          closeOnClick: false,
+          draggable: false,
+        });
+      };
+  
+      const handleOnline = () => {
+        toast.dismiss("offline-toast");
+      };
+  
+      window.addEventListener("offline", handleOffline);
+      window.addEventListener("online", handleOnline);
+  
+      return () => {
+        window.removeEventListener("offline", handleOffline);
+        window.removeEventListener("online", handleOnline);
+      };
+    }, []);
+
 
   // Fetch user data and chat history
   useEffect(() => {
@@ -309,149 +337,152 @@ Security Guidelines:
   }
 
   return (
-    <div className="flex h-screen w-full">
-    {/* Sidebar overlay */}
-    {isSidebarOpen && (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
-        onClick={() => setIsSidebarOpen(false)} />
-    )}
+    <div>
+      <div className="flex h-screen w-full">
+      {/* Sidebar overlay */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          onClick={() => setIsSidebarOpen(false)} />
+      )}
 
-    {/* Sidebar component */}
-    <Sidebar
-      isOpen={isSidebarOpen}
-      onClose={() => setIsSidebarOpen(false)}
-      user={user}
-    />
+      {/* Sidebar component */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        user={user}
+      />
 
-    {/* Main content area - full width with no constraints */}
-    <div className="flex-1 flex flex-col w-full">
-      {/* Header - full width */}
-      <header className="bg-white shadow-sm sticky top-0 z-10 w-full">
-        <div className="w-full px-4 py-3">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-500">
-                <AvatarImage src="/assets/robot.png" alt="AI Assistant" />
-                <AvatarFallback>AI</AvatarFallback>
-              </Avatar>
-              <div>
-                <h1 className="text-base sm:text-xl font-semibold text-gray-800">AI Assistant</h1>
-                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 hover:bg-green-100">
-                  {isLoading ? 'Thinking...' : 'Online'}
-                </Badge>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={handleCall}
-                variant="outline"
-                className="text-xs sm:text-sm px-2 py-1 rounded-full border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
-              >
-                <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Call</span>
-              </Button>
-              
-              <ProfileButton
-                user={user}
-                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                onLogout={() => auth.signOut()}
-                hideNameOnMobile={true}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main chat area - full width with padding */}
-      <main className="flex-grow overflow-y-auto px-4 py-4 bg-white">
-        <div className="space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}
-            >
-              {/* Avatar for Bot */}
-              {message.sender === 'bot' && (
-                <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0 mt-1">
-                  <AvatarImage src="/assets/robot.png" alt="AI" />
+      {/* Main content area - full width with no constraints */}
+      <div className="flex-1 flex flex-col w-full">
+        {/* Header - full width */}
+        <header className="bg-white shadow-sm sticky top-0 z-10 w-full">
+          <div className="w-full px-4 py-3">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-500">
+                  <AvatarImage src="/assets/robot.png" alt="AI Assistant" />
                   <AvatarFallback>AI</AvatarFallback>
                 </Avatar>
-              )}
-              
-              {/* Chat Bubble */}
-              <div className={`flex flex-col gap-1 ${message.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                <div
-                  className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${
-                    message.sender === 'user'
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
+                <div>
+                  <h1 className="text-base sm:text-xl font-semibold text-gray-800">AI Assistant</h1>
+                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 hover:bg-green-100">
+                    {isLoading ? 'Thinking...' : 'Online'}
+                  </Badge>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleCall}
+                  variant="outline"
+                  className="text-xs sm:text-sm px-2 py-1 rounded-full border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors"
                 >
-                  <div className="text-sm sm:text-base whitespace-pre-wrap">
-                    {message.text}
+                  <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">Call</span>
+                </Button>
+                
+                <ProfileButton
+                  user={user}
+                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onLogout={() => auth.signOut()}
+                  hideNameOnMobile={true}
+                />
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Main chat area - full width with padding */}
+        <main className="flex-grow overflow-y-auto px-4 py-4 bg-white">
+          <div className="space-y-4">
+            {messages.map((message, index) => (
+              <div
+                key={index}
+                className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}
+              >
+                {/* Avatar for Bot */}
+                {message.sender === 'bot' && (
+                  <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0 mt-1">
+                    <AvatarImage src="/assets/robot.png" alt="AI" />
+                    <AvatarFallback>AI</AvatarFallback>
+                  </Avatar>
+                )}
+                
+                {/* Chat Bubble */}
+                <div className={`flex flex-col gap-1 ${message.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                  <div
+                    className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${
+                      message.sender === 'user'
+                        ? 'bg-blue-500 text-white' 
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    <div className="text-sm sm:text-base whitespace-pre-wrap">
+                      {message.text}
+                    </div>
                   </div>
+                  
+                  {/* Timestamp */}
+                  <span className="text-xs text-gray-500 px-1">
+                    {formatTime(message.timestamp)}
+                  </span>
                 </div>
                 
-                {/* Timestamp */}
-                <span className="text-xs text-gray-500 px-1">
-                  {formatTime(message.timestamp)}
-                </span>
+                {/* User Avatar */}
+                {message.sender === 'user' && (
+                  <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
+                    <AvatarFallback className="text-white">{user?.displayName?.[0] || 'U'}</AvatarFallback>
+                  </Avatar>
+                )}
               </div>
-              
-              {/* User Avatar */}
-              {message.sender === 'user' && (
-                <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
-                  <AvatarFallback className="text-white">{user?.displayName?.[0] || 'U'}</AvatarFallback>
-                </Avatar>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+        </main>
+
+        {/* Input area - full width */}
+        <footer className="bg-white border-t p-3 sticky bottom-0 z-10 w-full">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-full"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              >
+                {showEmojiPicker ? (
+                  <X className="h-5 w-5" />
+                ) : (
+                  <SmilePlus className="h-5 w-5" />
+                )}
+              </Button>
+              {showEmojiPicker && (
+                <div className="absolute bottom-12 left-0 z-10 shadow-lg rounded-lg transform scale-90 sm:scale-100 origin-bottom-left">
+                  <EmojiPicker onEmojiClick={onEmojiClick} />
+                </div>
               )}
             </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-      </main>
-
-      {/* Input area - full width */}
-      <footer className="bg-white border-t p-3 sticky bottom-0 z-10 w-full">
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-full"
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            >
-              {showEmojiPicker ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <SmilePlus className="h-5 w-5" />
-              )}
-            </Button>
-            {showEmojiPicker && (
-              <div className="absolute bottom-12 left-0 z-10 shadow-lg rounded-lg transform scale-90 sm:scale-100 origin-bottom-left">
-                <EmojiPicker onEmojiClick={onEmojiClick} />
-              </div>
-            )}
+            <div className="flex-1 relative">
+              <Input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Type your message..."
+                className="rounded-full border-gray-200 pr-12 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm sm:text-base py-2"
+                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                disabled={isLoading}
+              />
+              <Button
+                onClick={handleSend}
+                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 p-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors"
+                disabled={isLoading}
+              >
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex-1 relative">
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Type your message..."
-              className="rounded-full border-gray-200 pr-12 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm sm:text-base py-2"
-              onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-              disabled={isLoading}
-            />
-            <Button
-              onClick={handleSend}
-              className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 p-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors"
-              disabled={isLoading}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-    </footer>
-  </div>
+      </footer>
+    </div>
+    </div>
+    <ToastContainer position="top-center" />
 </div>
   )
 }
