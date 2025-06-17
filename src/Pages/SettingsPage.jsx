@@ -112,10 +112,10 @@ const SettingsPage = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="bg-white shadow-sm">
+        <header className="bg-white shadow-sm animate__animated animate__fadeInDown">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
-              <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
+              <h1 className="text-2xl font-semibold text-gray-900 animate__animated animate__fadeInDown">Settings</h1>
               <ProfileButton
                 user={user}
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -129,18 +129,18 @@ const SettingsPage = () => {
         <main className="flex-1 overflow-y-auto p-4">
           <div className="max-w-2xl mx-auto space-y-8">
             {/* Phone Number Settings */}
-            <Card>
+            <Card className="animate__animated animate__fadeInDown">
               <CardHeader>
-                <CardTitle>Phone Number</CardTitle>
-                <CardDescription>Update your contact information</CardDescription>
+                <CardTitle className="animate__animated animate__fadeInDown">Phone Number</CardTitle>
+                <CardDescription className="animate__animated animate__fadeInDown">Update your contact information</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2">
-                    <Phone className="w-4 h-4" />
+                    <Phone className="w-4 h-4 animate__animated animate__fadeInLeft" />
                     {isEditingPhone ? (
                       <div className="flex-1 flex space-x-2">
-                        <div className="flex-1 flex">
+                        <div className="flex-1 flex animate__animated animate__fadeInDown">
                           <div className="bg-gray-100 flex items-center px-3 rounded-l-md border border-r-0 border-gray-200 text-gray-500">
                             +91
                           </div>
@@ -155,6 +155,7 @@ const SettingsPage = () => {
                         <Button 
                           onClick={handlePhoneUpdate}
                           disabled={isUpdatingPhone || phoneNumber.length !== 10}
+                          className="animate__animated animate__fadeInUp"
                         >
                           {isUpdatingPhone ? 'Saving...' : 'Save'}
                         </Button>
@@ -162,6 +163,7 @@ const SettingsPage = () => {
                           variant="outline"
                           onClick={() => setIsEditingPhone(false)}
                           disabled={isUpdatingPhone}
+                          className="animate__animated animate__fadeInUp"
                         >
                           Cancel
                         </Button>
@@ -172,6 +174,7 @@ const SettingsPage = () => {
                         <Button
                           variant="outline"
                           onClick={() => setIsEditingPhone(true)}
+                          className="animate__animated animate__fadeInUp"
                         >
                           Edit
                         </Button>
@@ -183,18 +186,19 @@ const SettingsPage = () => {
             </Card>
 
             {/* Notifications */}
-            <Card>
+            <Card className="animate__animated animate__fadeInDown">
               <CardHeader>
-                <CardTitle>Notifications</CardTitle>
-                <CardDescription>Manage your notification preferences</CardDescription>
+                <CardTitle className="animate__animated animate__fadeInDown">Notifications</CardTitle>
+                <CardDescription className="animate__animated animate__fadeInDown">Manage your notification preferences</CardDescription>
               </CardHeader>
               <CardContent className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Bell className="w-4 h-4" />
-                  <Label htmlFor="notifications">Enable notifications</Label>
+                  <Bell className="w-4 h-4 animate__animated animate__fadeInLeft" />
+                  <Label htmlFor="notifications" className="animate__animated animate__fadeInDown">Enable notifications</Label>
                 </div>
                 <Switch
                   id="notifications"
+                  className="animate__animated animate__fadeInUp"
                   checked={notificationsEnabled}
                   onChange={(e) => setNotificationsEnabled(e.target.checked)}
                 />

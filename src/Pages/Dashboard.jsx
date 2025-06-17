@@ -349,11 +349,11 @@ function Dashboard() {
       />
 
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm animate__animated animate__fadeInDown">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
-            <div className="flex items-center space-x-4">
+            <h2 className="text-2xl font-semibold text-gray-900 animate__animated animate__slideInDown">Dashboard</h2>
+            <div className="flex items-center space-x-4 animate__animated animate__slideInDown">
               <ProfileButton
                 user={user}
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -369,25 +369,25 @@ function Dashboard() {
         <div className="space-y-8">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card>
+            <Card className="animate__animated animate__slideInUp" >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-                <Wallet className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium animate__animated animate__fadeInDown">Total Balance</CardTitle>
+                <Wallet className="h-4 w-4 text-muted-foreground animate__animated animate__fadeInRight" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold animate__animated animate__fadeInDown">
                   {formatCurrency(userData?.totalBalance || 0)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="animate__animated animate__slideInUp">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium animate__animated animate__fadeInDown">Monthly Income</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground animate__animated animate__fadeInRight" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-green-600">
+                <div className="text-2xl font-bold text-green-600 animate__animated animate__fadeInDown">
                   {formatCurrency(income)}
                 </div>
                 {recurringIncome > 0 && (
@@ -399,25 +399,25 @@ function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="animate__animated animate__slideInUp">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Monthly Expenses</CardTitle>
-                <TrendingDown className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium animate__animated animate__fadeInDown">Monthly Expenses</CardTitle>
+                <TrendingDown className="h-4 w-4 text-muted-foreground animate__animated animate__fadeInRight" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-red-600">
+                <div className="text-2xl font-bold text-red-600 animate__animated animate__fadeInDown">
                   {formatCurrency(expenses)}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="animate__animated animate__slideInUp">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Savings Goal</CardTitle>
-                <Target className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium animate__animated animate__fadeInDown">Savings Goal</CardTitle>
+                <Target className="h-4 w-4 text-muted-foreground animate__animated animate__fadeInRight" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold animate__animated animate__fadeInDown">
                   {formatCurrency(userData?.savingsGoal || 0)}
                 </div>
               </CardContent>

@@ -31,7 +31,7 @@ const Sidebar = ({ isOpen, onClose, user }) => {
     >
       <div className="flex items-center justify-center h-20 border-b">
         <h1 
-          className="text-2xl font-bold text-blue-600 cursor-pointer" 
+          className="text-2xl font-bold text-blue-600 cursor-pointer animate__animated animate__slideInDown" 
           onClick={() => handleNavigation("/dashboard")}
         >
           FinTrack
@@ -46,7 +46,7 @@ const Sidebar = ({ isOpen, onClose, user }) => {
               location.pathname === item.path
                 ? "bg-blue-50 text-blue-600"
                 : "text-gray-600 hover:bg-blue-50 hover:text-blue-600"
-            } transition-colors duration-200`}
+            } transition-colors duration-200 animate__animated animate__fadeInDown`}
             onClick={() => handleNavigation(item.path)}
           >
             {React.createElement(item.icon, { className: "mr-2 h-5 w-5" })}
@@ -57,7 +57,7 @@ const Sidebar = ({ isOpen, onClose, user }) => {
       <div className="p-4 border-t">
         <Button 
           variant="outline" 
-          className="w-full text-red-600 hover:bg-red-50 hover:text-red-700"
+          className="w-full text-red-600 hover:bg-red-50 hover:text-red-700 animate__animated animate__fadeInDown"
           onClick={async () => {
             try {
               await auth.signOut()
@@ -67,7 +67,7 @@ const Sidebar = ({ isOpen, onClose, user }) => {
             }
           }}
         >
-          <LogOut className="mr-2 h-4 w-4" /> Logout
+          <LogOut className="mr-2 h-4 w-4 animate__animated animate__fadeInUp" /> Logout
         </Button>
       </div>
     </aside>

@@ -11,12 +11,12 @@ const BankAccounts = ({ accounts, formatCurrency }) => {
 
   return (
     <div>
-      <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
+      <h3 className="text-lg font-semibold mb-4 animate__animated animate__fadeInUp">Bank Accounts</h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {bankAccounts.map((account, index) => (
           <Card
             key={index}
-            className="bg-gradient-to-br from-blue-50 to-white"
+            className="bg-gradient-to-br from-blue-50 to-white animate__animated animate__fadeInUp"
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div>
@@ -28,17 +28,17 @@ const BankAccounts = ({ accounts, formatCurrency }) => {
                 )}
               </div>
               {(account.type === "Cash" || account.name.toLowerCase() === "cash") ? (
-                <ReceiptIndianRupeeIcon className="h-5 w-5 text-blue-600" />
+                <ReceiptIndianRupeeIcon className="h-5 w-5 text-blue-600 animate__animated animate__fadeInRight" />
               ) : (
-                <Wallet className="h-5 w-5 text-blue-600" />
+                <Wallet className="h-5 w-5 text-blue-600 animate__animated animate__fadeInRight" />
               )}
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-blue-600 animate__animated animate__fadeInUp">
                 {formatCurrency(account.balance)}
               </div>
               {account.isRecurringIncome && (
-                <div className="mt-2 flex items-center text-sm text-green-600">
+                <div className="mt-2 flex items-center text-sm text-green-600 animate__animated animate__fadeInUp">
                   {/* Commenting out as in original code
                   <ArrowUpRight className="h-4 w-4 mr-1" />
                   Monthly Income: {formatCurrency(account.recurringAmount)} */}

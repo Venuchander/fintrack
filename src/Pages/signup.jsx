@@ -118,14 +118,14 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4">
+    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4 animate__animated animate__fadeInDown animate__slow">
       <div className="space-y-6 w-full max-w-md">
         <div className="space-y-2">
           <div className="flex items-center mb-8">
-            <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
+            <div className="text-indigo-600 font-bold text-xl animate__animated animate__fadeInDown">Fintrack</div>
           </div>
-          <h1 className="text-2xl font-semibold tracking-tight">Sign Up</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight animate__animated animate__fadeInDown">Sign Up</h1>
+          <p className="text-sm text-muted-foreground animate__animated animate__fadeInDown">
             Enter your details to create your Fintrack account:
           </p>
         </div>
@@ -137,7 +137,7 @@ const SignupPage = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+          <div className="space-y-2 animate__animated animate__fadeInDown">
             <label className="text-sm font-medium">Email*</label>
             <Input
               type="email"
@@ -149,7 +149,7 @@ const SignupPage = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="space-y-2 animate__animated animate__fadeInDown">
               <label className="text-sm font-medium">Password*</label>
               <div className="relative">
                 <Input
@@ -162,14 +162,14 @@ const SignupPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 animate__animated animate__fadeInRight"
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Confirm Password*</label>
+              <label className="text-sm font-medium animate__animated animate__fadeInDown">Confirm Password*</label>
               <div className="relative">
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
@@ -181,7 +181,7 @@ const SignupPage = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 animate__animated animate__fadeInRight"
                 >
                   {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
@@ -191,7 +191,7 @@ const SignupPage = () => {
 
           <Button
             type="submit"
-            className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+            className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 animate__animated animate__fadeInUp"
           >
             Sign Up
           </Button>
@@ -202,7 +202,7 @@ const SignupPage = () => {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-slate-50 px-2 text-muted-foreground">
+            <span className="bg-slate-50 px-2 text-muted-foreground animate__animated animate__fadeInDown">
               Or continue with
             </span>
           </div>
@@ -211,19 +211,19 @@ const SignupPage = () => {
         <Button
           type="button"
           onClick={handleGoogleSignUp}
-          className="w-full h-11 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+          className="w-full h-11 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2 animate__animated animate__fadeInUp"
         >
           <img
             src="https://www.google.com/favicon.ico"
             alt="Google"
-            className="w-5 h-5"
+            className="w-5 h-5 animate__animated animate__fadeInLeft"
           />
-          <span>Sign up with Google</span>
+          <span className="animate__animated animate__fadeInUp">Sign up with Google</span>
         </Button>
 
-        <p className="text-center text-sm text-muted-foreground">
+        <p className="text-center text-sm text-muted-foreground animate__animated animate__fadeInDown">
           Already have a Fintrack Account?{" "}
-          <a href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
+          <a href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium animate__animated animate__fadeInDown">
             Log In
           </a>
         </p>

@@ -13,6 +13,10 @@ import Insights from "./Pages/InsightsPage"; // Import the Insights component
 import Chatbot from "./Pages/ChatbotPage"; // Import the Chatbot component
 import Income from "./Pages/IncomePage";
 import SettingsPage from "./Pages/SettingsPage";
+import 'animate.css'     //normal animation on render
+import 'aos/dist/aos.css' //on scroll animation
+import AOS from 'aos'
+AOS.init()      //initialize AOS
 // Main component that holds the routes
 const App = () => {
   return (

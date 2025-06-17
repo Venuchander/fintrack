@@ -474,7 +474,7 @@ const RecentTransactions = ({
   const summary = calculateSummary();
 
   return (
-    <Card className="w-full">
+    <Card className="w-full" data-aos="fade-up">
       <CardHeader className="flex flex-col space-y-3 sm:space-y-4 p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-lg sm:text-xl">

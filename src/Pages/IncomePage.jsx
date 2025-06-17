@@ -246,10 +246,10 @@ export default function IncomeDashboard() {
       )}
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm">
+        <header className="bg-white shadow-sm animate__animated animate__fadeInDown">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
-              <h2 className="text-2xl font-semibold text-gray-900">Income Dashboard</h2>
+              <h2 className="text-2xl font-semibold text-gray-900 animate__animated animate__slideInDown">Income Dashboard</h2>
               <ProfileButton
                 user={user}
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -261,31 +261,31 @@ export default function IncomeDashboard() {
 
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto p-4">
-            <Card className="mb-8 bg-primary text-primary-foreground">
+            <Card className="mb-8 bg-primary text-primary-foreground animate__animated animate__fadeInDown">
               <CardHeader>
-                <CardDescription className="text-primary-foreground/70">Total Balance</CardDescription>
-                <CardTitle className="text-4xl font-bold">₹{totalBalance.toLocaleString()}</CardTitle>
+                <CardDescription className="text-primary-foreground/70 animate__animated animate__fadeInDown">Total Balance</CardDescription>
+                <CardTitle className="text-4xl font-bold animate__animated animate__fadeInUp">₹{totalBalance.toLocaleString()}</CardTitle>
               </CardHeader>
             </Card>
 
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold px-1">Accounts</h2>
+              <h2 className="text-xl font-semibold px-1 animate__animated animate__fadeInUp">Accounts</h2>
               <div className="grid gap-4">
                 {accounts.map((account, index) => (
-                  <Card key={index} className="group hover:shadow-md transition-shadow">
+                  <Card key={index} className="group hover:shadow-md transition-shadow animate__animated animate__fadeInUp">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="p-2 rounded-full bg-primary/10 text-primary">
+                          <div className="p-2 rounded-full bg-primary/10 text-primary animate__animated animate__fadeInLeft">
                             {account.icon}
                           </div>
                           <div>
-                            <h3 className="font-medium">{account.name}</h3>
+                            <h3 className="font-medium animate__animated animate__fadeInDown">{account.name}</h3>
                             {editingId === index && editingField === 'balance' ? (
                               <Input
                                 type="number"
                                 value={editValue}
-                                className="w-32 text-sm"
+                                className="w-32 text-sm animate__animated animate__fadeInUp"
                                 autoFocus
                                 onChange={(e) => setEditValue(e.target.value)}
                                 onBlur={() => handleValueChange(index, editValue)}
@@ -296,12 +296,12 @@ export default function IncomeDashboard() {
                                 }}
                               />
                             ) : (
-                              <p className="text-sm text-muted-foreground">
+                              <p className="text-sm text-muted-foreground animate__animated animate__fadeInUp">
                                 Balance: ₹{account.balance.toLocaleString()}
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="ml-2"
+                                  className="ml-2 animate__animated animate__fadeInLeft"
                                   onClick={() => handleEdit(index, 'balance')}
                                 >
                                   <Edit className="w-3 h-3" />
@@ -310,9 +310,9 @@ export default function IncomeDashboard() {
                             )}
                             {account.type === "Credit" && (
                               <>
-                                <p className="text-sm text-muted-foreground">Type: {account.cardType}</p>
-                                <p className="text-sm text-muted-foreground">Expires: {account.expiryDate}</p>
-                                <p className="text-sm text-muted-foreground">Credit Limit: ₹{account.creditAmount.toLocaleString()}</p>
+                                <p className="text-sm text-muted-foreground animate__animated animate__fadeInUp">Type: {account.cardType}</p>
+                                <p className="text-sm text-muted-foreground animate__animated animate__fadeInUp">Expires: {account.expiryDate}</p>
+                                <p className="text-sm text-muted-foreground animate__animated animate__fadeInUp">Credit Limit: ₹{account.creditAmount.toLocaleString()}</p>
                               </>
                             )}
                             {account.isRecurringIncome && (
@@ -320,7 +320,7 @@ export default function IncomeDashboard() {
                                 <Input
                                   type="number"
                                   value={editValue}
-                                  className="w-32 text-sm"
+                                  className="w-32 text-sm animate__animated animate__fadeInUp"
                                   autoFocus
                                   onChange={(e) => setEditValue(e.target.value)}
                                   onBlur={() => handleValueChange(index, editValue)}
@@ -331,12 +331,12 @@ export default function IncomeDashboard() {
                                   }}
                                 />
                               ) : (
-                                <p className="text-sm text-green-600">
+                                <p className="text-sm text-green-600 animate__animated animate__fadeInUp">
                                   Monthly Income: ₹{account.recurringAmount.toLocaleString()}
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="ml-2"
+                                    className="ml-2 animate__animated animate__fadeInLeft"
                                     onClick={() => handleEdit(index, 'recurringAmount')}
                                   >
                                     <Edit className="w-3 h-3" />
@@ -350,10 +350,10 @@ export default function IncomeDashboard() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive animate__animated animate__slideInRight"
                             onClick={() => handleDeleteAccount(index)}
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 animate__animated animate__fadeInRight" />
                           </Button>
                         </div>
                       </div>
@@ -364,21 +364,22 @@ export default function IncomeDashboard() {
 
               <Dialog open={isAddingAccount} onOpenChange={setIsAddingAccount}>
                 <DialogTrigger asChild>
-                  <Button className="w-full" size="lg">
-                    <Plus className="w-5 h-5 mr-2" />
-                    Add New Account
+                  <Button className="w-full animate__animated animate__fadeInUp" size="lg">
+                    <Plus className="w-5 h-5 mr-2 animate__animated animate__fadeInLeft" />
+                    <span className="animate__animated animate__fadeInRight">Add New Account</span>
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
-                    <DialogTitle>Add New Account</DialogTitle>
+                    <DialogTitle className="animate__animated animate__fadeInDown">Add New Account</DialogTitle>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="accountType" className="text-right">
+                      <Label htmlFor="accountType" className="text-right animate__animated animate__fadeInUp">
                         Type
                       </Label>
                       <Select
+                        className="animate__animated animate__fadeInUp"
                         value={newAccount.type}
                         onValueChange={(value) => setNewAccount({ ...newAccount, type: value })}
                       >
@@ -386,40 +387,40 @@ export default function IncomeDashboard() {
                           <SelectValue placeholder="Select account type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Bank">Bank</SelectItem>
-                          <SelectItem value="Cash">Cash</SelectItem>
-                          <SelectItem value="Credit">Credit</SelectItem>
+                          <SelectItem value="Bank" className="animate__animated animate__fadeInUp">Bank</SelectItem>
+                          <SelectItem value="Cash" className="animate__animated animate__fadeInUp">Cash</SelectItem>
+                          <SelectItem value="Credit" className="animate__animated animate__fadeInUp">Credit</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     {newAccount.type === "Bank" && (
                       <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="bankName" className="text-right">
+                        <Label htmlFor="bankName" className="text-right animate__animated animate__fadeInUp">
                           Bank Name
                         </Label>
                         <Input
                           id="bankName"
                           value={newAccount.bankName}
                           onChange={(e) => setNewAccount({ ...newAccount, bankName: e.target.value })}
-                          className="col-span-3"
+                          className="col-span-3 animate__animated animate__fadeInUp"
                         />
                       </div>
                     )}
                     {newAccount.type === "Credit" && (
                       <>
                         <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="creditCardName" className="text-right">
+                          <Label htmlFor="creditCardName" className="text-right animate__animated animate__fadeInUp">
                             Credit Card Name
                           </Label>
                           <Input
                             id="creditCardName"
                             value={newAccount.creditCardName}
                             onChange={(e) => setNewAccount({ ...newAccount, creditCardName: e.target.value })}
-                            className="col-span-3"
+                            className="col-span-3 animate__animated animate__fadeInUp"
                           />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="cardType" className="text-right">
+                          <Label htmlFor="cardType" className="text-right animate__animated animate__fadeInUp">
                             Card Type
                           </Label>
                           <Select
@@ -430,18 +431,18 @@ export default function IncomeDashboard() {
                               <SelectValue placeholder="Select card type" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Visa">Visa</SelectItem>
-                              <SelectItem value="Mastercard">Mastercard</SelectItem>
-                              <SelectItem value="American Express">American Express</SelectItem>
-                              <SelectItem value="Discover">Discover</SelectItem>
-                              <SelectItem value="RuPay">RuPay</SelectItem>
-                              <SelectItem value="UnionPay">UnionPay</SelectItem>
-                              <SelectItem value="JCB">JCB</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInUp" value="Visa">Visa</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInUp" value="Mastercard">Mastercard</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInUp" value="American Express">American Express</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInUp" value="Discover">Discover</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInUp" value="RuPay">RuPay</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInUp" value="UnionPay">UnionPay</SelectItem>
+                              <SelectItem className="animate__animated animate__fadeInUp" value="JCB">JCB</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="expiryDate" className="text-right">
+                          <Label htmlFor="expiryDate" className="text-right animate__animated animate__fadeInUp">
                             Expiry Date
                           </Label>
                           <Input
@@ -449,11 +450,11 @@ export default function IncomeDashboard() {
                             type="month"
                             value={newAccount.expiryDate}
                             onChange={(e) => setNewAccount({ ...newAccount, expiryDate: e.target.value })}
-                            className="col-span-3"
+                            className="col-span-3 animate__animated animate__fadeInUp"
                           />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="creditAmount" className="text-right">
+                          <Label htmlFor="creditAmount" className="text-right animate__animated animate__fadeInUp">
                             Credit Amount
                           </Label>
                           <Input
@@ -461,13 +462,13 @@ export default function IncomeDashboard() {
                             type="number"
                             value={newAccount.creditAmount}
                             onChange={(e) => setNewAccount({ ...newAccount, creditAmount: e.target.value })}
-                            className="col-span-3"
+                            className="col-span-3 animate__animated animate__fadeInUp"
                           />
                         </div>
                       </>
                     )}
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="balance" className="text-right">
+                      <Label htmlFor="balance" className="text-right animate__animated animate__fadeInUp">
                         Balance
                       </Label>
                       <Input
@@ -475,13 +476,13 @@ export default function IncomeDashboard() {
                         type="number"
                         value={newAccount.balance}
                         onChange={(e) => setNewAccount({ ...newAccount, balance: e.target.value })}
-                        className="col-span-3"
+                        className="col-span-3 animate__animated animate__fadeInUp"
                       />
                     </div>
                     {newAccount.type === "Bank" && (
                       <>
                         <div className="grid grid-cols-4 items-center gap-4">
-                          <Label htmlFor="isRecurringIncome" className="text-right">
+                          <Label htmlFor="isRecurringIncome" className="text-right animate__animated animate__fadeInUp">
                             Recurring Income
                           </Label>
                           <Switch
@@ -492,7 +493,7 @@ export default function IncomeDashboard() {
                         </div>
                         {newAccount.isRecurringIncome && (
                           <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="recurringAmount" className="text-right">
+                            <Label htmlFor="recurringAmount" className="text-right animate__animated animate__fadeInUp">
                               Monthly Amount
                             </Label>
                             <Input
@@ -500,14 +501,14 @@ export default function IncomeDashboard() {
                               type="number"
                               value={newAccount.recurringAmount}
                               onChange={(e) => setNewAccount({ ...newAccount, recurringAmount: e.target.value })}
-                              className="col-span-3"
+                              className="col-span-3 animate__animated animate__fadeInUp"
                             />
                           </div>
                         )}
                       </>
                     )}
                   </div>
-                  <Button onClick={handleAddAccount}>Add Account</Button>
+                  <Button onClick={handleAddAccount} className="animate__animated animate__fadeInUp"><span className="animate__animated animate__fadeInRight">Add Account</span></Button>
                 </DialogContent>
               </Dialog>
             </div>
