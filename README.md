@@ -2,6 +2,7 @@
 
 A comprehensive personal finance management web application that helps users track income and expenses while providing AI-powered financial insights and recommendations.
 
+---
 <table align="center">
     <thead align="center">
         <tr border: 2px;>
