@@ -13,12 +13,14 @@ import Insights from "./Pages/InsightsPage"; // Import the Insights component
 import Chatbot from "./Pages/ChatbotPage"; // Import the Chatbot component
 import Income from "./Pages/IncomePage";
 import SettingsPage from "./Pages/SettingsPage";
+import ForgotPasswordPage from "./Pages/ForgotPasswordPage"; // The forget password component
 // Main component that holds the routes
 const App = () => {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<LoginPage />} /> {/* Route for LoginPage */}
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Route for forgetpassword page*/}
         <Route path="/signup" element={<SignupPage />} /> {/* Route for SignupPage */}
         <Route path="/phone-number" element={<PhoneNumberPage />} /> {/* Route for PhoneNumberPage */}
         <Route path="/dashboard" element={<Dashboard />} /> {/* Route for Dashboard */}

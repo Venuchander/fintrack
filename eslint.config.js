@@ -37,21 +37,12 @@ export default [
     },
   },
   {
-    "files": [],
-    "references": [
-      {
-        "path": "./tsconfig.app.json"
-      },
-      {
-        "path": "./tsconfig.node.json"
-      }
-    ],
-    "compilerOptions": {
-      "baseUrl": ".",
-      "paths": {
-        "@/*": ["./src/*"]
-      }
-    }
-  }
-  
-]
+    files: ['**/*.{js,jsx}'],
+    rules: {
+      'no-unused-vars': 'warn',
+      'react/prop-types': 'off',
+      'react/no-unknown-property': 'warn',
+      'no-undef': 'off',
+    },
+  },
+];
