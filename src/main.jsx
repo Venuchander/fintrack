@@ -13,6 +13,7 @@ import Insights from "./Pages/InsightsPage"; // Import the Insights component
 import Chatbot from "./Pages/ChatbotPage"; // Import the Chatbot component
 import Income from "./Pages/IncomePage";
 import SettingsPage from "./Pages/SettingsPage";
+import ForgetPassword from "./Pages/ForgetPassword";
 // Main component that holds the routes
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/chatbot" element={<Chatbot />} />
         <Route path="/income" element={<Income />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/forgot-password" element={<ForgetPassword />} />
         {/* Redirect default route to signup */}
         <Route path="/" element={<Navigate to="/signup" />} /> {/* Redirect to SignupPage if no path is specified */}
       </Routes>
