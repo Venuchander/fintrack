@@ -99,7 +99,7 @@ export default function ForgetPassword() {
         {error && <p className="text-red-600 text-sm mt-4">{error}</p>}
       </form>
       <p className="text-center text-sm text-gray-600 mt-4">
-        Reset your password?{" "}
+        Remember your password?{" "}
         <Link
           to="/login"
           className="text-indigo-600 hover:text-indigo-500 font-medium"
