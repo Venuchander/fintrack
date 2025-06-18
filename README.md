@@ -186,4 +186,8 @@ For support and questions, please open an issue in the GitHub repository.
 
 ## Contributors
 
-![Contributors](https://contrib.rocks/image?repo=Venuchander/fintrack)
+Thanks to these amazing people for their contributions:
+
+[![GitHub Contributors](https://contrib.rocks/image?repo=Venuchander/fintrack)](https://github.com/Venuchander/fintrack/graphs/contributors)
+
+> *Feel free to add your name here via a pull request if you contribute!*
