@@ -15,11 +15,11 @@ A comprehensive personal finance management web application that helps users tra
      </thead>
     <tbody>
          <tr>
-            <td><img alt="Stars" src="https://img.shields.io/github/stars/imsuryya/fintrack?style=flat&logo=github"/></td>
-             <td><img alt="Forks" src="https://img.shields.io/github/forks/imsuryya/fintrack?style=flat&logo=github"/></td>
-            <td><img alt="Issues" src="https://img.shields.io/github/issues/imsuryya/fintrack?style=flat&logo=github"/></td>
-            <td><img alt="Open Pull Requests" src="https://img.shields.io/github/issues-pr/imsuryya/fintrack?style=flat&logo=github"/></td>
-           <td><img alt="Close Pull Requests" src="https://img.shields.io/github/issues-pr-closed/imsuryya/fintrack?style=flat&color=green&logo=github"/></td>
+            <td><img alt="Stars" src="https://img.shields.io/github/stars/Venuchander/fintrack?style=flat&logo=github"/></td>
+             <td><img alt="Forks" src="https://img.shields.io/github/forks/Venuchander/fintrack?style=flat&logo=github"/></td>
+            <td><img alt="Issues" src="https://img.shields.io/github/issues/Venuchander/fintrack?style=flat&logo=github"/></td>
+            <td><img alt="Open Pull Requests" src="https://img.shields.io/github/issues-pr/Venuchander/fintrack?style=flat&logo=github"/></td>
+           <td><img alt="Close Pull Requests" src="https://img.shields.io/github/issues-pr-closedVenuchander/fintrack?style=flat&color=green&logo=github"/></td>
         </tr>
     </tbody>
 </table>
@@ -186,4 +186,4 @@ For support and questions, please open an issue in the GitHub repository.
 
 ## Contributors
 
-![Contributors](https://contrib.rocks/image?repo=imsuryya/fintrack)
+![Contributors](https://contrib.rocks/image?repo=Venuchander/fintrack)
