@@ -47,7 +47,6 @@ ChartJS.register(
   Legend
 );
 
-
 import MonthlyExpenseChart from "../components/components/MonthlyExpenseCharts";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -61,28 +60,28 @@ function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   //✨ Toast network status
-    useEffect(() => {
-      const handleOffline = () => {
-        toast.error("You're offline. Please check your Internet Connection.", {
-          toastId: "offline-toast",
-          autoClose: false,
-          closeOnClick: false,
-          draggable: false,
-        });
-      };
-  
-      const handleOnline = () => {
-        toast.dismiss("offline-toast");
-      };
-  
-      window.addEventListener("offline", handleOffline);
-      window.addEventListener("online", handleOnline);
-  
-      return () => {
-        window.removeEventListener("offline", handleOffline);
-        window.removeEventListener("online", handleOnline);
-      };
-    }, []);
+  useEffect(() => {
+    const handleOffline = () => {
+      toast.error("You're offline. Please check your Internet Connection.", {
+        toastId: "offline-toast",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      });
+    };
+
+    const handleOnline = () => {
+      toast.dismiss("offline-toast");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -505,128 +504,7 @@ function Dashboard() {
                 </div>
               </CardContent>
             </Card>
-
-    <div>
-      <div className="min-h-screen bg-gray-100">
-        {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
-            onClick={() => setIsSidebarOpen(false)} />
-        )}
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          user={user}
-        />
-
-        {/* Header */}
-        <header className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-4">
-              <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
-              <div className="flex items-center space-x-4">
-                <ProfileButton
-                  user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                  onLogout={() => auth.signOut()}
-                />
-              </div>
-            </div>
           </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="space-y-8">
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Balance</CardTitle>
-                  <Wallet className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {formatCurrency(userData?.totalBalance || 0)}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-green-600">
-                    {formatCurrency(income)}
-                  </div>
-                  {recurringIncome > 0 && (
-                    <div className="mt-2 flex items-center text-sm text-green-600">
-                      {/* <ArrowUpRight className="h-4 w-4 mr-1" />
-                      Passive Income: {formatCurrency(recurringIncome)} */}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Monthly Expenses</CardTitle>
-                  <TrendingDown className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-red-600">
-                    {formatCurrency(expenses)}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Savings Goal</CardTitle>
-                  <Target className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">
-                    {formatCurrency(userData?.savingsGoal || 0)}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Financial Accounts Components */}
-            {userData?.accounts && (
-              <>
-                <BankAccounts 
-                  accounts={userData.accounts} 
-                  formatCurrency={formatCurrency} 
-                />
-                
-                <CreditCards 
-                  accounts={userData.accounts}
-                  formatCurrency={formatCurrency}
-                  getCardBackground={getCardBackground}
-                />
-              </>
-            )}
-
-            {/* Charts Component */}
-            <FinancialCharts 
-              incomeVsExpenseData={incomeVsExpenseData} 
-              expenseData={expenseData} 
-            />
-
-            {/* Recent Transactions Component */}
-            <RecentTransactions 
-              transactions={filteredTransactions}
-              selectedTransactionType={selectedTransactionType}
-              setSelectedTransactionType={setSelectedTransactionType}
-            />
-
-          </div>
-        </main>
-      </div>
-
 
           {/* Financial Accounts Components */}
           {userData?.accounts && (
@@ -649,6 +527,7 @@ function Dashboard() {
             incomeVsExpenseData={incomeVsExpenseData}
             expenseData={expenseData}
           />
+
           {/* monthly expense comparision Chart Component */}
           <Card>
             <CardHeader>
@@ -669,7 +548,6 @@ function Dashboard() {
       </main>
 
       <ToastContainer position="top-center" />
-
     </div>
   );
 }
