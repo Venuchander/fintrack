@@ -65,115 +65,84 @@
   }
 }
 
-/* === Fintrack Landing Page Styles === */
+/* === Minimalist & Professional Fintrack Landing Page Styles === */
 .fintrack-welcome-bg {
   min-height: 100vh;
   width: 100vw;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: linear-gradient(135deg, #f8fafc 0%, #eef1f7 100%);
   position: relative;
-  overflow: hidden;
-  padding: 0 1rem;
+  padding: 0;
+  transition: opacity 0.4s;
+}
+.fintrack-welcome-bg.exit {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
 }
 .fintrack-app-name {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 900;
-  font-size: 2.8rem;
-  color: #007bff;
-  margin-bottom: 1.2rem;
-  letter-spacing: 2px;
+  font-family: system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 2.3rem;
+  color: #4F46E5;
+  margin-bottom: 1.1rem;
+  letter-spacing: 1px;
   text-align: center;
-  text-shadow: 0 4px 24px #007bff22;
-  border-radius: 16px;
-  box-shadow: 0 2px 16px 0 #007bff11;
-  background: #fff;
-  display: inline-block;
-  padding: 0.5rem 2.5rem;
-  position: relative;
-  z-index: 2;
+  line-height: 1.1;
   opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 0.2s, transform 0.2s;
+  transform: translateY(24px);
+  transition: opacity 0.5s, transform 0.5s;
 }
 .fintrack-app-name.visible {
   opacity: 1;
-  transform: scale(1);
-  animation: buttonPopIn 0.8s cubic-bezier(.68,-0.55,.27,1.55) both;
+  transform: translateY(0);
 }
 .fintrack-tagline {
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 600;
-  font-size: 1.35rem;
-  color: #222;
-  margin-bottom: 2.5rem;
+  font-family: system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1.08rem;
+  color: #555;
+  margin-bottom: 2.1rem;
   text-align: center;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 2px 12px 0 #007bff11;
-  padding: 1.1rem 1.5rem 1.1rem 1.5rem;
-  min-height: 3.5rem;
-  display: inline-block;
-  line-height: 1.4;
-  letter-spacing: 1px;
-  max-width: 95vw;
+  max-width: 90vw;
+  line-height: 1.5;
   opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 0.2s, transform 0.2s;
+  transform: translateY(24px);
+  transition: opacity 0.5s, transform 0.5s;
 }
 .fintrack-tagline.visible {
   opacity: 1;
-  transform: scale(1);
-  animation: buttonPopIn 0.8s cubic-bezier(.68,-0.55,.27,1.55) both;
+  transform: translateY(0);
 }
 .fintrack-welcome-btn {
-  padding: 1rem 3.5rem;
-  font-size: 1.15rem;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 700;
+  padding: 0.85rem 2.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  font-weight: 500;
   cursor: pointer;
-  background: #007bff;
+  background: #4F46E5;
   color: #fff;
   border: none;
   border-radius: 999px;
-  box-shadow: 0 4px 24px 0 #007bff33;
-  transition: transform 0.18s cubic-bezier(.68,-0.55,.27,1.55), background 0.18s, box-shadow 0.18s;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s;
   outline: none;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
   display: block;
+  box-shadow: 0 2px 8px 0 #4F46E522;
+  letter-spacing: 0.5px;
   opacity: 0;
-  transform: scale(0.7);
+  transform: translateY(24px);
+  transition: opacity 0.5s, transform 0.5s;
 }
 .fintrack-welcome-btn.visible {
   opacity: 1;
-  transform: scale(1);
-  animation: buttonPopIn 0.8s cubic-bezier(.68,-0.55,.27,1.55) both;
+  transform: translateY(0);
 }
 .fintrack-welcome-btn:hover {
-  transform: scale(1.08) !important;
-  background: #0056b3;
+  background: #4338CA;
   color: #fff;
-  box-shadow: 0 8px 32px 0 #007bff44;
-}
-@keyframes buttonPopIn {
-  0% { opacity: 0; transform: scale(0.7); }
-  60% { opacity: 1; transform: scale(1.08); }
-  100% { opacity: 1; transform: scale(1); }
-}
-.fintrack-welcome-bg.exit {
-  animation: fintrack-exit 0.6s cubic-bezier(.68,-0.55,.27,1.55) forwards;
-  pointer-events: none;
-}
-@keyframes fintrack-exit {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.08);
-  }
+  box-shadow: 0 4px 16px 0 #4F46E533;
 }
