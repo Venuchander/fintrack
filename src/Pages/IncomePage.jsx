@@ -121,7 +121,7 @@ export default function IncomeDashboard() {
           console.error("Error fetching accounts:", error);
         }
       } else {
-        navigate("/dashboard");
+        navigate("/login");
       }
       setIsLoading(false);
     });
