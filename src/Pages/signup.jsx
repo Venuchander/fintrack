@@ -151,11 +151,11 @@ const SignupPage = () => {
         <div className="space-y-6 w-full max-w-md">
           <div className="space-y-2">
             <div className="flex items-center mb-8">
-              <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
+              {/* Removed app name branding */}
             </div>
             <h1 className="text-2xl font-semibold tracking-tight">Sign Up</h1>
             <p className="text-sm text-muted-foreground">
-              Enter your details to create your Fintrack account:
+              Enter your details to create your account:
             </p>
           </div>
 
