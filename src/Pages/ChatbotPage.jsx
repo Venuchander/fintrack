@@ -371,6 +371,7 @@ Security Guidelines:
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => navigate('/dashboard')}>Back</Button>
                 <Button
                   onClick={handleCall}
                   variant="outline"

@@ -277,6 +277,7 @@ export default function IncomeDashboard() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
                 <h2 className="text-2xl font-semibold text-gray-900">Income Dashboard</h2>
+                <Button variant="outline" onClick={() => navigate('/dashboard')}>Back</Button>
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
