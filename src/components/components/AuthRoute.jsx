@@ -1,5 +1,5 @@
 import { Navigate } from "react-router-dom";
-import { auth } from "../lib/Firebase";
+import { auth } from "../../Pages/lib/firebase";
 import { useEffect, useState } from "react";
 
 const AuthRoute = ({ children }) => {
