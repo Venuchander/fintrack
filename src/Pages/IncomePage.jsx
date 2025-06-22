@@ -277,26 +277,30 @@ export default function IncomeDashboard() {
     setSelectedAccountIndex(index);
     setIsAddAmountDialogOpen(true);
   };
-  const handleConfirmAddAmount = async () => {
-    // Validate the amount
-    if (!additionalAmount || Number(additionalAmount) <= 0) {
-      setErrorMessage("Please enter a valid amount greater than 0.");
-      return;
-    }
+const handleConfirmAddAmount = async () => {
+  // Validate the amount
+  if (!additionalAmount || Number(additionalAmount) <= 0) {
+    setErrorMessage("Please enter a valid amount greater than 0.");
+    return;
+  }
 
-    if (selectedAccountIndex !== null) {
-      const updatedAccounts = [...accounts];
-      updatedAccounts[selectedAccountIndex].balance += Number(additionalAmount);
-      setAccounts(updatedAccounts);
-      setIsAddAmountDialogOpen(false);
-      setAdditionalAmount("");
-      setErrorMessage(""); // clear error after success
+  if (selectedAccountIndex !== null) {
+    const updatedAccounts = [...accounts];
+    updatedAccounts[selectedAccountIndex].balance += Number(additionalAmount);
 
-      if (user) {
-        await updateUserAccounts(user.uid, updatedAccounts);
-      }
+    setAccounts(updatedAccounts);           // update accounts
+    const newTotal = updatedAccounts.reduce((sum, acc) => sum + acc.balance, 0);
+    setTotalBalance(newTotal);             // ✅ update total balance immediately
+    setIsAddAmountDialogOpen(false);       // close dialog
+    setAdditionalAmount("");               // reset input
+    setErrorMessage("");                   // clear error after success
+
+    if (user) {
+      await updateUserAccounts(user.uid, updatedAccounts); // persist to DB
     }
-  };
+  }
+};
+
 
   if (isLoading) {
     return (
