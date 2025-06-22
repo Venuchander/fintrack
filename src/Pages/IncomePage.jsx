@@ -29,15 +29,23 @@ import {
   SelectValue,
 } from "../components/ui/select";
 import { Switch } from "../components/ui/switch";
-import { CreditCard, Wallet, Building, DollarSign, Plus, Edit, Trash2 } from 'lucide-react';
+import {
+  CreditCard,
+  Wallet,
+  Building,
+  DollarSign,
+  Plus,
+  Edit,
+  Trash2,
+} from "lucide-react";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const iconMap = {
-  "Bank": <Building className="w-5 h-5" />,
-  "Cash": <DollarSign className="w-5 h-5" />,
-  "Credit": <CreditCard className="w-5 h-5" />,
+  Bank: <Building className="w-5 h-5" />,
+  Cash: <DollarSign className="w-5 h-5" />,
+  Credit: <CreditCard className="w-5 h-5" />,
 };
 
 const getIconComponent = (iconType) => {
@@ -67,30 +75,37 @@ export default function IncomeDashboard() {
   const [isAddingAccount, setIsAddingAccount] = useState(false);
   const [editValue, setEditValue] = useState("");
   const [editingField, setEditingField] = useState("");
-  const [recurringIncome, setRecurringIncome] = useState({ amount: 0, type: "" });
+  const [recurringIncome, setRecurringIncome] = useState({
+    amount: 0,
+    type: "",
+  });
+  const [isAddAmountDialogOpen, setIsAddAmountDialogOpen] = useState(false);
+  const [selectedAccountIndex, setSelectedAccountIndex] = useState(null);
+  const [additionalAmount, setAdditionalAmount] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-      const handleOffline = () => {
-        toast.error("You're offline. Please check your Internet Connection.", {
-          toastId: "offline-toast",
-          autoClose: false,
-          closeOnClick: false,
-          draggable: false,
-        });
-      };
-  
-      const handleOnline = () => {
-        toast.dismiss("offline-toast");
-      };
-  
-      window.addEventListener("offline", handleOffline);
-      window.addEventListener("online", handleOnline);
-  
-      return () => {
-        window.removeEventListener("offline", handleOffline);
-        window.removeEventListener("online", handleOnline);
-      };
-    }, []);
+    const handleOffline = () => {
+      toast.error("You're offline. Please check your Internet Connection.", {
+        toastId: "offline-toast",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      });
+    };
+
+    const handleOnline = () => {
+      toast.dismiss("offline-toast");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -99,9 +114,9 @@ export default function IncomeDashboard() {
         try {
           const userData = await getUserData(user.uid);
           if (userData?.accounts) {
-            const displayAccounts = userData.accounts.map(account => ({
+            const displayAccounts = userData.accounts.map((account) => ({
               ...account,
-              icon: getIconComponent(account.type || account.name)
+              icon: getIconComponent(account.type || account.name),
             }));
             setAccounts(displayAccounts);
             // Calculate total including credit card balances
@@ -112,9 +127,14 @@ export default function IncomeDashboard() {
               return sum + account.balance;
             }, 0);
             setTotalBalance(total);
-            const passiveSalaryAccount = displayAccounts.find(account => account.name === "Passive/Salary");
+            const passiveSalaryAccount = displayAccounts.find(
+              (account) => account.name === "Passive/Salary"
+            );
             if (passiveSalaryAccount) {
-              setRecurringIncome({ amount: passiveSalaryAccount.balance, type: "Passive/Salary" });
+              setRecurringIncome({
+                amount: passiveSalaryAccount.balance,
+                type: "Passive/Salary",
+              });
             }
           }
         } catch (error) {
@@ -131,9 +151,9 @@ export default function IncomeDashboard() {
   const handleValueChange = async (index, newValue) => {
     try {
       const updatedAccounts = [...accounts];
-      if (editingField === 'balance') {
+      if (editingField === "balance") {
         updatedAccounts[index].balance = Number(newValue);
-      } else if (editingField === 'recurringAmount') {
+      } else if (editingField === "recurringAmount") {
         updatedAccounts[index].recurringAmount = Number(newValue);
       }
       setAccounts(updatedAccounts);
@@ -162,13 +182,20 @@ export default function IncomeDashboard() {
       try {
         const accountToAdd = {
           type: newAccount.type,
-          name: newAccount.type === "Bank" ? newAccount.bankName :
-                newAccount.type === "Credit" ? newAccount.creditCardName :
-                "Cash",
+          name:
+            newAccount.type === "Bank"
+              ? newAccount.bankName
+              : newAccount.type === "Credit"
+              ? newAccount.creditCardName
+              : "Cash",
           balance: Number(newAccount.balance),
           icon: getIconComponent(newAccount.type),
-          isRecurringIncome: newAccount.type === "Bank" ? newAccount.isRecurringIncome : false,
-          recurringAmount: newAccount.type === "Bank" && newAccount.isRecurringIncome ? Number(newAccount.recurringAmount) : 0,
+          isRecurringIncome:
+            newAccount.type === "Bank" ? newAccount.isRecurringIncome : false,
+          recurringAmount:
+            newAccount.type === "Bank" && newAccount.isRecurringIncome
+              ? Number(newAccount.recurringAmount)
+              : 0,
         };
 
         if (newAccount.type === "Credit") {
@@ -227,9 +254,12 @@ export default function IncomeDashboard() {
 
   const handleRecurringIncome = async () => {
     try {
-      const updatedAccounts = accounts.map(account => {
+      const updatedAccounts = accounts.map((account) => {
         if (account.isRecurringIncome) {
-          return { ...account, balance: account.balance + account.recurringAmount };
+          return {
+            ...account,
+            balance: account.balance + account.recurringAmount,
+          };
         }
         return account;
       });
@@ -243,11 +273,29 @@ export default function IncomeDashboard() {
       console.error("Error adding recurring income:", error);
     }
   };
+  const handleOpenAddAmountDialog = (index) => {
+    setSelectedAccountIndex(index);
+    setIsAddAmountDialogOpen(true);
+  };
+  const handleConfirmAddAmount = async () => {
+    // Validate the amount
+    if (!additionalAmount || Number(additionalAmount) <= 0) {
+      setErrorMessage("Please enter a valid amount greater than 0.");
+      return;
+    }
 
-  const handleEdit = (index, field) => {
-    setEditingId(index);
-    setEditingField(field);
-    setEditValue(accounts[index][field].toString());
+    if (selectedAccountIndex !== null) {
+      const updatedAccounts = [...accounts];
+      updatedAccounts[selectedAccountIndex].balance += Number(additionalAmount);
+      setAccounts(updatedAccounts);
+      setIsAddAmountDialogOpen(false);
+      setAdditionalAmount("");
+      setErrorMessage(""); // clear error after success
+
+      if (user) {
+        await updateUserAccounts(user.uid, updatedAccounts);
+      }
+    }
   };
 
   if (isLoading) {
@@ -261,7 +309,8 @@ export default function IncomeDashboard() {
   return (
     <div>
       <div className="flex h-screen bg-gray-100">
-        <Sidebar isOpen={isSidebarOpen}
+        <Sidebar
+          isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           user={user}
         />
@@ -276,7 +325,9 @@ export default function IncomeDashboard() {
           <header className="bg-white shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
-                <h2 className="text-2xl font-semibold text-gray-900">Income Dashboard</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">
+                  Income Dashboard
+                </h2>
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -290,8 +341,12 @@ export default function IncomeDashboard() {
             <div className="max-w-4xl mx-auto p-4">
               <Card className="mb-8 bg-primary text-primary-foreground">
                 <CardHeader>
-                  <CardDescription className="text-primary-foreground/70">Total Balance</CardDescription>
-                  <CardTitle className="text-4xl font-bold">₹{totalBalance.toLocaleString()}</CardTitle>
+                  <CardDescription className="text-primary-foreground/70">
+                    Total Balance
+                  </CardDescription>
+                  <CardTitle className="text-4xl font-bold">
+                    ₹{totalBalance.toLocaleString()}
+                  </CardTitle>
                 </CardHeader>
               </Card>
 
@@ -299,7 +354,10 @@ export default function IncomeDashboard() {
                 <h2 className="text-xl font-semibold px-1">Accounts</h2>
                 <div className="grid gap-4">
                   {accounts.map((account, index) => (
-                    <Card key={index} className="group hover:shadow-md transition-shadow">
+                    <Card
+                      key={index}
+                      className="group hover:shadow-md transition-shadow"
+                    >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
@@ -308,16 +366,19 @@ export default function IncomeDashboard() {
                             </div>
                             <div>
                               <h3 className="font-medium">{account.name}</h3>
-                              {editingId === index && editingField === 'balance' ? (
+                              {editingId === index &&
+                              editingField === "balance" ? (
                                 <Input
                                   type="number"
                                   value={editValue}
                                   className="w-32 text-sm"
                                   autoFocus
                                   onChange={(e) => setEditValue(e.target.value)}
-                                  onBlur={() => handleValueChange(index, editValue)}
+                                  onBlur={() =>
+                                    handleValueChange(index, editValue)
+                                  }
                                   onKeyPress={(e) => {
-                                    if (e.key === 'Enter') {
+                                    if (e.key === "Enter") {
                                       handleValueChange(index, editValue);
                                     }
                                   }}
@@ -329,7 +390,7 @@ export default function IncomeDashboard() {
                                     variant="ghost"
                                     size="sm"
                                     className="ml-2"
-                                    onClick={() => handleEdit(index, 'balance')}
+                                    onClick={() => handleEdit(index, "balance")}
                                   >
                                     <Edit className="w-3 h-3" />
                                   </Button>
@@ -337,47 +398,71 @@ export default function IncomeDashboard() {
                               )}
                               {account.type === "Credit" && (
                                 <>
-                                  <p className="text-sm text-muted-foreground">Type: {account.cardType}</p>
-                                  <p className="text-sm text-muted-foreground">Expires: {account.expiryDate}</p>
-                                  <p className="text-sm text-muted-foreground">Credit Limit: ₹{account.creditAmount.toLocaleString()}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Type: {account.cardType}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Expires: {account.expiryDate}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Credit Limit: ₹
+                                    {account.creditAmount.toLocaleString()}
+                                  </p>
                                 </>
                               )}
-                              {account.isRecurringIncome && (
-                                editingId === index && editingField === 'recurringAmount' ? (
+                              {account.isRecurringIncome &&
+                                (editingId === index &&
+                                editingField === "recurringAmount" ? (
                                   <Input
                                     type="number"
                                     value={editValue}
                                     className="w-32 text-sm"
                                     autoFocus
-                                    onChange={(e) => setEditValue(e.target.value)}
-                                    onBlur={() => handleValueChange(index, editValue)}
+                                    onChange={(e) =>
+                                      setEditValue(e.target.value)
+                                    }
+                                    onBlur={() =>
+                                      handleValueChange(index, editValue)
+                                    }
                                     onKeyPress={(e) => {
-                                      if (e.key === 'Enter') {
+                                      if (e.key === "Enter") {
                                         handleValueChange(index, editValue);
                                       }
                                     }}
                                   />
                                 ) : (
                                   <p className="text-sm text-green-600">
-                                    Monthly Income: ₹{account.recurringAmount.toLocaleString()}
+                                    Monthly Income: ₹
+                                    {account.recurringAmount.toLocaleString()}
                                     <Button
                                       variant="ghost"
                                       size="sm"
                                       className="ml-2"
-                                      onClick={() => handleEdit(index, 'recurringAmount')}
+                                      onClick={() =>
+                                        handleEdit(index, "recurringAmount")
+                                      }
                                     >
                                       <Edit className="w-3 h-3" />
                                     </Button>
                                   </p>
-                                )
-                              )}
+                                ))}
                             </div>
                           </div>
-                          <div className="flex gap-2">
+                          <div className="flex gap-1 items-center">
                             <Button
+                              title="Add funds"
                               variant="ghost"
                               size="icon"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-green-600 hover:bg-green-50 rounded-full"
+                              onClick={() => handleOpenAddAmountDialog(index)}
+                            >
+                              <Plus className="w-7 h-7" />
+                            </Button>
+                            <Button
+                              title="Delete account"
+                              variant="ghost"
+                              size="icon"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-red-50 rounded-full"
                               onClick={() => handleDeleteAccount(index)}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -389,7 +474,10 @@ export default function IncomeDashboard() {
                   ))}
                 </div>
 
-                <Dialog open={isAddingAccount} onOpenChange={setIsAddingAccount}>
+                <Dialog
+                  open={isAddingAccount}
+                  onOpenChange={setIsAddingAccount}
+                >
                   <DialogTrigger asChild>
                     <Button className="w-full" size="lg">
                       <Plus className="w-5 h-5 mr-2" />
@@ -407,9 +495,14 @@ export default function IncomeDashboard() {
                         </Label>
                         <Select
                           value={newAccount.type}
-                          onValueChange={(value) => setNewAccount({ ...newAccount, type: value })}
+                          onValueChange={(value) =>
+                            setNewAccount({ ...newAccount, type: value })
+                          }
                         >
-                          <SelectTrigger id="accountType" className="col-span-3">
+                          <SelectTrigger
+                            id="accountType"
+                            className="col-span-3"
+                          >
                             <SelectValue placeholder="Select account type" />
                           </SelectTrigger>
                           <SelectContent>
@@ -427,7 +520,12 @@ export default function IncomeDashboard() {
                           <Input
                             id="bankName"
                             value={newAccount.bankName}
-                            onChange={(e) => setNewAccount({ ...newAccount, bankName: e.target.value })}
+                            onChange={(e) =>
+                              setNewAccount({
+                                ...newAccount,
+                                bankName: e.target.value,
+                              })
+                            }
                             className="col-span-3"
                           />
                         </div>
@@ -435,13 +533,21 @@ export default function IncomeDashboard() {
                       {newAccount.type === "Credit" && (
                         <>
                           <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="creditCardName" className="text-right">
+                            <Label
+                              htmlFor="creditCardName"
+                              className="text-right"
+                            >
                               Credit Card Name
                             </Label>
                             <Input
                               id="creditCardName"
                               value={newAccount.creditCardName}
-                              onChange={(e) => setNewAccount({ ...newAccount, creditCardName: e.target.value })}
+                              onChange={(e) =>
+                                setNewAccount({
+                                  ...newAccount,
+                                  creditCardName: e.target.value,
+                                })
+                              }
                               className="col-span-3"
                             />
                           </div>
@@ -451,18 +557,34 @@ export default function IncomeDashboard() {
                             </Label>
                             <Select
                               value={newAccount.cardType}
-                              onValueChange={(value) => setNewAccount({ ...newAccount, cardType: value })}
+                              onValueChange={(value) =>
+                                setNewAccount({
+                                  ...newAccount,
+                                  cardType: value,
+                                })
+                              }
                             >
-                              <SelectTrigger id="cardType" className="col-span-3">
+                              <SelectTrigger
+                                id="cardType"
+                                className="col-span-3"
+                              >
                                 <SelectValue placeholder="Select card type" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="Visa">Visa</SelectItem>
-                                <SelectItem value="Mastercard">Mastercard</SelectItem>
-                                <SelectItem value="American Express">American Express</SelectItem>
-                                <SelectItem value="Discover">Discover</SelectItem>
+                                <SelectItem value="Mastercard">
+                                  Mastercard
+                                </SelectItem>
+                                <SelectItem value="American Express">
+                                  American Express
+                                </SelectItem>
+                                <SelectItem value="Discover">
+                                  Discover
+                                </SelectItem>
                                 <SelectItem value="RuPay">RuPay</SelectItem>
-                                <SelectItem value="UnionPay">UnionPay</SelectItem>
+                                <SelectItem value="UnionPay">
+                                  UnionPay
+                                </SelectItem>
                                 <SelectItem value="JCB">JCB</SelectItem>
                               </SelectContent>
                             </Select>
@@ -475,19 +597,32 @@ export default function IncomeDashboard() {
                               id="expiryDate"
                               type="month"
                               value={newAccount.expiryDate}
-                              onChange={(e) => setNewAccount({ ...newAccount, expiryDate: e.target.value })}
+                              onChange={(e) =>
+                                setNewAccount({
+                                  ...newAccount,
+                                  expiryDate: e.target.value,
+                                })
+                              }
                               className="col-span-3"
                             />
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="creditAmount" className="text-right">
+                            <Label
+                              htmlFor="creditAmount"
+                              className="text-right"
+                            >
                               Credit Amount
                             </Label>
                             <Input
                               id="creditAmount"
                               type="number"
                               value={newAccount.creditAmount}
-                              onChange={(e) => setNewAccount({ ...newAccount, creditAmount: e.target.value })}
+                              onChange={(e) =>
+                                setNewAccount({
+                                  ...newAccount,
+                                  creditAmount: e.target.value,
+                                })
+                              }
                               className="col-span-3"
                             />
                           </div>
@@ -501,32 +636,53 @@ export default function IncomeDashboard() {
                           id="balance"
                           type="number"
                           value={newAccount.balance}
-                          onChange={(e) => setNewAccount({ ...newAccount, balance: e.target.value })}
+                          onChange={(e) =>
+                            setNewAccount({
+                              ...newAccount,
+                              balance: e.target.value,
+                            })
+                          }
                           className="col-span-3"
                         />
                       </div>
                       {newAccount.type === "Bank" && (
                         <>
                           <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="isRecurringIncome" className="text-right">
+                            <Label
+                              htmlFor="isRecurringIncome"
+                              className="text-right"
+                            >
                               Recurring Income
                             </Label>
                             <Switch
                               id="isRecurringIncome"
                               checked={newAccount.isRecurringIncome}
-                              onCheckedChange={(checked) => setNewAccount({ ...newAccount, isRecurringIncome: checked })}
+                              onCheckedChange={(checked) =>
+                                setNewAccount({
+                                  ...newAccount,
+                                  isRecurringIncome: checked,
+                                })
+                              }
                             />
                           </div>
                           {newAccount.isRecurringIncome && (
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <Label htmlFor="recurringAmount" className="text-right">
+                              <Label
+                                htmlFor="recurringAmount"
+                                className="text-right"
+                              >
                                 Monthly Amount
                               </Label>
                               <Input
                                 id="recurringAmount"
                                 type="number"
                                 value={newAccount.recurringAmount}
-                                onChange={(e) => setNewAccount({ ...newAccount, recurringAmount: e.target.value })}
+                                onChange={(e) =>
+                                  setNewAccount({
+                                    ...newAccount,
+                                    recurringAmount: e.target.value,
+                                  })
+                                }
                                 className="col-span-3"
                               />
                             </div>
@@ -538,12 +694,46 @@ export default function IncomeDashboard() {
                   </DialogContent>
                 </Dialog>
               </div>
+              <ToastContainer position="top-center" />
+              <Dialog
+                open={isAddAmountDialogOpen}
+                onOpenChange={setIsAddAmountDialogOpen}
+              >
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Enter the amount</DialogTitle>
+                  </DialogHeader>
+
+                  <p className="text-sm text-muted-foreground dark:text-gray-300">
+                    This amount will be added to your existing income source.
+                  </p>
+
+                  <Input
+                    type="number"
+                    placeholder="Amount"
+                    value={additionalAmount}
+                    onChange={(e) => {
+                      setAdditionalAmount(e.target.value);
+                      if (errorMessage) setErrorMessage("");
+                    }}
+                    className={`mt-2 ${
+                      errorMessage ? "border border-red-500" : ""
+                    }`}
+                  />
+
+                  {errorMessage && (
+                    <p className="text-xs text-red-500 mt-1">{errorMessage}</p>
+                  )}
+
+                  <Button className="mt-4" onClick={handleConfirmAddAmount}>
+                    Add
+                  </Button>
+                </DialogContent>
+              </Dialog>
             </div>
           </main>
         </div>
       </div>
-
-      <ToastContainer position="top-center" />
     </div>
   );
 }
