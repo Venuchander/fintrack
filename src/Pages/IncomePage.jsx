@@ -277,30 +277,32 @@ export default function IncomeDashboard() {
     setSelectedAccountIndex(index);
     setIsAddAmountDialogOpen(true);
   };
-const handleConfirmAddAmount = async () => {
-  // Validate the amount
-  if (!additionalAmount || Number(additionalAmount) <= 0) {
-    setErrorMessage("Please enter a valid amount greater than 0.");
-    return;
-  }
-
-  if (selectedAccountIndex !== null) {
-    const updatedAccounts = [...accounts];
-    updatedAccounts[selectedAccountIndex].balance += Number(additionalAmount);
-
-    setAccounts(updatedAccounts);           // update accounts
-    const newTotal = updatedAccounts.reduce((sum, acc) => sum + acc.balance, 0);
-    setTotalBalance(newTotal);             // ✅ update total balance immediately
-    setIsAddAmountDialogOpen(false);       // close dialog
-    setAdditionalAmount("");               // reset input
-    setErrorMessage("");                   // clear error after success
-
-    if (user) {
-      await updateUserAccounts(user.uid, updatedAccounts); // persist to DB
+  const handleConfirmAddAmount = async () => {
+    // Validate the amount
+    if (!additionalAmount || Number(additionalAmount) <= 0) {
+      setErrorMessage("Please enter a valid amount greater than 0.");
+      return;
     }
-  }
-};
 
+    if (selectedAccountIndex !== null) {
+      const updatedAccounts = [...accounts];
+      updatedAccounts[selectedAccountIndex].balance += Number(additionalAmount);
+
+      setAccounts(updatedAccounts); // update accounts
+      const newTotal = updatedAccounts.reduce(
+        (sum, acc) => sum + acc.balance,
+        0
+      );
+      setTotalBalance(newTotal); // ✅ update total balance immediately
+      setIsAddAmountDialogOpen(false); // close dialog
+      setAdditionalAmount(""); // reset input
+      setErrorMessage(""); // clear error after success
+
+      if (user) {
+        await updateUserAccounts(user.uid, updatedAccounts); // persist to DB
+      }
+    }
+  };
 
   if (isLoading) {
     return (
@@ -457,16 +459,17 @@ const handleConfirmAddAmount = async () => {
                               title="Add funds"
                               variant="ghost"
                               size="icon"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity text-green-600 hover:bg-green-50 rounded-full"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-green-600 hover:bg-green-50 rounded-full"
                               onClick={() => handleOpenAddAmountDialog(index)}
                             >
                               <Plus className="w-7 h-7" />
                             </Button>
+
                             <Button
                               title="Delete account"
                               variant="ghost"
                               size="icon"
-                              className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-red-50 rounded-full"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-destructive hover:bg-red-50 rounded-full"
                               onClick={() => handleDeleteAccount(index)}
                             >
                               <Trash2 className="w-4 h-4" />
