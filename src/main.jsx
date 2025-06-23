@@ -11,16 +11,21 @@ import Insights from "./Pages/InsightsPage";
 import Chatbot from "./Pages/ChatbotPage";
 import Income from "./Pages/IncomePage";
 import SettingsPage from "./Pages/SettingsPage";
+import ForgotPasswordPage from "./Pages/ForgotPasswordPage"; // The forget password component
 import FAB from "./components/ui/FAB";
+
+import ProtectedRoute from "./components/components/ProtectedRoute";
+import AuthRoute from "./components/components/AuthRoute";
 
 const App = () => {
   return (
     <>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Route for forgetpassword page*/}
+        <Route path="/signup" element={<AuthRoute><SignupPage /></AuthRoute>} />
         <Route path="/phone-number" element={<PhoneNumberPage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/expense" element={<Expenses />} />
         <Route path="/insights" element={<Insights />} />
         <Route path="/chatbot" element={<Chatbot />} />
