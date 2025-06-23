@@ -1,23 +1,17 @@
-import React, { useState } from "react";
-import { 
-  createUserWithEmailAndPassword, 
-  signInWithPopup, 
-  GoogleAuthProvider 
+import React, { useState, useEffect } from "react";
+import {
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider
 } from "firebase/auth";
-import { 
-  doc, 
-  setDoc,
-  getDoc
-} from "firebase/firestore";
-import { auth, db } from "./lib/firebase";  // Import from your firebase.js file
+import {
+  auth
+} from "./lib/firebase";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect } from "react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Eye, EyeOff } from 'lucide-react';
 import { createOrUpdateUser } from "./lib/userService";
-
-// ✅ ADDED: Toastify import
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -27,72 +21,76 @@ const SignupPage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const location = useLocation();
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const navigate = useNavigate();
+  const [passwordFeedback, setPasswordFeedback] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    specialChar: false
+  });
 
-    //✨ Toast network status
-    useEffect(() => {
-      const handleOffline = () => {
-        toast.error("You're offline. Please check your Internet Connection.", {
-          toastId: "offline-toast",
-          autoClose: false,
-          closeOnClick: false,
-          draggable: false,
-        });
-      };
-  
-      const handleOnline = () => {
-        toast.dismiss("offline-toast");
-      };
-  
-      window.addEventListener("offline", handleOffline);
-      window.addEventListener("online", handleOnline);
-  
-      return () => {
-        window.removeEventListener("offline", handleOffline);
-        window.removeEventListener("online", handleOnline);
-      };
-    }, []);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // Show message if redirected from login
+    const handleOffline = () => {
+      toast.error("You're offline. Please check your Internet Connection.", {
+        toastId: "offline-toast",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      });
+    };
+
+    const handleOnline = () => {
+      toast.dismiss("offline-toast");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
+
+  useEffect(() => {
     if (location.state?.message) {
       setError(location.state.message);
     }
   }, [location]);
 
-  const validatePassword = (pass) => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(pass);
-    const hasLowerCase = /[a-z]/.test(pass);
-    const hasNumbers = /\d/.test(pass);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(pass);
-    
-    if (pass.length < minLength) return "Password must be at least 8 characters long";
-    if (!hasUpperCase) return "Password must contain at least one uppercase letter";
-    if (!hasLowerCase) return "Password must contain at least one lowercase letter";
-    if (!hasNumbers) return "Password must contain at least one number";
-    if (!hasSpecialChar) return "Password must contain at least one special character";
-    
-    return null;
+  const handlePasswordChange = (value) => {
+    setPassword(value);
+
+    setPasswordFeedback({
+      length: value.length >= 8,
+      uppercase: /[A-Z]/.test(value),
+      lowercase: /[a-z]/.test(value),
+      number: /\d/.test(value),
+      specialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value),
+    });
   };
+
+  const allPasswordCriteriaMet = Object.values(passwordFeedback).every(Boolean);
+  const passwordsMatch = password && confirmPassword && password === confirmPassword;
+  const canSubmit = email && allPasswordCriteriaMet && passwordsMatch;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // Validate password
-    const passwordError = validatePassword(password);
-    if (passwordError) {
-      setError(passwordError);
+    if (!allPasswordCriteriaMet) {
+      setError("Password does not meet all strength requirements.");
       return;
     }
-    if (password !== confirmPassword) {
+    if (!passwordsMatch) {
       setError("Passwords do not match.");
       return;
     }
-  
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -107,7 +105,7 @@ const SignupPage = () => {
         onboardingCompleted: false,
         createdAt: new Date().toISOString()
       });
-  
+
       navigate("/phone-number");
     } catch (error) {
       console.error("Error during signup:", error.message);
@@ -121,12 +119,13 @@ const SignupPage = () => {
       }
     }
   };
+
   const handleGoogleSignUp = async () => {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-  
+
       await createOrUpdateUser(user.uid, {
         email: user.email,
         authProvider: "google",
@@ -135,7 +134,7 @@ const SignupPage = () => {
         photoURL: user.photoURL || '',
         status: 'active'
       });
-  
+
       navigate("/phone-number");
     } catch (error) {
       console.error("Google SignUp Error:", error);
@@ -185,7 +184,7 @@ const SignupPage = () => {
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => handlePasswordChange(e.target.value)}
                     className="h-11 pr-10"
                   />
                   <button
@@ -196,7 +195,26 @@ const SignupPage = () => {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+
+                <div className="text-xs mt-1 space-y-1">
+                  <div className={passwordFeedback.length ? "text-green-600" : "text-gray-500"}>
+                    {passwordFeedback.length ? "✔" : "•"} At least 8 characters
+                  </div>
+                  <div className={passwordFeedback.uppercase ? "text-green-600" : "text-gray-500"}>
+                    {passwordFeedback.uppercase ? "✔" : "•"} At least 1 uppercase letter
+                  </div>
+                  <div className={passwordFeedback.lowercase ? "text-green-600" : "text-gray-500"}>
+                    {passwordFeedback.lowercase ? "✔" : "•"} At least 1 lowercase letter
+                  </div>
+                  <div className={passwordFeedback.number ? "text-green-600" : "text-gray-500"}>
+                    {passwordFeedback.number ? "✔" : "•"} At least 1 number
+                  </div>
+                  <div className={passwordFeedback.specialChar ? "text-green-600" : "text-gray-500"}>
+                    {passwordFeedback.specialChar ? "✔" : "•"} At least 1 special character
+                  </div>
+                </div>
               </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-medium">Confirm Password*</label>
                 <div className="relative">
@@ -215,12 +233,18 @@ const SignupPage = () => {
                     {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
+                {confirmPassword && (
+                  <div className={`text-xs mt-1 ${passwordsMatch ? "text-green-600" : "text-red-500"}`}>
+                    {passwordsMatch ? "✔ Passwords match" : "✘ Passwords do not match"}
+                  </div>
+                )}
               </div>
             </div>
 
             <Button
               type="submit"
-              className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+              disabled={!canSubmit}
+              className={`w-full py-5 ${canSubmit ? "bg-indigo-600 hover:bg-indigo-700" : "bg-gray-300 cursor-not-allowed"}`}
             >
               Sign Up
             </Button>
