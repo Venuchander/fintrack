@@ -14,6 +14,9 @@ import Chatbot from "./Pages/ChatbotPage"; // Import the Chatbot component
 import Income from "./Pages/IncomePage";
 import SettingsPage from "./Pages/SettingsPage";
 import ForgotPasswordPage from "./Pages/ForgotPasswordPage"; // The forget password component
+// Main component that holds the routes
+import ProtectedRoute from "./components/components/ProtectedRoute";
+import AuthRoute from "./components/components/AuthRoute";
 
 const APP_NAME = "FINTRACK";
 
@@ -54,17 +57,18 @@ const App = () => {
         <Landing onFinish={() => setShowWelcome(false)} />
       ) : (
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route path="/phone-number" element={<PhoneNumberPage />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/expense" element={<Expenses />} />
-          <Route path="/insights" element={<Insights />} />
-          <Route path="/chatbot" element={<Chatbot />} />
-          <Route path="/income" element={<Income />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/" element={<Navigate to="/signup" />} />
+          <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} /> {/* Route for LoginPage */}
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Route for forgetpassword page*/}
+          <Route path="/signup" element={<AuthRoute><SignupPage /></AuthRoute>} /> {/* Route for SignupPage */}
+          <Route path="/phone-number" element={<PhoneNumberPage />} /> {/* Route for PhoneNumberPage */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> {/* Route for Dashboard */}
+          <Route path="/expense" element={<ProtectedRoute><Expenses /></ProtectedRoute>} /> {/* Route for Expense */}
+          <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} /> {/* Route for Insights */}
+          <Route path="/chatbot" element={<ProtectedRoute><Chatbot /></ProtectedRoute>} />
+          <Route path="/income" element={<ProtectedRoute><Income /></ProtectedRoute>} />
+          <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+          {/* Redirect default route to signup */}
+          <Route path="/" element={<Navigate to="/signup" />} /> {/* Redirect to SignupPage if no path is specified */}
         </Routes>
       )}
     </>
