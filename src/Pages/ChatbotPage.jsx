@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic'
 import { GoogleGenerativeAI } from "@google/generative-ai"
 import axios from 'axios'
 import ProfileButton from '../components/components/profile'
-import Sidebar from '../components/components/Sidebar'
+import NavBar from '../components/components/NavBar'
 import { getAuth } from 'firebase/auth'
 import { getFirestore, doc, getDoc, collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore'
 
@@ -68,7 +68,7 @@ export default function ChatbotPage() {
   const [input, setInput] = useState('')
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isNavBarOpen, setIsNavBarOpen] = useState(false)
   const [user, setUser] = useState(null)
   const [userData, setUserData] = useState(null)
   const messagesEndRef = useRef(null)
@@ -338,17 +338,17 @@ Security Guidelines:
 
   return (
     <div>
-      <div className="flex h-screen w-full">
-      {/* Sidebar overlay */}
-      {isSidebarOpen && (
+       <div className="min-h-screen flex flex-col">
+      {/* NavBar overlay */}
+      {isNavBarOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
-          onClick={() => setIsSidebarOpen(false)} />
+          onClick={() => setIsNavBarOpen(false)} />
       )}
 
-      {/* Sidebar component */}
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
+      {/* NavBar component */}
+      <NavBar
+        isOpen={isNavBarOpen}
+        onClose={() => setIsNavBarOpen(false)}
         user={user}
       />
 
@@ -379,13 +379,8 @@ Security Guidelines:
                   <Phone className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 mr-1 sm:mr-2" />
                   <span className="hidden sm:inline">Call</span>
                 </Button>
-                
-                <ProfileButton
-                  user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                  onLogout={() => auth.signOut()}
-                  hideNameOnMobile={true}
-                />
+        
+        
               </div>
             </div>
           </div>

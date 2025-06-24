@@ -4,7 +4,7 @@ import { auth } from "./lib/firebase";
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import ProfileButton from '../components/components/profile';
-import Sidebar from '../components/components/Sidebar';
+import NavBar from '../components/components/NavBar';
 import { Loader2 } from 'lucide-react';
 
 // Initialize Gemini AI
@@ -118,7 +118,7 @@ const Insights = () => {
     yearly: []
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 
 useEffect(() => {
     const handleOffline = () => {
@@ -240,16 +240,16 @@ useEffect(() => {
   return (
     <div>
       <div className="flex h-screen bg-gray-100 overflow-hidden">
-        {isSidebarOpen && (
+        {isNavBarOpen && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-50 z-20"
-            onClick={() => setIsSidebarOpen(false)} 
+            onClick={() => setIsNavBarOpen(false)} 
           />
         )}
 
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
+        <NavBar
+          isOpen={isNavBarOpen}
+          onClose={() => setIsNavBarOpen(false)}
           user={user}
         />
 
@@ -260,7 +260,7 @@ useEffect(() => {
                 <h2 className="text-2xl font-semibold text-gray-900">AI Financial Insights</h2>
                 <ProfileButton
                   user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onMenuToggle={() => setIsNavBarOpen(!isNavBarOpen)}
                   onLogout={() => auth.signOut()}
                 />
               </div>
