@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
 import ProfileButton from "../components/components/profile";
-import Sidebar from "../components/components/Sidebar";
+import NavBar from "../components/components/NavBar";
 import { getUserData, updateUserAccounts } from "./lib/userService";
 import { Button } from "../components/ui/button";
 import {
@@ -56,7 +56,7 @@ export default function IncomeDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isNavBarOpen, setIsNavBarOpen] = useState(false);
   const [accounts, setAccounts] = useState([]);
   const [totalBalance, setTotalBalance] = useState(0);
   const [editingId, setEditingId] = useState(null);
@@ -315,15 +315,15 @@ export default function IncomeDashboard() {
   return (
     <div>
       <div className="flex h-screen bg-gray-100">
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
+        <NavBar
+          isOpen={isNavBarOpen}
+          onClose={() => setIsNavBarOpen(false)}
           user={user}
         />
-        {isSidebarOpen && (
+        {isNavBarOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-20"
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={() => setIsNavBarOpen(false)}
           />
         )}
 
@@ -336,7 +336,7 @@ export default function IncomeDashboard() {
                 </h2>
                 <ProfileButton
                   user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onMenuToggle={() => setIsNavBarOpen(!isNavBarOpen)}
                   onLogout={() => auth.signOut()}
                 />
               </div>
@@ -744,3 +744,4 @@ export default function IncomeDashboard() {
     </div>
   );
 }
+

@@ -9,7 +9,7 @@ import { Switch } from '../components/ui/switch'
 import { Label } from '../components/ui/label'
 import { Input } from '../components/ui/input'
 import { Button } from '../components/ui/button'
-import Sidebar from '../components/components/Sidebar'
+import NavBar from '../components/components/NavBar'
 import ProfileButton from '../components/components/profile'
 import { createOrUpdateUser, getUserData } from './lib/userService'
 
@@ -20,7 +20,7 @@ const SettingsPage = () => {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isNavBarOpen, setIsNavBarOpen] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -120,19 +120,19 @@ const SettingsPage = () => {
   return (
     <div>
       <div className={`flex h-screen bg-gray-100 overflow-hidden ${isDarkMode ? 'dark' : ''}`}>
-        {/* Sidebar Overlay */}
-        {isSidebarOpen && (
+        {/* NavBar Overlay */}
+        {isNavBarOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-20"
-            onClick={() => setIsSidebarOpen(false)}
-            aria-label="Close sidebar"
+            onClick={() => setIsNavBarOpen(false)}
+            aria-label="Close NavBar"
           />
         )}
 
-        {/* Sidebar */}
-        <Sidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
+        {/* NavBar */}
+        <NavBar
+          isOpen={isNavBarOpen}
+          onClose={() => setIsNavBarOpen(false)}
           user={user}
         />
 
@@ -145,7 +145,7 @@ const SettingsPage = () => {
                 <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
                 <ProfileButton
                   user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onMenuToggle={() => setIsNavBarOpen(!isNavBarOpen)}
                   onLogout={() => auth.signOut()}
                 />
               </div>

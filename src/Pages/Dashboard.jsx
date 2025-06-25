@@ -28,7 +28,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import Sidebar from "../components/components/Sidebar";
+import NavBar from "../components/components/NavBar";
 import ProfileButton from "../components/components/profile";
 import BankAccounts from "../components/components/bankAccounts";
 import CreditCards from "../components/components/creditCards";
@@ -57,7 +57,7 @@ function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTransactionType, setSelectedTransactionType] = useState("all");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isNavBarOpen, setIsNavBarOpen] = useState(false);
 
   //✨ Toast network status
   useEffect(() => {
@@ -410,33 +410,18 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {isSidebarOpen && (
+      {isNavBarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20"
-          onClick={() => setIsSidebarOpen(false)}
+          onClick={() => setIsNavBarOpen(false)}
         />
       )}
-      <Sidebar
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
+      <NavBar
+        isOpen={isNavBarOpen}
+        onClose={() => setIsNavBarOpen(false)}
         user={user}
       />
 
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
-            <div className="flex items-center space-x-4">
-              <ProfileButton
-                user={user}
-                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                onLogout={() => auth.signOut()}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
