@@ -178,6 +178,10 @@ export default function IncomeDashboard() {
   };
 
   const handleAddAccount = async () => {
+    if (newAccount.type === "Credit" && !/^[a-zA-Z][a-zA-Z\s\-'.]{1,49}$/.test(newAccount.creditCardName)) {
+      alert("Credit Card Name must start with a letter and be 2-50 characters long (letters, spaces, hyphens, apostrophes, or periods only).");
+      return;
+    }
     if (newAccount.type && newAccount.balance) {
       try {
         const accountToAdd = {
@@ -549,12 +553,15 @@ export default function IncomeDashboard() {
                             <Input
                               id="creditCardName"
                               value={newAccount.creditCardName}
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                  if (/^[a-zA-Z\s\-'.]*$/.test(value)) {
                                 setNewAccount({
                                   ...newAccount,
-                                  creditCardName: e.target.value,
-                                })
+                                  creditCardName: value,
+                                });
                               }
+                            }}
                               className="col-span-3"
                             />
                           </div>
