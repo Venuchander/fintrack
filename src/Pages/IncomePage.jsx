@@ -201,12 +201,14 @@ export default function IncomeDashboard() {
   };
 
   const handleAddAccount = async () => {
+
     // Validate balance first
     const balanceValidationError = validateBalance(newAccount.balance);
     if (balanceValidationError) {
       setBalanceError(balanceValidationError);
       return;
     }
+
 
     if (newAccount.type === "Credit" && !/^[a-zA-Z][a-zA-Z\s\-'.]{1,49}$/.test(newAccount.creditCardName)) {
       alert("Credit Card Name must start with a letter and be 2-50 characters long (letters, spaces, hyphens, apostrophes, or periods only).");

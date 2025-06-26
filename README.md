@@ -116,15 +116,18 @@ npm install
 3. Set up environment variables:
 Create a `.env` file in the root directory and add your configuration:
 ```env
-VITE_FIREBASE_API_KEY=your_key
-VITE_FIREBASE_AUTH_DOMAIN=your_key
-VITE_FIREBASE_PROJECT_ID=your_key
-VITE_FIREBASE_STORAGE_BUCKET=your_key
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_key
-VITE_FIREBASE_APP_ID=your_key
-VITE_FIREBASE_MEASUREMENT_ID=your_key
-VITE_GEN_AI_API_KEY=your_key
-VITE_BLAND_API_KEY=your_key
+# Firebase configuration
+VITE_FIREBASE_API_KEY=                # https://console.firebase.google.com/u/0/project/_/settings/general
+VITE_FIREBASE_AUTH_DOMAIN=            # https://console.firebase.google.com/u/0/project/_/settings/general
+VITE_FIREBASE_PROJECT_ID=             # https://console.firebase.google.com/u/0/project/_/settings/general
+VITE_FIREBASE_STORAGE_BUCKET=         # https://console.firebase.google.com/u/0/project/_/settings/general
+VITE_FIREBASE_MESSAGING_SENDER_ID=    # https://console.firebase.google.com/u/0/project/_/settings/general
+VITE_FIREBASE_APP_ID=                 # https://console.firebase.google.com/u/0/project/_/settings/general
+VITE_FIREBASE_MEASUREMENT_ID=         # https://console.firebase.google.com/u/0/project/_/settings/general
+
+# Other APIs
+VITE_GEN_AI_API_KEY=                  # https://aistudio.google.com/app/apikey
+VITE_BLAND_API_KEY=                   # https://app.bland.ai/dashboard/settings
 ```
 
 4. Start the development server:

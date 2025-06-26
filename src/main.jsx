@@ -15,15 +15,18 @@ import Income from "./Pages/IncomePage";
 import SettingsPage from "./Pages/SettingsPage";
 import ForgotPasswordPage from "./Pages/ForgotPasswordPage"; // The forget password component
 // Main component that holds the routes
+import ProtectedRoute from "./components/components/ProtectedRoute";
+import AuthRoute from "./components/components/AuthRoute";
+
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<LoginPage />} /> {/* Route for LoginPage */}
+        <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} /> {/* Route for LoginPage */}
         <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Route for forgetpassword page*/}
-        <Route path="/signup" element={<SignupPage />} /> {/* Route for SignupPage */}
+        <Route path="/signup" element={<AuthRoute><SignupPage /></AuthRoute>} /> {/* Route for SignupPage */}
         <Route path="/phone-number" element={<PhoneNumberPage />} /> {/* Route for PhoneNumberPage */}
-        <Route path="/dashboard" element={<Dashboard />} /> {/* Route for Dashboard */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} /> {/* Route for Dashboard */}
         <Route path="/expense" element={<Expenses />} /> {/* Route for Expense */}
         <Route path="/insights" element={<Insights />} /> {/* Route for Insights */}
         <Route path="/chatbot" element={<Chatbot />} />
