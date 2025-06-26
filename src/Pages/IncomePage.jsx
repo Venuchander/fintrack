@@ -83,6 +83,8 @@ export default function IncomeDashboard() {
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(null);
   const [additionalAmount, setAdditionalAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  // New state for balance validation
+  const [balanceError, setBalanceError] = useState("");
 
   useEffect(() => {
     const handleOffline = () => {
@@ -148,6 +150,12 @@ export default function IncomeDashboard() {
     return () => unsubscribe();
   }, [navigate]);
 
+  const handleEdit = (index, field) => {
+    setEditingId(index);
+    setEditingField(field);
+    setEditValue(accounts[index][field].toString());
+  };
+
   const handleValueChange = async (index, newValue) => {
     try {
       const updatedAccounts = [...accounts];
@@ -177,7 +185,33 @@ export default function IncomeDashboard() {
     }
   };
 
+  // Function to validate balance
+  const validateBalance = (value) => {
+    if (!value || value.trim() === "") {
+      return "Balance is required";
+    }
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return "Please enter a valid number";
+    }
+    if (numValue < 0) {
+      return "Balance cannot be negative";
+    }
+    return "";
+  };
+
   const handleAddAccount = async () => {
+    // Validate balance first
+    const balanceValidationError = validateBalance(newAccount.balance);
+    if (balanceValidationError) {
+      setBalanceError(balanceValidationError);
+      return;
+    }
+
+    if (newAccount.type === "Credit" && !/^[a-zA-Z][a-zA-Z\s\-'.]{1,49}$/.test(newAccount.creditCardName)) {
+      alert("Credit Card Name must start with a letter and be 2-50 characters long (letters, spaces, hyphens, apostrophes, or periods only).");
+      return;
+    }
     if (newAccount.type && newAccount.balance) {
       try {
         const accountToAdd = {
@@ -231,6 +265,7 @@ export default function IncomeDashboard() {
           isRecurringIncome: false,
           recurringAmount: "",
         });
+        setBalanceError(""); // Clear error
         setIsAddingAccount(false);
       } catch (error) {
         console.error("Error adding account:", error);
@@ -483,7 +518,13 @@ export default function IncomeDashboard() {
 
                 <Dialog
                   open={isAddingAccount}
-                  onOpenChange={setIsAddingAccount}
+                  onOpenChange={(open) => {
+                    setIsAddingAccount(open);
+                    if (!open) {
+                      // Clear error when dialog closes
+                      setBalanceError("");
+                    }
+                  }}
                 >
                   <DialogTrigger asChild>
                     <Button className="w-full" size="lg">
@@ -549,12 +590,15 @@ export default function IncomeDashboard() {
                             <Input
                               id="creditCardName"
                               value={newAccount.creditCardName}
-                              onChange={(e) =>
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                  if (/^[a-zA-Z\s\-'.]*$/.test(value)) {
                                 setNewAccount({
                                   ...newAccount,
-                                  creditCardName: e.target.value,
-                                })
+                                  creditCardName: value,
+                                });
                               }
+                            }}
                               className="col-span-3"
                             />
                           </div>
@@ -639,18 +683,31 @@ export default function IncomeDashboard() {
                         <Label htmlFor="balance" className="text-right">
                           Balance
                         </Label>
-                        <Input
-                          id="balance"
-                          type="number"
-                          value={newAccount.balance}
-                          onChange={(e) =>
-                            setNewAccount({
-                              ...newAccount,
-                              balance: e.target.value,
-                            })
-                          }
-                          className="col-span-3"
-                        />
+                        <div className="col-span-3">
+                          <Input
+                            id="balance"
+                            type="number"
+                            value={newAccount.balance}
+                            onChange={(e) => {
+                              setNewAccount({
+                                ...newAccount,
+                                balance: e.target.value,
+                              });
+                              // Clear error when user starts typing
+                              if (balanceError) {
+                                setBalanceError("");
+                              }
+                            }}
+                            className={`${
+                              balanceError ? "border-red-500 border-2" : ""
+                            }`}
+                          />
+                          {balanceError && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {balanceError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                       {newAccount.type === "Bank" && (
                         <>
