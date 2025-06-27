@@ -171,6 +171,13 @@ export default function ChatbotPage() {
     
     setMessages(prev => [...prev, userMessage])
     setInput('')
+    const loadingMessage = {
+      text: '<div class="animate-pulse font-semibold">Thinking...</div>',
+      sender: 'bot',
+      timestamp: new Date().toISOString(),
+      isLoading: true
+    }
+setMessages(prev => [...prev, loadingMessage])
     setIsLoading(true)
     await saveMessage(userMessage)
 
@@ -181,7 +188,16 @@ export default function ChatbotPage() {
         sender: 'bot',
         timestamp: new Date().toISOString()
       }
-      setMessages(prev => [...prev, botMessage])
+      setMessages(prev => {
+        const updated = [...prev]
+        const lastIndex = updated.findIndex(m => m.isLoading)
+        if (lastIndex !== -1) {
+          updated[lastIndex] = botMessage
+        } else {
+          updated.push(botMessage)
+        }
+        return updated
+      })
       await saveMessage(botMessage)
     } catch (error) {
       console.error('Error in handleSend:', error)
@@ -417,7 +433,11 @@ Security Guidelines:
                     }`}
                   >
                     <div className="text-sm sm:text-base whitespace-pre-wrap">
-                      {message.text}
+                      <span dangerouslySetInnerHTML={{
+                        __html: message.text
+                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // bold **text**
+                          .replace(/\n/g, '<br />') // line breaks
+                      }} />
                     </div>
                   </div>
                   
