@@ -344,7 +344,7 @@ export default function IncomeDashboard() {
                   Income
                 </h2>
                 <div className="flex items-center gap-4">
-                  <DarkModeToggle />
+                 
                   <ProfileButton
                     user={user}
                     onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}

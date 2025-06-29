@@ -221,7 +221,7 @@ export default function ChatbotPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <DarkModeToggle />
+                 
                   <Button variant="outline" onClick={() => alert("Call functionality here")}>
                     <Phone className="h-4 w-4 mr-1" /> Call
                   </Button>

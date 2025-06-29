@@ -206,7 +206,7 @@ function AddExpense() {
     <div className="flex justify-between items-center py-4">
       <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Expense</h2>
       <div className="flex items-center gap-4">
-        <DarkModeToggle />
+       
         <ProfileButton
           user={user}
           onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}

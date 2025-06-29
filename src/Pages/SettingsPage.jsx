@@ -21,26 +21,15 @@ const SettingsPage = () => {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  // Remove this state if DarkModeToggle handles it globally on <html>
-  // const [isDarkMode, setIsDarkMode] = useState(false) 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [isEditingPhone, setIsEditingPhone] = useState(false)
   const [isUpdatingPhone, setIsUpdatingPhone] = useState(false)
 
-  // You can remove this toggleDarkMode function if DarkModeToggle is self-contained
-  // and directly manipulates document.documentElement.
-  // const toggleDarkMode = () => {
-  //   setIsDarkMode(!isDarkMode)
-  //   document.documentElement.classList.toggle('dark')
-  // }
-
-  // Fetch user data including phone number
   const fetchUserData = async (uid) => {
     try {
       const userData = await getUserData(uid)
       if (userData && userData.phoneNumber) {
-        // Remove +91 prefix if it exists for display
         setPhoneNumber(userData.phoneNumber.replace('+91', ''))
       }
     } catch (error) {
@@ -71,7 +60,6 @@ const SettingsPage = () => {
     };
   }, []);
 
-  // Check authentication state and load user data
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
@@ -85,7 +73,6 @@ const SettingsPage = () => {
     return () => unsubscribe()
   }, [navigate])
 
-  // Handle phone number update
   const handlePhoneUpdate = async () => {
     if (!phoneNumber.trim()) return
 
@@ -102,10 +89,8 @@ const SettingsPage = () => {
     }
   }
 
-  // Handle phone number input change
   const handlePhoneChange = (e) => {
     const value = e.target.value
-    // Only allow digits and limit to 10 characters
     if (/^\d{0,10}$/.test(value)) {
       setPhoneNumber(value)
     }
@@ -120,11 +105,8 @@ const SettingsPage = () => {
   }
 
   return (
-    // The classes 'bg-gray-100 dark:bg-gray-900' will now be correctly applied
-    // because your DarkModeToggle is assumed to be toggling the 'dark' class on the <html> element.
-  <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-    <div className="flex h-screen">
-        {/* Sidebar Overlay */}
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex h-screen">
         {isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-20"
@@ -133,21 +115,18 @@ const SettingsPage = () => {
           />
         )}
 
-        {/* Sidebar */}
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           user={user}
         />
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col">
           <header className="bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Setting</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Settings</h2>
                 <div className="flex items-center gap-4">
-                  <DarkModeToggle /> {/* This component should be toggling the 'dark' class on <html> */}
                   <ProfileButton
                     user={user}
                     onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -158,10 +137,8 @@ const SettingsPage = () => {
             </div>
           </header>
 
-          {/* Settings Section */}
           <main className="flex-1 overflow-y-auto p-4">
             <div className="max-w-2xl mx-auto space-y-8">
-              {/* Phone Number Settings */}
               <Card>
                 <CardHeader>
                   <CardTitle>Phone Number</CardTitle>
@@ -215,7 +192,6 @@ const SettingsPage = () => {
                 </CardContent>
               </Card>
 
-              {/* Notifications */}
               <Card>
                 <CardHeader>
                   <CardTitle>Notifications</CardTitle>
@@ -223,6 +199,7 @@ const SettingsPage = () => {
                 </CardHeader>
                 <CardContent className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
+                    
                     <Bell className="w-4 h-4" />
                     <Label htmlFor="notifications">Enable notifications</Label>
                   </div>
@@ -233,6 +210,21 @@ const SettingsPage = () => {
                   />
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Dark Mode</CardTitle>
+                  <CardDescription>Toggle between light and dark themes</CardDescription>
+                </CardHeader>
+                <CardContent className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Moon className="w-4 h-4" />
+                    <Label htmlFor="darkmode">Enable Dark Mode</Label>
+                  </div>
+                  <DarkModeToggle />
+                </CardContent>
+              </Card>
+
             </div>
           </main>
         </div>

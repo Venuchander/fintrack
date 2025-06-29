@@ -185,7 +185,7 @@ const Insights = () => {
                   AI Financial Insights
                 </h2>
                 <div className="flex items-center gap-4">
-                  <DarkModeToggle />
+                 
                   <ProfileButton
                     user={user}
                     onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
