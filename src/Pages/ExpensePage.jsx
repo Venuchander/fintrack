@@ -9,6 +9,7 @@ import { Button } from "../components/ui/button";
 import { format } from "date-fns";
 import ProfileButton from '../components/components/profile';
 import Sidebar from '../components/components/Sidebar';
+import DarkModeToggle from "../components/ui/DarkModeToggle";
 import {
   Card,
   CardContent,
@@ -186,8 +187,8 @@ function AddExpense() {
     );
   }
   return (
-    <div>
-      <div className="flex min-h-screen bg-gray-100">
+   <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen">
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
             onClick={() => setIsSidebarOpen(false)} />
@@ -200,18 +201,21 @@ function AddExpense() {
         />
 
         <div className="flex-1 flex flex-col">
-          <header className="bg-white shadow-sm flex-shrink-0">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex justify-between items-center py-4">
-                <h2 className="text-2xl font-semibold text-gray-900">Expense</h2>
-                <ProfileButton
-                  user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                  onLogout={() => auth.signOut()}
-                />
-              </div>
-            </div>
-          </header>
+          <header className="bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex justify-between items-center py-4">
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Expense</h2>
+      <div className="flex items-center gap-4">
+        <DarkModeToggle />
+        <ProfileButton
+          user={user}
+          onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          onLogout={() => auth.signOut()}
+        />
+      </div>
+    </div>
+  </div>
+</header>
 
           <main className="flex-1 overflow-y-auto px-4 py-4">
             <div className="max-w-2xl mx-auto space-y-4 pb-6">

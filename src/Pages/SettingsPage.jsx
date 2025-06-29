@@ -12,7 +12,7 @@ import { Button } from '../components/ui/button'
 import Sidebar from '../components/components/Sidebar'
 import ProfileButton from '../components/components/profile'
 import { createOrUpdateUser, getUserData } from './lib/userService'
-
+import DarkModeToggle from '../components/ui/DarkModeToggle'
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -21,17 +21,19 @@ const SettingsPage = () => {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  // Remove this state if DarkModeToggle handles it globally on <html>
+  // const [isDarkMode, setIsDarkMode] = useState(false) 
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [isEditingPhone, setIsEditingPhone] = useState(false)
   const [isUpdatingPhone, setIsUpdatingPhone] = useState(false)
 
-  // Handle dark mode toggle
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-    document.documentElement.classList.toggle('dark')
-  }
+  // You can remove this toggleDarkMode function if DarkModeToggle is self-contained
+  // and directly manipulates document.documentElement.
+  // const toggleDarkMode = () => {
+  //   setIsDarkMode(!isDarkMode)
+  //   document.documentElement.classList.toggle('dark')
+  // }
 
   // Fetch user data including phone number
   const fetchUserData = async (uid) => {
@@ -47,27 +49,27 @@ const SettingsPage = () => {
   }
 
   useEffect(() => {
-      const handleOffline = () => {
-        toast.error("You're offline. Please check your Internet Connection.", {
-          toastId: "offline-toast",
-          autoClose: false,
-          closeOnClick: false,
-          draggable: false,
-        });
-      };
-  
-      const handleOnline = () => {
-        toast.dismiss("offline-toast");
-      };
-  
-      window.addEventListener("offline", handleOffline);
-      window.addEventListener("online", handleOnline);
-  
-      return () => {
-        window.removeEventListener("offline", handleOffline);
-        window.removeEventListener("online", handleOnline);
-      };
-    }, []);
+    const handleOffline = () => {
+      toast.error("You're offline. Please check your Internet Connection.", {
+        toastId: "offline-toast",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      });
+    };
+
+    const handleOnline = () => {
+      toast.dismiss("offline-toast");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
 
   // Check authentication state and load user data
   useEffect(() => {
@@ -118,8 +120,10 @@ const SettingsPage = () => {
   }
 
   return (
-    <div>
-      <div className={`flex h-screen bg-gray-100 overflow-hidden ${isDarkMode ? 'dark' : ''}`}>
+    // The classes 'bg-gray-100 dark:bg-gray-900' will now be correctly applied
+    // because your DarkModeToggle is assumed to be toggling the 'dark' class on the <html> element.
+  <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen">
         {/* Sidebar Overlay */}
         {isSidebarOpen && (
           <div
@@ -138,16 +142,18 @@ const SettingsPage = () => {
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col">
-          {/* Header */}
-          <header className="bg-white shadow-sm">
+          <header className="bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
-                <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
-                <ProfileButton
-                  user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                  onLogout={() => auth.signOut()}
-                />
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">Setting</h2>
+                <div className="flex items-center gap-4">
+                  <DarkModeToggle /> {/* This component should be toggling the 'dark' class on <html> */}
+                  <ProfileButton
+                    user={user}
+                    onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                    onLogout={() => auth.signOut()}
+                  />
+                </div>
               </div>
             </div>
           </header>
