@@ -24,7 +24,7 @@ const ProfileButton = ({ user, onMenuToggle, hideNameOnMobile = false }) => {
           </span>
         </div>
       )}
-      <span className={`ml-2 text-sm font-medium text-gray-700 ${hideNameOnMobile ? 'hidden sm:inline' : ''}`}>
+      <span className={`ml-2 text-sm font-medium text-gray-700 dark:text-white ${hideNameOnMobile ? 'hidden sm:inline' : ''}`}>
         {user?.displayName ||
           (user?.email
             ? user.email
