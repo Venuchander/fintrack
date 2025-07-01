@@ -670,10 +670,10 @@ const RecentTransactions = ({
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span className="cursor-help">{transaction.description}</span>
+                            <span className="cursor-help">{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</span>
                           </TooltipTrigger>
                           <TooltipContent side="top" align="start" className="max-w-xs">
-                            <p>{transaction.description}</p>
+                            <p>{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</p>
                             {/* Show hidden info on mobile */}
                             <div className="block sm:hidden mt-1 text-xs">
                               <p>Category: {transaction.category}</p>
