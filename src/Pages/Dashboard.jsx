@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
-import { getUserData } from "./lib/userService";
 import { useTranslation } from 'react-i18next'
 import { getUserData, updateExpense, deleteExpense, restoreExpense } from "./lib/userService";
 import {
