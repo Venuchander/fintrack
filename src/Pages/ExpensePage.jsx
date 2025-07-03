@@ -177,43 +177,43 @@ function AddExpense() {
     }
   };
 
-  // Fixed AI Description Generation
-  const generateAIDescription = async () => {
-    const currentAmount = form.getValues('amount');
-    const currentCategory = form.getValues('category');
+// Fixed AI Description Generation with Indian currency context
+const generateAIDescription = async () => {
+  const currentAmount = form.getValues('amount');
+  const currentCategory = form.getValues('category');
 
-    if (!currentAmount && !currentCategory && !ocrResults) {
-      toast.error('Please add some expense details first');
-      return;
-    }
+  if (!currentAmount && !currentCategory && !ocrResults) {
+    toast.error('Please add some expense details first');
+    return;
+  }
 
-    setIsGeneratingDescription(true);
+  setIsGeneratingDescription(true);
 
-    try {
-      const merchant = ocrResults?.merchant || 'merchant';
-      const category = currentCategory || 'other';
-      const amount = currentAmount || '0';
-      const items = ocrResults?.items || [];
+  try {
+    const merchant = ocrResults?.merchant || 'merchant';
+    const category = currentCategory || 'other';
+    const amount = currentAmount || '0';
+    const items = ocrResults?.items || [];
 
-      // Call the real Gemini service
-      const generatedDescription = await generateExpenseDescription(
-        amount,
-        category,
-        merchant,
-        items
-      );
+    // Call the real Gemini service with Indian currency context
+    const generatedDescription = await generateExpenseDescription(
+      amount,
+      category,
+      merchant,
+      items,
+      "Keep in mind the description should be based on Indian currency rupee and Indian context"
+    );
 
-      form.setValue('description', generatedDescription);
-      toast.success('AI description generated!');
+    form.setValue('description', generatedDescription);
+    toast.success('AI description generated!');
 
-    } catch (error) {
-      console.error('Description generation failed:', error);
-      toast.error('Failed to generate description. Please try again.');
-    } finally {
-      setIsGeneratingDescription(false);
-    }
-  };
-
+  } catch (error) {
+    console.error('Description generation failed:', error);
+    toast.error('Failed to generate description. Please try again.');
+  } finally {
+    setIsGeneratingDescription(false);
+  }
+};
   // Handle file upload
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
