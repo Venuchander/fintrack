@@ -42,8 +42,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { useToast } from "../hooks/use-toast";
 import { Toaster } from "../ui/toaster";
 import jsPDF from 'jspdf';
-
-
+import 'jspdf-autotable';
+import { useTranslation } from 'react-i18next';
 const RecentTransactions = ({ 
   transactions, 
   selectedTransactionType, 
@@ -62,7 +62,8 @@ const RecentTransactions = ({
   const [showCategoryFilter, setShowCategoryFilter] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false)
+  const {t} =useTranslation();
   
   // New state for edit and delete functionality
   const [editingTransaction, setEditingTransaction] = useState(null);
@@ -397,6 +398,11 @@ const RecentTransactions = ({
   };
 
   // Generate PDF and download directly (using jsPDF)
+  const exportToPDF = () => {
+    if (filteredTransactions.length === 0) {
+      alert("No transactions to export");
+      return;
+    }
   // Replace your existing exportToPDF function with this corrected version
 
 const exportToPDF = () => {
@@ -409,6 +415,7 @@ const exportToPDF = () => {
   
   try {
     console.log("Starting PDF generation with", filteredTransactions.length, "transactions");
+
     
     // Create PDF document
     const doc = new jsPDF({
@@ -611,10 +618,10 @@ const exportToPDF = () => {
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-col space-y-3 sm:space-y-4 p-3 sm:p-6">
+  <CardHeader className="flex flex-col space-y-3 sm:space-y-4 p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-lg sm:text-xl">
-            {showAllTransactions ? "All Transactions" : "Recent Transactions"}
+            {showAllTransactions ? t('dashboard.transactions.all') : t('dashboard.transactions.recent')}
             {selectedCategories.length > 0 && (
               <Badge variant="outline" className="ml-2 font-normal text-xs">
                 {selectedCategories.length} {selectedCategories.length === 1 ? 'category' : 'categories'} selected
@@ -625,13 +632,13 @@ const exportToPDF = () => {
           <div className="flex items-center space-x-2 mt-2 sm:mt-0">
             {selectedTransactionType !== 'all' && (
               <Badge variant={selectedTransactionType === 'income' ? 'success' : 'destructive'} className="capitalize">
-                {selectedTransactionType}
+                {selectedTransactionType === 'income' ? t('dashboard.transactions.income') : t('dashboard.transactions.expense')}
               </Badge>
             )}
             
             {showAllTransactions && filteredTransactions.length > 0 && selectedCategories.length === 0 && selectedTransactionType === 'all' && !searchQuery && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2">
-                Reset filters
+                {t('dashboard.transactions.resetFilters')}
               </Button>
             )}
           </div>
@@ -642,7 +649,7 @@ const exportToPDF = () => {
             <div className="relative w-full">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search transactions..."
+                placeholder={t('dashboard.transactions.searchPlaceholder')}
                 className="pl-8 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -654,7 +661,7 @@ const exportToPDF = () => {
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="flex-1 sm:flex-none">
                     <Filter className="h-4 w-4 mr-2" />
-                    Filter
+                    {t('dashboard.transactions.filter')}
                     {selectedCategories.length > 0 && (
                       <Badge variant="secondary" className="ml-2">
                         {selectedCategories.length}
@@ -711,7 +718,7 @@ const exportToPDF = () => {
                     disabled={filteredTransactions.length === 0 || isExporting}
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    Export
+                    {t('dashboard.transactions.export')}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[200px] p-0" side="bottom">
@@ -723,7 +730,7 @@ const exportToPDF = () => {
                       disabled={filteredTransactions.length === 0 || isExporting}
                     >
                       <FileText className="mr-2 h-4 w-4" />
-                      Export as PDF
+                      {t('dashboard.transactions.exportPDF')}
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -732,7 +739,7 @@ const exportToPDF = () => {
                       disabled={filteredTransactions.length === 0 || isExporting}
                     >
                       <FileDown className="mr-2 h-4 w-4" />
-                      Export as Excel
+                      {t('dashboard.transactions.exportExcel')}
                     </Button>
                   </div>
                 </PopoverContent>
@@ -743,12 +750,12 @@ const exportToPDF = () => {
                 onValueChange={setSelectedTransactionType}
               >
                 <SelectTrigger className="flex-1 sm:flex-none sm:w-[140px]">
-                  <SelectValue placeholder="Transaction Type" />
+                  <SelectValue placeholder={t('dashboard.transactions.transactionType')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="income">Income</SelectItem>
-                  <SelectItem value="expense">Expenses</SelectItem>
+                  <SelectItem value="all">{t('dashboard.transactions.allTypes')}</SelectItem>
+                  <SelectItem value="income">{t('dashboard.transactions.income')}</SelectItem>
+                  <SelectItem value="expense">{t('dashboard.transactions.expense')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -759,27 +766,27 @@ const exportToPDF = () => {
         {summary && showAllTransactions && filteredTransactions.length > 0 && (
           <div className="grid grid-cols-2 gap-2 mt-2 bg-muted/30 p-2 sm:p-3 rounded-md sm:grid-cols-3 lg:grid-cols-6">
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Transactions</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.transactions')}</span>
               <span className="font-medium">{summary.totalTransactions}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Income</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.income')}</span>
               <span className="font-medium text-green-600">{summary.incomeTransactions}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Expenses</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.expenses')}</span>
               <span className="font-medium text-red-600">{summary.expenseTransactions}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Total Income</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.totalIncome')}</span>
               <span className="font-medium text-green-600">{summary.totalIncome}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Total Expenses</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.totalExpenses')}</span>
               <span className="font-medium text-red-600">{summary.totalExpense}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Net Balance</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.netBalance')}</span>
               <span className="font-medium">{summary.netBalance}</span>
             </div>
           </div>
@@ -791,6 +798,12 @@ const exportToPDF = () => {
           <Table className="min-w-full">
             <TableHeader>
               <TableRow>
+
+                <TableHead className="w-1/3 sm:w-auto">{t('dashboard.transactions.table.description')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{t('dashboard.transactions.table.category')}</TableHead>
+                <TableHead>{t('dashboard.transactions.table.amount')}</TableHead>
+                <TableHead className="hidden sm:table-cell">{t('dashboard.transactions.table.date')}</TableHead>
+                <TableHead>{t('dashboard.transactions.table.type')}</TableHead>
                 <TableHead className="w-1/3 sm:w-auto">Description</TableHead>
                 <TableHead className="hidden sm:table-cell">Category</TableHead>
                 <TableHead>Amount</TableHead>
@@ -802,6 +815,41 @@ const exportToPDF = () => {
             <TableBody>
               {paginatedTransactions.length > 0 ? (
                 paginatedTransactions.map((transaction, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="cursor-help">{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" align="start" className="max-w-xs">
+                            <p>{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</p>
+                            {/* Show hidden info on mobile */}
+                            <div className="block sm:hidden mt-1 text-xs">
+                              <p>{t('dashboard.transactions.table.category')}: {transaction.category}</p>
+                              <p>{t('dashboard.transactions.table.date')}: {new Date(transaction.date).toLocaleDateString('en-IN')}</p>
+                            </div>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell max-w-[120px] truncate">{transaction.category}</TableCell>
+                    <TableCell 
+                      className={transaction.isIncome ? 'text-green-600 whitespace-nowrap font-medium' : 'text-red-600 whitespace-nowrap font-medium'}
+                    >
+                      {transaction.displayAmount}
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell whitespace-nowrap">
+                      {new Date(transaction.date).toLocaleDateString('en-IN')}
+                    </TableCell>
+                    <TableCell>
+                      <Badge 
+                        variant={transaction.isIncome ? "success" : "destructive"} 
+                        className="rounded-md text-xs sm:text-sm"
+                      >
+                        {transaction.isIncome ? t('dashboard.transactions.income') : t('dashboard.transactions.expense')}
+                      </Badge>
+                    </TableCell>
                   <TableRow key={transaction.id || index}>
                     {editingTransaction === index ? (
                       // Edit mode
@@ -973,12 +1021,12 @@ const exportToPDF = () => {
                   <TableCell colSpan={6} className="h-24 sm:h-32 text-center">
                       <div className="flex flex-col items-center justify-center gap-1 p-4">
                         <Info className="h-8 w-8 text-muted-foreground/60" />
-                        <p className="text-lg font-medium">No transactions found</p>
+                        <p className="text-lg font-medium">{t('dashboard.transactions.empty.title')}</p>
                         {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
-                          <p className="text-sm text-muted-foreground">Try changing your search or filter criteria</p>
+                          <p className="text-sm text-muted-foreground">{t('dashboard.transactions.empty.filtered')}</p>
                         )}
                         {!showAllTransactions && (
-                          <p className="text-sm text-muted-foreground">No recent transactions in the last 2 days</p>
+                          <p className="text-sm text-muted-foreground">{t('dashboard.transactions.empty.recent')}</p>
                         )}
                         {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
                           <Button 
@@ -987,7 +1035,7 @@ const exportToPDF = () => {
                             onClick={clearFilters} 
                             className="mt-2"
                           >
-                            Clear filters
+                            {t('dashboard.transactions.clearFilters')}
                           </Button>
                         )}
                       </div>
@@ -1067,7 +1115,7 @@ const exportToPDF = () => {
           }}
           className="flex-1 sm:flex-initial text-xs sm:text-sm"
         >
-          {showAllTransactions ? "Recent Only" : "View All"}
+          {showAllTransactions ? t('dashboard.transactions.recentOnly') : t('dashboard.transactions.viewAll')}
         </Button>
         
         <div className="flex items-center gap-1">

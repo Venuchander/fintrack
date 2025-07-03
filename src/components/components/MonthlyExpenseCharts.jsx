@@ -9,7 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-
+import { useTranslation } from "react-i18next";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -36,7 +36,7 @@ const MONTH_ORDER = [
 
 function MonthlyExpenseChart({ expenses }) {
   const [monthlyCategoryData, setMonthlyCategoryData] = useState({});
-
+   const {t} = useTranslation();
   useEffect(() => {
     if (!expenses || expenses.length === 0) {
       setMonthlyCategoryData({});
@@ -160,7 +160,7 @@ function MonthlyExpenseChart({ expenses }) {
   if (!expenses || expenses.length === 0) {
     return (
       <p className="text-center mt-6 text-gray-500">
-        No expense data found yet.
+         {t('dashboard.no')}
       </p>
     );
   }

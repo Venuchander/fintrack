@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
+import { getUserData } from "./lib/userService";
+import { useTranslation } from 'react-i18next'
 import { getUserData, updateExpense, deleteExpense, restoreExpense } from "./lib/userService";
 import {
   Chart as ChartJS,
@@ -56,6 +58,7 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTransactionType, setSelectedTransactionType] = useState("all");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { t } = useTranslation();
 
   //✨ Toast network status
   useEffect(() => {
@@ -482,13 +485,14 @@ function Dashboard() {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
+            <h2 className="text-2xl font-semibold text-gray-900">{t('dashboard.title')}</h2>
             <div className="flex items-center space-x-4">
               <ProfileButton
                 user={user}
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                 onLogout={() => auth.signOut()}
               />
+            
             </div>
           </div>
         </div>
@@ -502,7 +506,7 @@ function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Balance
+                  {t('dashboard.cards.totalBalance')}
                 </CardTitle>
                 <Wallet className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -516,7 +520,7 @@ function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Monthly Income
+                  {t('dashboard.cards.monthlyIncome')}
                 </CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -536,7 +540,7 @@ function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Monthly Expenses
+                  {t('dashboard.cards.monthlyExpenses')}
                 </CardTitle>
                 <TrendingDown className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -550,7 +554,7 @@ function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Savings Goal
+                  {t('dashboard.cards.savingsGoal')}
                 </CardTitle>
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -587,10 +591,10 @@ function Dashboard() {
           {/* monthly expense comparision Chart Component */}
           <Card>
             <CardHeader>
-              <CardTitle>Monthly Expense Comparison</CardTitle>
+              <CardTitle>{t('dashboard.charts.monthlyExpenseComparison')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <MonthlyExpenseChart expenses={userData?.expenses} />
+              <MonthlyExpenseChart expenses={userData?.expenses} t={t} />
             </CardContent>
           </Card>
 
