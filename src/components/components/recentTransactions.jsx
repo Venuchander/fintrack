@@ -396,13 +396,6 @@ const RecentTransactions = ({
       setIsExporting(false);
     }
   };
-
-  // Generate PDF and download directly (using jsPDF)
-  const exportToPDF = () => {
-    if (filteredTransactions.length === 0) {
-      alert("No transactions to export");
-      return;
-    }
   // Replace your existing exportToPDF function with this corrected version
 
 const exportToPDF = () => {
@@ -795,256 +788,215 @@ const exportToPDF = () => {
       
       <CardContent className="p-0 sm:p-6">
         <div className="overflow-x-auto">
-          <Table className="min-w-full">
-            <TableHeader>
-              <TableRow>
-
-                <TableHead className="w-1/3 sm:w-auto">{t('dashboard.transactions.table.description')}</TableHead>
-                <TableHead className="hidden sm:table-cell">{t('dashboard.transactions.table.category')}</TableHead>
-                <TableHead>{t('dashboard.transactions.table.amount')}</TableHead>
-                <TableHead className="hidden sm:table-cell">{t('dashboard.transactions.table.date')}</TableHead>
-                <TableHead>{t('dashboard.transactions.table.type')}</TableHead>
-                <TableHead className="w-1/3 sm:w-auto">Description</TableHead>
-                <TableHead className="hidden sm:table-cell">Category</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead className="hidden sm:table-cell">Date</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead className="w-20">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedTransactions.length > 0 ? (
-                paginatedTransactions.map((transaction, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="cursor-help">{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" align="start" className="max-w-xs">
-                            <p>{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</p>
-                            {/* Show hidden info on mobile */}
-                            <div className="block sm:hidden mt-1 text-xs">
-                              <p>{t('dashboard.transactions.table.category')}: {transaction.category}</p>
-                              <p>{t('dashboard.transactions.table.date')}: {new Date(transaction.date).toLocaleDateString('en-IN')}</p>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell max-w-[120px] truncate">{transaction.category}</TableCell>
-                    <TableCell 
-                      className={transaction.isIncome ? 'text-green-600 whitespace-nowrap font-medium' : 'text-red-600 whitespace-nowrap font-medium'}
-                    >
-                      {transaction.displayAmount}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell whitespace-nowrap">
-                      {new Date(transaction.date).toLocaleDateString('en-IN')}
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={transaction.isIncome ? "success" : "destructive"} 
-                        className="rounded-md text-xs sm:text-sm"
-                      >
-                        {transaction.isIncome ? t('dashboard.transactions.income') : t('dashboard.transactions.expense')}
-                      </Badge>
-                    </TableCell>
-                  <TableRow key={transaction.id || index}>
-                    {editingTransaction === index ? (
-                      // Edit mode
-                      <>
-                        <TableCell className="p-2">
-                          <Input
-                            value={editValues.description}
-                            onChange={(e) => setEditValues(prev => ({ ...prev, description: e.target.value }))}
-                            placeholder="Description"
-                            className="h-8 text-sm"
-                          />
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell p-2">
-                          <Select
-                            value={editValues.category}
-                            onValueChange={(value) => setEditValues(prev => ({ ...prev, category: value }))}
-                          >
-                            <SelectTrigger className="h-8 text-sm">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {categories.map(cat => (
-                                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell className="p-2">
-                          <div className="relative">
-                            <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm">₹</span>
-                            <Input
-                              type="number"
-                              value={editValues.amount}
-                              onChange={(e) => setEditValues(prev => ({ ...prev, amount: e.target.value }))}
-                              className="h-8 pl-6 text-sm"
-                              min="0"
-                              step="0.01"
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell p-2">
-                          <Input
-                            type="date"
-                            value={editValues.date ? new Date(editValues.date).toISOString().split('T')[0] : ''}
-                            onChange={(e) => setEditValues(prev => ({ ...prev, date: new Date(e.target.value).toISOString() }))}
-                            className="h-8 text-sm"
-                          />
-                        </TableCell>
-                        <TableCell className="p-2">
-                          <Badge 
-                            variant={transaction.isIncome ? "success" : "destructive"} 
-                            className="rounded-md text-xs"
-                          >
-                            {transaction.isIncome ? 'Income' : 'Expense'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="p-2">
-                          <div className="flex justify-end gap-1">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => saveEdit(transaction)}
-                              className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                            >
-                              <Save className="h-3 w-3" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={cancelEdit}
-                              className="h-7 w-7 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50"
-                            >
-                              <X className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </>
-                    ) : (
-                      // View mode
-                      <>
-                        <TableCell className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="cursor-help">{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</span>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" align="start" className="max-w-xs">
-                                <p>{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</p>
-                                {/* Show hidden info on mobile */}
-                                <div className="block sm:hidden mt-1 text-xs">
-                                  <p>Category: {transaction.category}</p>
-                                  <p>Date: {new Date(transaction.date).toLocaleDateString('en-IN')}</p>
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell max-w-[120px] truncate">{transaction.category}</TableCell>
-                        <TableCell 
-                          className={transaction.isIncome ? 'text-green-600 whitespace-nowrap font-medium' : 'text-red-600 whitespace-nowrap font-medium'}
-                        >
-                          {transaction.displayAmount}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell whitespace-nowrap">
-                          {new Date(transaction.date).toLocaleDateString('en-IN')}
-                        </TableCell>
-                        <TableCell>
-                          <Badge 
-                            variant={transaction.isIncome ? "success" : "destructive"} 
-                            className="rounded-md text-xs sm:text-sm"
-                          >
-                            {transaction.isIncome ? 'Income' : 'Expense'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="p-2">
-                          <div className="flex justify-end gap-1">
-                            {!transaction.isIncome && (
-                              <>
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        onClick={() => startEdit(transaction, index)}
-                                        className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                                      >
-                                        <Edit2 className="h-3 w-3" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Edit transaction</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                                
-                                <TooltipProvider>
-                                  <Tooltip>
-                                    <TooltipTrigger asChild>
-                                      <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        onClick={() => confirmDelete(transaction, index)}
-                                        className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                      >
-                                        <Trash2 className="h-3 w-3" />
-                                      </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>
-                                      <p>Delete transaction</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              </>
-                            )}
-                            {transaction.isIncome && (
-                              <span className="text-xs text-muted-foreground px-2">
-                                Income items cannot be edited
-                              </span>
-                            )}
-                          </div>
-                        </TableCell>
-                      </>
-                    )}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={6} className="h-24 sm:h-32 text-center">
-                      <div className="flex flex-col items-center justify-center gap-1 p-4">
-                        <Info className="h-8 w-8 text-muted-foreground/60" />
-                        <p className="text-lg font-medium">{t('dashboard.transactions.empty.title')}</p>
-                        {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
-                          <p className="text-sm text-muted-foreground">{t('dashboard.transactions.empty.filtered')}</p>
-                        )}
-                        {!showAllTransactions && (
-                          <p className="text-sm text-muted-foreground">{t('dashboard.transactions.empty.recent')}</p>
-                        )}
-                        {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={clearFilters} 
-                            className="mt-2"
-                          >
-                            {t('dashboard.transactions.clearFilters')}
-                          </Button>
-                        )}
-                      </div>
+        <Table className="min-w-full">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-1/3 sm:w-auto">Description</TableHead>
+              <TableHead className="hidden sm:table-cell">Category</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead className="hidden sm:table-cell">Date</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="w-20">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedTransactions.length > 0 ? (
+              paginatedTransactions.map((transaction, index) => (
+                <TableRow key={transaction.id || index}>
+                  {editingTransaction === index ? (
+                    // Edit mode
+                    <>
+                      <TableCell className="p-2">
+                        <Input
+                          value={editValues.description}
+                          onChange={(e) => setEditValues(prev => ({ ...prev, description: e.target.value }))}
+                          placeholder="Description"
+                          className="h-8 text-sm"
+                        />
                       </TableCell>
-                    </TableRow>
+                      <TableCell className="hidden sm:table-cell p-2">
+                        <Select
+                          value={editValues.category}
+                          onValueChange={(value) => setEditValues(prev => ({ ...prev, category: value }))}
+                        >
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map(cat => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <div className="relative">
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm">₹</span>
+                          <Input
+                            type="number"
+                            value={editValues.amount}
+                            onChange={(e) => setEditValues(prev => ({ ...prev, amount: e.target.value }))}
+                            className="h-8 pl-6 text-sm"
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell p-2">
+                        <Input
+                          type="date"
+                          value={editValues.date ? new Date(editValues.date).toISOString().split('T')[0] : ''}
+                          onChange={(e) => setEditValues(prev => ({ ...prev, date: new Date(e.target.value).toISOString() }))}
+                          className="h-8 text-sm"
+                        />
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <Badge 
+                          variant={transaction.isIncome ? "success" : "destructive"} 
+                          className="rounded-md text-xs"
+                        >
+                          {transaction.isIncome ? 'Income' : 'Expense'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <div className="flex justify-end gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => saveEdit(transaction)}
+                            className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                          >
+                            <Save className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={cancelEdit}
+                            className="h-7 w-7 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </>
+                  ) : (
+                    // View mode
+                    <>
+                      <TableCell className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="start" className="max-w-xs">
+                              <p>{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</p>
+                              {/* Show hidden info on mobile */}
+                              <div className="block sm:hidden mt-1 text-xs">
+                                <p>Category: {transaction.category}</p>
+                                <p>Date: {new Date(transaction.date).toLocaleDateString('en-IN')}</p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell max-w-[120px] truncate">{transaction.category}</TableCell>
+                      <TableCell 
+                        className={transaction.isIncome ? 'text-green-600 whitespace-nowrap font-medium' : 'text-red-600 whitespace-nowrap font-medium'}
+                      >
+                        {transaction.displayAmount}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell whitespace-nowrap">
+                        {new Date(transaction.date).toLocaleDateString('en-IN')}
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={transaction.isIncome ? "success" : "destructive"} 
+                          className="rounded-md text-xs sm:text-sm"
+                        >
+                          {transaction.isIncome ? 'Income' : 'Expense'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <div className="flex justify-end gap-1">
+                          {!transaction.isIncome && (
+                            <>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => startEdit(transaction, index)}
+                                      className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    >
+                                      <Edit2 className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Edit transaction</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => confirmDelete(transaction, index)}
+                                      className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete transaction</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </>
+                          )}
+                          {transaction.isIncome && (
+                            <span className="text-xs text-muted-foreground px-2">
+                              Income items cannot be edited
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                    </>
                   )}
-                </TableBody>
-              </Table>
-            </div>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 sm:h-32 text-center">
+                  <div className="flex flex-col items-center justify-center gap-1 p-4">
+                    <Info className="h-8 w-8 text-muted-foreground/60" />
+                    <p className="text-lg font-medium">{t('dashboard.transactions.empty.title')}</p>
+                    {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
+                      <p className="text-sm text-muted-foreground">{t('dashboard.transactions.empty.filtered')}</p>
+                    )}
+                    {!showAllTransactions && (
+                      <p className="text-sm text-muted-foreground">{t('dashboard.transactions.empty.recent')}</p>
+                    )}
+                    {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={clearFilters} 
+                        className="mt-2"
+                      >
+                        {t('dashboard.transactions.clearFilters')}
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
           </CardContent>
       
           <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-6">
