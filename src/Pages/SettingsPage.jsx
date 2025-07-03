@@ -12,12 +12,15 @@ import { Button } from '../components/ui/button'
 import Sidebar from '../components/components/Sidebar'
 import ProfileButton from '../components/components/profile'
 import { createOrUpdateUser, getUserData } from './lib/userService'
+import LanguageSwitcher from "../components/components/LanguageSwitcher";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from 'react-i18next'
 
 const SettingsPage = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation();
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -47,27 +50,27 @@ const SettingsPage = () => {
   }
 
   useEffect(() => {
-      const handleOffline = () => {
-        toast.error("You're offline. Please check your Internet Connection.", {
-          toastId: "offline-toast",
-          autoClose: false,
-          closeOnClick: false,
-          draggable: false,
-        });
-      };
-  
-      const handleOnline = () => {
-        toast.dismiss("offline-toast");
-      };
-  
-      window.addEventListener("offline", handleOffline);
-      window.addEventListener("online", handleOnline);
-  
-      return () => {
-        window.removeEventListener("offline", handleOffline);
-        window.removeEventListener("online", handleOnline);
-      };
-    }, []);
+    const handleOffline = () => {
+      toast.error(t('settings.offline'), {
+        toastId: "offline-toast",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+      });
+    };
+
+    const handleOnline = () => {
+      toast.dismiss("offline-toast");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, [t]);
 
   // Check authentication state and load user data
   useEffect(() => {
@@ -113,6 +116,7 @@ const SettingsPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <span className="ml-2 text-gray-600">{t('settings.loading')}</span>
       </div>
     )
   }
@@ -142,7 +146,7 @@ const SettingsPage = () => {
           <header className="bg-white shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
-                <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
+                <h1 className="text-2xl font-semibold text-gray-900">{t('settings.title')}</h1>
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -158,8 +162,8 @@ const SettingsPage = () => {
               {/* Phone Number Settings */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Phone Number</CardTitle>
-                  <CardDescription>Update your contact information</CardDescription>
+                  <CardTitle>{t('settings.phoneNumber.title')}</CardTitle>
+                  <CardDescription>{t('settings.phoneNumber.description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -175,32 +179,32 @@ const SettingsPage = () => {
                               type="tel"
                               value={phoneNumber}
                               onChange={handlePhoneChange}
-                              placeholder="Enter 10-digit number"
+                              placeholder={t('settings.phoneNumber.placeholder')}
                               className="rounded-l-none"
                             />
                           </div>
-                          <Button 
+                          <Button
                             onClick={handlePhoneUpdate}
                             disabled={isUpdatingPhone || phoneNumber.length !== 10}
                           >
-                            {isUpdatingPhone ? 'Saving...' : 'Save'}
+                            {isUpdatingPhone ? t('settings.phoneNumber.saving') : t('settings.phoneNumber.save')}
                           </Button>
                           <Button
                             variant="outline"
                             onClick={() => setIsEditingPhone(false)}
                             disabled={isUpdatingPhone}
                           >
-                            Cancel
+                            {t('settings.phoneNumber.cancel')}
                           </Button>
                         </div>
                       ) : (
                         <div className="flex-1 flex items-center justify-between">
-                          <span>{phoneNumber ? `+91 ${phoneNumber}` : 'No phone number set'}</span>
+                          <span>{phoneNumber ? `+91 ${phoneNumber}` : t('settings.phoneNumber.noPhoneSet')}</span>
                           <Button
                             variant="outline"
                             onClick={() => setIsEditingPhone(true)}
                           >
-                            Edit
+                            {t('settings.phoneNumber.edit')}
                           </Button>
                         </div>
                       )}
@@ -208,17 +212,25 @@ const SettingsPage = () => {
                   </div>
                 </CardContent>
               </Card>
-
+              <Card>
+                <CardHeader>
+                  <CardTitle>{t('settings.language.title')}</CardTitle>
+                  <CardDescription>{t('settings.language.description')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <LanguageSwitcher />
+                </CardContent>
+              </Card>
               {/* Notifications */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Notifications</CardTitle>
-                  <CardDescription>Manage your notification preferences</CardDescription>
+                  <CardTitle>{t('settings.notifications.title')}</CardTitle>
+                  <CardDescription>{t('settings.notifications.description')}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Bell className="w-4 h-4" />
-                    <Label htmlFor="notifications">Enable notifications</Label>
+                    <Label htmlFor="notifications">{t('settings.notifications.enableNotifications')}</Label>
                   </div>
                   <Switch
                     id="notifications"

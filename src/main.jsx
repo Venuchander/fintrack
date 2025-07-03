@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import './i18n'; 
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "./index.css"; // Assuming Tailwind CSS is applied here
 

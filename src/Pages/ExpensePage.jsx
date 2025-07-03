@@ -24,6 +24,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from 'react-i18next';
 
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -49,7 +50,7 @@ function AddExpense() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [creditCards, setCreditCards] = useState([]);
-
+  const { t } = useTranslation();
   // OCR/AI states
   const [uploadedImage, setUploadedImage] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -317,7 +318,7 @@ function AddExpense() {
           <header className="bg-white shadow-sm flex-shrink-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
-                <h2 className="text-2xl font-semibold text-gray-900">Expense</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">{t('expense.title')}</h2>
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -334,7 +335,7 @@ function AddExpense() {
                   <Alert className="bg-green-50 border-green-200">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
                     <AlertDescription className="text-green-800">
-                      Expense added successfully!
+                    {t('expense.success')}
                     </AlertDescription>
                   </Alert>
                 </div>
@@ -342,14 +343,14 @@ function AddExpense() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Add New Expense</CardTitle>
-                  <CardDescription>Track your spending by adding a new expense</CardDescription>
+                  <CardTitle>{t('expense.addNewExpense')}</CardTitle>
+                  <CardDescription>{t('expense.subtitle')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {/* Receipt Upload Section */}
                   <div className="mb-6">
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Scan Receipt/Bill (Optional)
+                      {t('expense.scanReceipt')}
                     </label>
 
                     {!uploadedImage ? (
@@ -362,7 +363,7 @@ function AddExpense() {
                         >
                           <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
                           <p className="text-gray-600 mb-3 text-sm">
-                            Drag and drop your receipt here, or click to upload
+                            {t('expense.dragAndDrop')}
                           </p>
 
                           <div className="flex justify-center space-x-3">
@@ -375,7 +376,7 @@ function AddExpense() {
                               className="flex items-center px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
                             >
                               <FileImage className="w-4 h-4 mr-1" />
-                              Choose File
+                              {t('expense.chooseFile')}
                             </button>
 
                             <button
@@ -387,7 +388,7 @@ function AddExpense() {
                               className="flex items-center px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm"
                             >
                               <Camera className="w-4 h-4 mr-1" />
-                              Take Photo
+                              {t('expense.takePhoto')}
                             </button>
                           </div>
                         </div>
@@ -428,7 +429,7 @@ function AddExpense() {
                           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
                             <div className="bg-white p-3 rounded-lg flex items-center space-x-2 text-sm">
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                              <span>Processing with AI...</span>
+                              <span>{t('expense.processingWithAI')}</span>
                             </div>
                           </div>
                         )}
@@ -439,7 +440,7 @@ function AddExpense() {
                       <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                         <div className="flex items-center space-x-2 text-green-700">
                           <Check className="w-4 h-4" />
-                          <span className="font-medium text-sm">Data extracted successfully</span>
+                          <span className="font-medium text-sm">{t('expense.dataExtractedSuccessfully')}</span>
                         </div>
                       </div>
                     )}
@@ -453,7 +454,7 @@ function AddExpense() {
                           name="amount"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Amount *</FormLabel>
+                              <FormLabel>{t('expense.form.amount.label')} *</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <span className="absolute left-3 top-1/2 transform -translate-y-1/2 font-medium">₹</span>
@@ -477,7 +478,7 @@ function AddExpense() {
                           name="date"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Date *</FormLabel>
+                              <FormLabel>{t('expense.form.date.label')} *</FormLabel>
                               <Popover>
                                 <PopoverTrigger asChild>
                                   <FormControl>
@@ -491,7 +492,7 @@ function AddExpense() {
                                       {field.value ? (
                                         format(field.value, "PPP")
                                       ) : (
-                                        <span>Pick a date</span>
+                                        <span>{t('expense.form.date.placeholder')}</span>
                                       )}
                                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                     </Button>
@@ -520,21 +521,20 @@ function AddExpense() {
                         name="category"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Category *</FormLabel>
+                            <FormLabel>{t('expense.form.category.label')}</FormLabel>
                             <Select onValueChange={field.onChange} value={field.value}>
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Select a category" />
+                                  <SelectValue placeholder={t('expense.form.category.placeholder')} />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="food">Food & Dining</SelectItem>
-                                <SelectItem value="transport">Transportation</SelectItem>
-                                <SelectItem value="utilities">Utilities</SelectItem>
-                                <SelectItem value="shopping">Shopping</SelectItem>
-                                <SelectItem value="entertainment">Entertainment</SelectItem>
-                                <SelectItem value="health">Healthcare</SelectItem>
-                                <SelectItem value="other">Other</SelectItem>
+                                <SelectItem value="food">{t("expense.form.category.options.food")}</SelectItem>
+                                <SelectItem value="transport">{t("expense.form.category.options.transport")}</SelectItem> 
+                                <SelectItem value="shopping">{t("expense.form.category.options.shopping")}</SelectItem>
+                                <SelectItem value="entertainment">{t("expense.form.category.options.entertainment")}</SelectItem>
+                                <SelectItem value="health">{t("expense.form.category.options.health")}</SelectItem>
+                                <SelectItem value="other">{t("expense.form.category.options.other")}</SelectItem>
                               </SelectContent>
                             </Select>
                             <FormMessage />
@@ -547,11 +547,11 @@ function AddExpense() {
                         name="description"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Description</FormLabel>
+                            <FormLabel>{t('expense.description')}</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Textarea
-                                  placeholder="Add details about this expense"
+                                  placeholder={t('expense.addDetails')}
                                   className="resize-none pr-20"
                                   {...field}
                                 />
@@ -580,7 +580,7 @@ function AddExpense() {
                         name="paymentMethod"
                         render={({ field }) => (
                           <FormItem className="space-y-3">
-                            <FormLabel>Payment Method *</FormLabel>
+                            <FormLabel>{t('expense.paymentMethod')} *</FormLabel>
                             <FormControl>
                               <RadioGroup
                                 onValueChange={(value) => {
@@ -598,7 +598,7 @@ function AddExpense() {
                                   <FormControl>
                                     <RadioGroupItem value="cash" />
                                   </FormControl>
-                                  <FormLabel className="font-normal">Cash</FormLabel>
+                                  <FormLabel className="font-normal">{t('expense.cash')}</FormLabel>
                                 </FormItem>
 
                                 {creditCards.map((card) => (
@@ -651,7 +651,7 @@ function AddExpense() {
                             name="bankPaymentType"
                             render={({ field }) => (
                               <FormItem className="space-y-3">
-                                <FormLabel>Bank Payment Type *</FormLabel>
+                                <FormLabel>{t('expense.bankPaymentType')} *</FormLabel>
                                 <FormControl>
                                   <RadioGroup
                                     onValueChange={field.onChange}
@@ -662,19 +662,19 @@ function AddExpense() {
                                       <FormControl>
                                         <RadioGroupItem value="upi" />
                                       </FormControl>
-                                      <FormLabel className="font-normal">UPI</FormLabel>
+                                      <FormLabel className="font-normal">{t('expense.upi')}</FormLabel>
                                     </FormItem>
                                     <FormItem className="flex items-center space-x-3 space-y-0">
                                       <FormControl>
                                         <RadioGroupItem value="debit" />
                                       </FormControl>
-                                      <FormLabel className="font-normal">Debit Card</FormLabel>
+                                          <FormLabel className="font-normal">{t('expense.debitCard')}</FormLabel>
                                     </FormItem>
                                     <FormItem className="flex items-center space-x-3 space-y-0">
                                       <FormControl>
                                         <RadioGroupItem value="check" />
                                       </FormControl>
-                                      <FormLabel className="font-normal">Check</FormLabel>
+                                      <FormLabel className="font-normal">{t('expense.check')}</FormLabel>
                                     </FormItem>
                                   </RadioGroup>
                                 </FormControl>
@@ -690,9 +690,9 @@ function AddExpense() {
                           type="button"
                           onClick={() => navigate('/dashboard')}
                         >
-                          Cancel
+                                {t('expense.cancel')}
                         </Button>
-                        <Button type="submit">Add Expense</Button>
+                        <Button type="submit">{t('expense.addExpense')}</Button>
                       </div>
                     </form>
                   </Form>

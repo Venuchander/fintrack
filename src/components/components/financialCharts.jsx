@@ -1,17 +1,18 @@
 import React from 'react';
 import { Bar, Doughnut } from "react-chartjs-2";
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-
+import { useTranslation } from 'react-i18next';
 const FinancialCharts = ({ incomeVsExpenseData, expenseData }) => {
   if (!incomeVsExpenseData || !expenseData) {
     return null;
   }
+  const { t } = useTranslation();
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Income vs Expenses</CardTitle>
+          <CardTitle>{t('dashboard.charts.incomeVsExpense')}</CardTitle>
         </CardHeader>
         <CardContent className="h-[300px]">
           <Bar 
@@ -29,7 +30,7 @@ const FinancialCharts = ({ incomeVsExpenseData, expenseData }) => {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle>Expense Breakdown</CardTitle>
+          <CardTitle>{t('dashboard.charts.expenseBreakdown')}</CardTitle>
         </CardHeader>
         <CardContent className="h-[300px]">
           <Doughnut 
