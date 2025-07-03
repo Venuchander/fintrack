@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
 import { getUserData } from "./lib/userService";
-import { useTranslation } from 'react-i18next';
-
+import { useTranslation } from 'react-i18next'
+import { getUserData, updateExpense, deleteExpense, restoreExpense } from "./lib/userService";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -17,13 +17,11 @@ import {
   Legend,
 } from "chart.js";
 import {
-  DollarSign,
   Wallet,
   TrendingUp,
   TrendingDown,
   Target,
 } from "lucide-react";
-import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
@@ -150,6 +148,65 @@ function Dashboard() {
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  // Handle updating transactions
+  const handleUpdateTransaction = async (updatedTransaction) => {
+    if (!user) return;
+
+    try {
+      await updateExpense(user.uid, updatedTransaction);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle deleting transactions
+  const handleDeleteTransaction = async (transaction) => {
+    if (!user) return;
+
+    try {
+      await deleteExpense(user.uid, transaction.id);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle restoring transactions
+  const handleRestoreTransaction = async (transaction) => {
+    if (!user) return;
+
+    try {
+      console.log('Dashboard: Attempting to restore transaction:', transaction);
+      await restoreExpense(user.uid, transaction);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+      console.log('Dashboard: Transaction restored successfully');
+    } catch (error) {
+      console.error("Dashboard: Error restoring transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle refreshing transactions
+  const handleRefreshTransactions = async () => {
+    if (!user) return;
+
+    try {
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error refreshing transactions:", error);
+    }
   };
 
   const getCardBackground = (cardType) => {
@@ -307,27 +364,27 @@ function Dashboard() {
     };
   };
 
-  const getSavingsProgress = () => {
-    if (!userData?.userDetails?.savingsGoal)
-      return {
-        current: 0,
-        goal: 10000,
-        percentage: 0,
-      };
+  // const getSavingsProgress = () => {
+  //   if (!userData?.userDetails?.savingsGoal)
+  //     return {
+  //       current: 0,
+  //       goal: 10000,
+  //       percentage: 0,
+  //     };
 
-    const monthlyGoal = userData.userDetails.savingsGoal;
-    const totalBalance = userData.userDetails.totalBalance || 0;
-    const progressPercentage = Math.min(
-      (totalBalance / monthlyGoal) * 100,
-      100
-    );
+  //   const monthlyGoal = userData.userDetails.savingsGoal;
+  //   const totalBalance = userData.userDetails.totalBalance || 0;
+  //   const progressPercentage = Math.min(
+  //     (totalBalance / monthlyGoal) * 100,
+  //     100
+  //   );
 
-    return {
-      current: totalBalance,
-      goal: monthlyGoal,
-      percentage: progressPercentage,
-    };
-  };
+  //   return {
+  //     current: totalBalance,
+  //     goal: monthlyGoal,
+  //     percentage: progressPercentage,
+  //   };
+  // };
 
   const getFilteredTransactions = () => {
     if (!userData?.expenses || !userData?.accounts) return [];
@@ -406,7 +463,6 @@ function Dashboard() {
   }
 
   const { income, expenses, recurringIncome } = calculateMonthlyFinances();
-  const savingsProgress = getSavingsProgress();
   const expenseData = prepareExpenseData();
   const incomeVsExpenseData = prepareIncomeVsExpenseData();
   const filteredTransactions = getFilteredTransactions();
@@ -547,6 +603,10 @@ function Dashboard() {
             transactions={filteredTransactions}
             selectedTransactionType={selectedTransactionType}
             setSelectedTransactionType={setSelectedTransactionType}
+            onUpdateTransaction={handleUpdateTransaction}
+            onDeleteTransaction={handleDeleteTransaction}
+            onRestoreTransaction={handleRestoreTransaction}
+            onRefreshTransactions={handleRefreshTransactions}
           />
         </div>
       </main>

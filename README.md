@@ -161,14 +161,6 @@ npm run dev
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint for code quality checks
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## Security
 
 All financial data is encrypted and securely stored using Firebase security rules. The application follows industry best practices for handling sensitive financial information.
