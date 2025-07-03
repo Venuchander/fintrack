@@ -4,19 +4,22 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { PieChart, IndianRupee, MessageSquare, Brain, LogOut, Wallet, Settings, Bot } from 'lucide-react'
 import { Button } from "../ui/button"
 import { auth } from "../../Pages/lib/firebase"
+import { useTranslation } from "react-i18next";
 
 const Sidebar = ({ isOpen, onClose, user }) => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useTranslation();
 
   const navigationItems = [
-    { name: "Dashboard", icon: PieChart, path: "/dashboard" },
-    { name: "Income", icon: Wallet, path: "/income" },
-    { name: "Expenses", icon: IndianRupee, path: "/expense" },
-    { name: "Chatbot", icon: MessageSquare, path: "/chatbot" },
-    { name: "AI Insights", icon: Bot, path: "/insights" },
-    { name: "Settings", icon: Settings, path: "/settings" }
-  ]
+    { name: t("sidebar.dashboard"), icon: PieChart, path: "/dashboard" },
+    { name: t("sidebar.income"), icon: Wallet, path: "/income" },
+    { name: t("sidebar.expenses"), icon: IndianRupee, path: "/expense" },
+    { name: t("sidebar.chatbot"), icon: MessageSquare, path: "/chatbot" },
+    { name: t("sidebar.insights"), icon: Bot, path: "/insights" },
+    { name: t("sidebar.settings"), icon: Settings, path: "/settings" }
+  ];
+
 
   const handleNavigation = (path) => {
     navigate(path)
@@ -68,7 +71,7 @@ const Sidebar = ({ isOpen, onClose, user }) => {
             }
           }}
         >
-          <LogOut className="mr-2 h-4 w-4" /> Logout
+          <LogOut className="mr-2 h-4 w-4" /> {t('common.logout')}
         </Button>
       </div>
     </aside>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 import { auth } from "./lib/firebase";
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -27,57 +28,10 @@ const formatInsight = (insight) => {
     .join(': ');
 };
 
-const generatePrompts = (userData) => {
-  const formatINR = (amount) => `₹${amount?.toLocaleString('en-IN') || 0}`;
-  const getDateRangeExpenses = (days) =>
-    userData?.expenses?.filter(exp =>
-      new Date(exp.date) >= new Date(Date.now() - days * 24 * 60 * 60 * 1000)
-    );
-
-  const dailyPrompt = `
-    Analyze this user's daily financial activity (all amounts in INR):
-    - Total Balance: ${formatINR(userData?.totalBalance)}
-    - Daily Transactions: ${JSON.stringify(userData?.expenses?.filter(exp =>
-      new Date(exp.date).toDateString() === new Date().toDateString()
-    ))}
-    - Daily Income: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
-      sum + (acc.isRecurringIncome ? acc.recurringAmount / 30 : 0), 0))}
-
-    Provide 3 specific, actionable daily insights.
-    Format as bullet points without introductory text.`;
-
-  const weeklyPrompt = `
-    Analyze weekly financial activity:
-    - Weekly Expenses: ${JSON.stringify(getDateRangeExpenses(7))}
-    - Weekly Income: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
-      sum + (acc.isRecurringIncome ? acc.recurringAmount / 4 : 0), 0))}
-    - Savings Goal Progress: ${formatINR(userData?.savingsGoal)}
-
-    Provide 3 actionable weekly insights.`;
-
-  const monthlyPrompt = `
-    Analyze monthly financial activity:
-    - Monthly Income: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
-      sum + (acc.isRecurringIncome ? acc.recurringAmount : 0), 0))}
-    - Monthly Expenses: ${JSON.stringify(getDateRangeExpenses(30))}
-    - Monthly Savings: ${formatINR(userData?.monthlySavings)}
-
-    Provide 3 actionable monthly insights.`;
-
-  const yearlyPrompt = `
-    Analyze yearly trajectory:
-    - Annual Income: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
-      sum + (acc.isRecurringIncome ? acc.recurringAmount * 12 : 0), 0))}
-    - Savings Goal: ${formatINR(userData?.savingsGoal)}
-    - Investment Portfolio: ${userData?.investments || 'None'}
-
-    Provide 3 actionable yearly insights.`;
-
-  return { dailyPrompt, weeklyPrompt, monthlyPrompt, yearlyPrompt };
-};
 
 const Insights = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [insights, setInsights] = useState({
@@ -86,10 +40,90 @@ const Insights = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+
+  // Helper function to format currency in INR
+  const formatINR = (amount) => {
+    return `${t('common.currency')}${amount?.toLocaleString('en-IN') || 0}`;
+  };
+
+  // Helper function to calculate date ranges
+  const getDateRangeExpenses = (days) => {
+    return userData?.expenses?.filter(exp => 
+      new Date(exp.date) >= new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+    );
+  };
+
+  // Generate prompts for different timeframes using translations
+  const generatePrompts = (userData) => {
+    const dailyPrompt = `
+      ${t('insights.prompts.daily.analysisText')}
+      - ${t('insights.dataLabels.totalBalance')}: ${formatINR(userData?.totalBalance)}
+      - ${t('insights.dataLabels.dailyTransactions')}: ${JSON.stringify(userData?.expenses?.filter(exp =>
+        new Date(exp.date).toDateString() === new Date().toDateString()
+      ))}
+      - ${t('insights.dataLabels.dailyIncome')}: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
+        sum + (acc.isRecurringIncome ? acc.recurringAmount / 30 : 0), 0))}
+     
+      ${t('insights.instructions.focusOn', { timeframe: t('insights.instructions.timeframes.daily') })}
+      1. ${t('insights.prompts.daily.focusAreas.0')}
+      2. ${t('insights.prompts.daily.focusAreas.1')}
+      3. ${t('insights.prompts.daily.focusAreas.2')}
+     
+      ${t('insights.instructions.format')}`;
+
+    const weeklyPrompt = `
+      ${t('insights.prompts.weekly.analysisText')}
+      - ${t('insights.dataLabels.weeklyExpenses')}: ${JSON.stringify(getDateRangeExpenses(7))}
+      - ${t('insights.dataLabels.weeklyIncome')}: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
+        sum + (acc.isRecurringIncome ? acc.recurringAmount / 4 : 0), 0))}
+      - ${t('insights.dataLabels.savingsGoalProgress')}: ${formatINR(userData?.savingsGoal)}
+     
+      ${t('insights.instructions.focusOn', { timeframe: t('insights.instructions.timeframes.weekly') })}
+      1. ${t('insights.prompts.weekly.focusAreas.0')}
+      2. ${t('insights.prompts.weekly.focusAreas.1')}
+      3. ${t('insights.prompts.weekly.focusAreas.2')}
+     
+      ${t('insights.instructions.format')}`;
+
+    const monthlyPrompt = `
+      ${t('insights.prompts.monthly.analysisText')}
+      - ${t('insights.dataLabels.monthlyIncome')}: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
+        sum + (acc.isRecurringIncome ? acc.recurringAmount : 0), 0))}
+      - ${t('insights.dataLabels.monthlyExpenses')}: ${JSON.stringify(getDateRangeExpenses(30))}
+      - ${t('insights.dataLabels.monthlySavings')}: ${formatINR(userData?.monthlySavings)}
+     
+      ${t('insights.instructions.focusOn', { timeframe: t('insights.instructions.timeframes.monthly') })}
+      1. ${t('insights.prompts.monthly.focusAreas.0')}
+      2. ${t('insights.prompts.monthly.focusAreas.1')}
+      3. ${t('insights.prompts.monthly.focusAreas.2')}
+     
+      ${t('insights.instructions.format')}`;
+
+    const yearlyPrompt = `
+      ${t('insights.prompts.yearly.analysisText')}
+      - ${t('insights.dataLabels.annualIncome')}: ${formatINR(userData?.accounts?.reduce((sum, acc) =>
+        sum + (acc.isRecurringIncome ? acc.recurringAmount * 12 : 0), 0))}
+      - ${t('insights.dataLabels.savingsGoal')}: ${formatINR(userData?.savingsGoal)}
+      - ${t('insights.dataLabels.investmentPortfolio')}: ${userData?.investments || t('insights.dataLabels.none')}
+     
+      ${t('insights.instructions.focusOn', { timeframe: t('insights.instructions.timeframes.yearly') })}
+      1. ${t('insights.prompts.yearly.focusAreas.0')}
+      2. ${t('insights.prompts.yearly.focusAreas.1')}
+      3. ${t('insights.prompts.yearly.focusAreas.2')}
+     
+      ${t('insights.instructions.format')}`;
+
+    return { dailyPrompt, weeklyPrompt, monthlyPrompt, yearlyPrompt };
+  };
+
   useEffect(() => {
     const handleOffline = () => {
-      toast.error("You're offline. Please check your Internet Connection.", {
-        toastId: "offline-toast", autoClose: false, closeOnClick: false, draggable: false
+      toast.error(t('insights.offline'), {
+        toastId: "offline-toast",
+        autoClose: false,
+        closeOnClick: false,
+        draggable: false,
+
       });
     };
     const handleOnline = () => toast.dismiss("offline-toast");
@@ -100,7 +134,7 @@ const Insights = () => {
       window.removeEventListener("offline", handleOffline);
       window.removeEventListener("online", handleOnline);
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const fetchDataAndGenerateInsights = async () => {
@@ -133,12 +167,23 @@ const Insights = () => {
         });
         return () => unsubscribe();
       } catch (error) {
-        console.error('Error generating insights:', error);
+        console.error(t('insights.error'), error);
         setIsLoading(false);
       }
     };
     fetchDataAndGenerateInsights();
   }, [navigate]);
+
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+        <div className="ml-2 text-xl font-semibold">{t('insights.loading')}</div>
+      </div>
+    );
+  }
+
 
   const renderInsight = (insight, index) => {
     const [title, content] = insight.includes(': ') ? insight.split(': ') : [null, insight];
@@ -181,36 +226,65 @@ const Insights = () => {
           <header className="bg-white dark:bg-gray-800 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  AI Financial Insights
-                </h2>
-                <div className="flex items-center gap-4">
-                 
-                  <ProfileButton
-                    user={user}
-                    onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                    onLogout={() => auth.signOut()}
-                  />
-                </div>
+
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('insights.title')}</h2>
+                <ProfileButton
+                  user={user}
+                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onLogout={() => auth.signOut()}
+                />
+
               </div>
             </div>
           </header>
 
+
           <main className="flex-1 overflow-y-auto p-6 bg-gray-100 dark:bg-gray-900">
             <div className="max-w-7xl mx-auto space-y-6">
               <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-white">
-                Personalized Financial Recommendations
+                {t('insights.subtitle')}
               </h2>
+              <div className="space-y-6">
+                {/* Daily Insights */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-lg text-blue-600">{t('insights.sections.daily.title')}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{t('insights.sections.daily.description')}</p>
+                  </div>
+                  <ul className="space-y-3">
+                    {insights.daily.map((insight, index) => renderInsight(insight, `daily-${index}`))}
+                  </ul>
+                </div>
 
-              {/* Sections */}
-              {["daily", "weekly", "monthly", "yearly"].map((section) => (
-                <div key={section} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                  <h3 className={`font-semibold text-lg mb-4 ${{
-                    daily: "text-blue-600",
-                    weekly: "text-green-600",
-                    monthly: "text-purple-600",
-                    yearly: "text-orange-600"
-                  }[section]}`}>{section[0].toUpperCase() + section.slice(1)} Insights</h3>
+                {/* Weekly Analysis */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-lg text-green-600">{t('insights.sections.weekly.title')}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{t('insights.sections.weekly.description')}</p>
+                  </div>
+                  <ul className="space-y-3">
+                    {insights.weekly.map((insight, index) => renderInsight(insight, `weekly-${index}`))}
+                  </ul>
+                </div>
+
+                {/* Monthly Overview */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-lg text-purple-600">{t('insights.sections.monthly.title')}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{t('insights.sections.monthly.description')}</p>
+                  </div>
+                  <ul className="space-y-3">
+                    {insights.monthly.map((insight, index) => renderInsight(insight, `monthly-${index}`))}
+                  </ul>
+                </div>
+
+                {/* Yearly Projections */}
+                <div className="bg-white rounded-lg shadow-sm p-6">
+                  <div className="mb-4">
+                    <h3 className="font-semibold text-lg text-orange-600">{t('insights.sections.yearly.title')}</h3>
+                    <p className="text-sm text-gray-600 mt-1">{t('insights.sections.yearly.description')}</p>
+                  </div>
+
                   <ul className="space-y-3">
                     {insights[section].map((insight, i) =>
                       renderInsight(insight, `${section}-${i}`))}

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
-import { getUserData } from "./lib/userService";
+import { useTranslation } from 'react-i18next'
+import { getUserData, updateExpense, deleteExpense, restoreExpense } from "./lib/userService";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,13 +16,11 @@ import {
   Legend,
 } from "chart.js";
 import {
-  DollarSign,
   Wallet,
   TrendingUp,
   TrendingDown,
   Target,
 } from "lucide-react";
-import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
@@ -58,6 +57,7 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTransactionType, setSelectedTransactionType] = useState("all");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const handleOffline = () => {
@@ -139,6 +139,65 @@ function Dashboard() {
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(amount);
+  };
+
+  // Handle updating transactions
+  const handleUpdateTransaction = async (updatedTransaction) => {
+    if (!user) return;
+
+    try {
+      await updateExpense(user.uid, updatedTransaction);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle deleting transactions
+  const handleDeleteTransaction = async (transaction) => {
+    if (!user) return;
+
+    try {
+      await deleteExpense(user.uid, transaction.id);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle restoring transactions
+  const handleRestoreTransaction = async (transaction) => {
+    if (!user) return;
+
+    try {
+      console.log('Dashboard: Attempting to restore transaction:', transaction);
+      await restoreExpense(user.uid, transaction);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+      console.log('Dashboard: Transaction restored successfully');
+    } catch (error) {
+      console.error("Dashboard: Error restoring transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle refreshing transactions
+  const handleRefreshTransactions = async () => {
+    if (!user) return;
+
+    try {
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error refreshing transactions:", error);
+    }
   };
 
   const getCardBackground = (cardType) => {
@@ -308,6 +367,30 @@ function Dashboard() {
     };
   };
 
+
+  // const getSavingsProgress = () => {
+  //   if (!userData?.userDetails?.savingsGoal)
+  //     return {
+  //       current: 0,
+  //       goal: 10000,
+  //       percentage: 0,
+  //     };
+
+  //   const monthlyGoal = userData.userDetails.savingsGoal;
+  //   const totalBalance = userData.userDetails.totalBalance || 0;
+  //   const progressPercentage = Math.min(
+  //     (totalBalance / monthlyGoal) * 100,
+  //     100
+  //   );
+
+  //   return {
+  //     current: totalBalance,
+  //     goal: monthlyGoal,
+  //     percentage: progressPercentage,
+  //   };
+  // };
+
+
   const getFilteredTransactions = () => {
     if (!userData?.expenses || !userData?.accounts) return [];
 
@@ -379,7 +462,6 @@ function Dashboard() {
   }
 
   const { income, expenses, recurringIncome } = calculateMonthlyFinances();
-  const savingsProgress = getSavingsProgress();
   const expenseData = prepareExpenseData();
   const incomeVsExpenseData = prepareIncomeVsExpenseData();
   const filteredTransactions = getFilteredTransactions();
@@ -402,7 +484,9 @@ function Dashboard() {
       <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <h2 className="text-2xl font-semibold">Dashboard</h2>
+
+            <h2 className="text-2xl font-semibold text-gray-900">{t('dashboard.title')}</h2>
+
             <div className="flex items-center space-x-4">
              
               <ProfileButton
@@ -410,32 +494,125 @@ function Dashboard() {
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
                 onLogout={() => auth.signOut()}
               />
+            
             </div>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        {/* ... your existing content remains unchanged */}
-        {/* Summary Cards */}
-        {/* BankAccounts, CreditCards, FinancialCharts, MonthlyExpenseChart, etc. */}
-        <BankAccounts accounts={userData.accounts} formatCurrency={formatCurrency} />
-        <CreditCards accounts={userData.accounts} formatCurrency={formatCurrency} getCardBackground={getCardBackground} />
-        <FinancialCharts incomeVsExpenseData={incomeVsExpenseData} expenseData={expenseData} />
-        <Card>
-          <CardHeader>
-            <CardTitle>Monthly Expense Comparison</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <MonthlyExpenseChart expenses={userData?.expenses} />
-          </CardContent>
-        </Card>
-        <RecentTransactions
-          transactions={filteredTransactions}
-          selectedTransactionType={selectedTransactionType}
-          setSelectedTransactionType={setSelectedTransactionType}
-        />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-8">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {t('dashboard.cards.totalBalance')}
+                </CardTitle>
+                <Wallet className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(userData?.totalBalance || 0)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {t('dashboard.cards.monthlyIncome')}
+                </CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-600">
+                  {formatCurrency(income)}
+                </div>
+                {recurringIncome > 0 && (
+                  <div className="mt-2 flex items-center text-sm text-green-600">
+                    {/* <ArrowUpRight className="h-4 w-4 mr-1" />
+                    Passive Income: {formatCurrency(recurringIncome)} */}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {t('dashboard.cards.monthlyExpenses')}
+                </CardTitle>
+                <TrendingDown className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-red-600">
+                  {formatCurrency(expenses)}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {t('dashboard.cards.savingsGoal')}
+                </CardTitle>
+                <Target className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {formatCurrency(userData?.savingsGoal || 0)}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Financial Accounts Components */}
+          {userData?.accounts && (
+            <>
+              <BankAccounts
+                accounts={userData.accounts}
+                formatCurrency={formatCurrency}
+              />
+
+              <CreditCards
+                accounts={userData.accounts}
+                formatCurrency={formatCurrency}
+                getCardBackground={getCardBackground}
+              />
+            </>
+          )}
+
+          {/* Charts Component */}
+          <FinancialCharts
+            incomeVsExpenseData={incomeVsExpenseData}
+            expenseData={expenseData}
+          />
+
+          {/* monthly expense comparision Chart Component */}
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('dashboard.charts.monthlyExpenseComparison')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <MonthlyExpenseChart expenses={userData?.expenses} t={t} />
+            </CardContent>
+          </Card>
+
+          {/* Recent Transactions Component */}
+          <RecentTransactions
+            transactions={filteredTransactions}
+            selectedTransactionType={selectedTransactionType}
+            setSelectedTransactionType={setSelectedTransactionType}
+            onUpdateTransaction={handleUpdateTransaction}
+            onDeleteTransaction={handleDeleteTransaction}
+            onRestoreTransaction={handleRestoreTransaction}
+            onRefreshTransactions={handleRefreshTransactions}
+          />
+        </div>
+
       </main>
 
       <ToastContainer position="top-center" />
