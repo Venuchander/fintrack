@@ -344,12 +344,6 @@ export default function IncomeDashboard() {
     }
   };
 
-  // Function to handle editing
-  const handleEdit = (index, field) => {
-    setEditingId(index);
-    setEditingField(field);
-    setEditValue(accounts[index][field].toString());
-  };
 
 
   if (isLoading) {
