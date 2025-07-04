@@ -10,9 +10,12 @@ import { Button } from "../components/ui/button";
 import { format } from "date-fns";
 import ProfileButton from '../components/components/profile';
 import Sidebar from '../components/components/Sidebar';
+import DarkModeToggle from "../components/ui/DarkModeToggle";
+
 import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from "../components/ui/card";
 import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from "../components/ui/form";
 import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue,} from "../components/ui/select";
+
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "../components/ui/radio-group";
@@ -177,43 +180,43 @@ function AddExpense() {
     }
   };
 
-  // Fixed AI Description Generation
-  const generateAIDescription = async () => {
-    const currentAmount = form.getValues('amount');
-    const currentCategory = form.getValues('category');
+// Fixed AI Description Generation with Indian currency context
+const generateAIDescription = async () => {
+  const currentAmount = form.getValues('amount');
+  const currentCategory = form.getValues('category');
 
-    if (!currentAmount && !currentCategory && !ocrResults) {
-      toast.error('Please add some expense details first');
-      return;
-    }
+  if (!currentAmount && !currentCategory && !ocrResults) {
+    toast.error('Please add some expense details first');
+    return;
+  }
 
-    setIsGeneratingDescription(true);
+  setIsGeneratingDescription(true);
 
-    try {
-      const merchant = ocrResults?.merchant || 'merchant';
-      const category = currentCategory || 'other';
-      const amount = currentAmount || '0';
-      const items = ocrResults?.items || [];
+  try {
+    const merchant = ocrResults?.merchant || 'merchant';
+    const category = currentCategory || 'other';
+    const amount = currentAmount || '0';
+    const items = ocrResults?.items || [];
 
-      // Call the real Gemini service
-      const generatedDescription = await generateExpenseDescription(
-        amount,
-        category,
-        merchant,
-        items
-      );
+    // Call the real Gemini service with Indian currency context
+    const generatedDescription = await generateExpenseDescription(
+      amount,
+      category,
+      merchant,
+      items,
+      "Keep in mind the description should be based on Indian currency rupee and Indian context"
+    );
 
-      form.setValue('description', generatedDescription);
-      toast.success('AI description generated!');
+    form.setValue('description', generatedDescription);
+    toast.success('AI description generated!');
 
-    } catch (error) {
-      console.error('Description generation failed:', error);
-      toast.error('Failed to generate description. Please try again.');
-    } finally {
-      setIsGeneratingDescription(false);
-    }
-  };
-
+  } catch (error) {
+    console.error('Description generation failed:', error);
+    toast.error('Failed to generate description. Please try again.');
+  } finally {
+    setIsGeneratingDescription(false);
+  }
+};
   // Handle file upload
   const handleFileUpload = (event) => {
     const file = event.target.files[0];
@@ -301,8 +304,8 @@ function AddExpense() {
   }
 
   return (
-    <div>
-      <div className="flex min-h-screen bg-gray-100">
+   <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex h-screen">
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
             onClick={() => setIsSidebarOpen(false)} />
@@ -315,10 +318,11 @@ function AddExpense() {
         />
 
         <div className="flex-1 flex flex-col">
-          <header className="bg-white shadow-sm flex-shrink-0">
+
+          <header className="bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
-                <h2 className="text-2xl font-semibold text-gray-900">{t('expense.title')}</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('expense.title')}</h2>
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -327,6 +331,7 @@ function AddExpense() {
               </div>
             </div>
           </header>
+
 
           <main className="flex-1 overflow-y-auto px-4 py-4">
             <div className="max-w-2xl mx-auto space-y-4 pb-6">
