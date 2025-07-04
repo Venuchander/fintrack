@@ -392,7 +392,7 @@ export default function IncomeDashboard() {
 
           <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
             <div className="max-w-4xl mx-auto p-6 space-y-6">
-              <Card className="mb-8 bg-gray-900 text-white border border-white/20">
+              <Card className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <CardHeader>
 
                   <CardDescription className="text-sm font-medium text-white-500 dark:text-white">
@@ -411,7 +411,7 @@ export default function IncomeDashboard() {
                   {accounts.map((account, index) => (
                     <Card
                       key={index}
-                      className="group hover:shadow-md transition-shadow bg-gray-900 text-white border border-white/20"
+                      className="rounded-lg border bg-card text-card-foreground shadow-sm"
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -428,6 +428,7 @@ export default function IncomeDashboard() {
                                   value={editValue}
                                   className="w-32 text-sm"
                                   autoFocus
+                                  
                                   onChange={(e) => setEditValue(e.target.value)}
                                   onBlur={() =>
                                     handleValueChange(index, editValue)

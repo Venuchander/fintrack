@@ -16,7 +16,7 @@ const BankAccounts = ({ accounts, formatCurrency }) => {
         {bankAccounts.map((account, index) => (
           <Card
             key={index}
-            className="bg-gradient-to-br from-blue-50 to-white"
+             className="rounded-lg border bg-card text-gray-900 dark:text-white shadow-sm"
           >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div>

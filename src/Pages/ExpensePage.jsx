@@ -354,9 +354,10 @@ const generateAIDescription = async () => {
                 <CardContent>
                   {/* Receipt Upload Section */}
                   <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {t('expense.scanReceipt')}
-                    </label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
+  {t('expense.scanReceipt')}
+</label>
+
 
                     {!uploadedImage ? (
                       <div className="space-y-4">
@@ -367,7 +368,7 @@ const generateAIDescription = async () => {
                           onClick={() => fileInputRef.current?.click()}
                         >
                           <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                          <p className="text-gray-600 mb-3 text-sm">
+                          <p className="text-gray-600 dark:text-white mb-3 text-sm">
                             {t('expense.dragAndDrop')}
                           </p>
 

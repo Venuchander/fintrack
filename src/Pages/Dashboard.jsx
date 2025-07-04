@@ -470,7 +470,7 @@ function Dashboard() {
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors">
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -481,25 +481,23 @@ function Dashboard() {
       />
 
       {/* ✅ Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-
-            <h2 className="text-2xl font-semibold text-gray-900">{t('dashboard.title')}</h2>
-
-            <div className="flex items-center space-x-4">
-             
-              <ProfileButton
-                user={user}
-                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                onLogout={() => auth.signOut()}
-              />
-            
-            </div>
-          </div>
-        </div>
-      </header>
-
+   
+   <header className="relative z-10 bg-white dark:bg-gray-800 shadow-sm transition-colors">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex justify-between items-center py-4 relative">
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+        {t('dashboard.title')}
+      </h2>
+      <div className="absolute right-0 flex items-center space-x-4">
+        <ProfileButton
+          user={user}
+          onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          onLogout={() => auth.signOut()}
+        />
+      </div>
+    </div>
+  </div>
+</header>
       {/* Main Content */}
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
