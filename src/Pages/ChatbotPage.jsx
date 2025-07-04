@@ -24,7 +24,7 @@ const db = getFirestore();
 
 // Init Gemini
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEN_AI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
 // Dynamically load emoji picker
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
