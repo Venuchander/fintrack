@@ -10,7 +10,6 @@ import { Button } from "../components/ui/button";
 import { format } from "date-fns";
 import ProfileButton from '../components/components/profile';
 import Sidebar from '../components/components/Sidebar';
-import DarkModeToggle from "../components/ui/DarkModeToggle";
 
 import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from "../components/ui/card";
 import {Form,FormControl,FormField,FormItem,FormLabel,FormMessage} from "../components/ui/form";
@@ -59,6 +58,7 @@ function AddExpense() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [ocrResults, setOcrResults] = useState(null);
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
 
   const fileInputRef = useRef(null);
   const cameraInputRef = useRef(null);
@@ -66,7 +66,13 @@ function AddExpense() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      amount: "",
+      date: undefined,
+      category: "",
+      description: "",
       paymentMethod: "",
+      bankPaymentType: undefined,
+      cardPaymentType: undefined,
     },
   });
 
@@ -281,7 +287,18 @@ const generateAIDescription = async () => {
       };
 
       await addExpense(user.uid, expenseData);
-      form.reset();
+      
+      // Reset form with default values
+      form.reset({
+        amount: "",
+        date: undefined,
+        category: "",
+        description: "",
+        paymentMethod: "",
+        bankPaymentType: undefined,
+        cardPaymentType: undefined,
+      });
+      
       setUploadedImage(null);
       setOcrResults(null);
       setShowSuccess(true);
@@ -485,7 +502,7 @@ const generateAIDescription = async () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>{t('expense.form.date.label')} *</FormLabel>
-                              <Popover>
+                              <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                                 <PopoverTrigger asChild>
                                   <FormControl>
                                     <Button
@@ -508,7 +525,10 @@ const generateAIDescription = async () => {
                                   <Calendar
                                     mode="single"
                                     selected={field.value}
-                                    onSelect={field.onChange}
+                                    onSelect={(date) => {
+                                      field.onChange(date);
+                                      setIsDatePickerOpen(false);
+                                    }}
                                     disabled={(date) =>
                                       date > new Date() || date < new Date("1900-01-01")
                                     }
