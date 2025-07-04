@@ -264,7 +264,7 @@ const SignupPage = () => {
           <Button
             type="button"
             onClick={handleGoogleSignUp}
-            className="w-full h-11 bg-white hover:bg-gray-50 text-gray-900 border border-gray-300 transition-colors duration-200 flex items-center justify-center space-x-2"
+            className="w-full h-11 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 transition-colors duration-200 flex items-center justify-center space-x-2"
           >
             <img
               src="https://www.google.com/favicon.ico"

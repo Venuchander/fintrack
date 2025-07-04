@@ -354,9 +354,9 @@ const generateAIDescription = async () => {
             <div className="max-w-2xl mx-auto space-y-4 pb-6">
               {showSuccess && (
                 <div className="animate-in slide-in-from-top-2 duration-300">
-                  <Alert className="bg-green-50 border-green-200">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <AlertDescription className="text-green-800">
+                  <Alert variant="success">
+                    <CheckCircle2 className="h-4 w-4" />
+                    <AlertDescription>
                     {t('expense.success')}
                     </AlertDescription>
                   </Alert>
@@ -385,7 +385,7 @@ const generateAIDescription = async () => {
                           onClick={() => fileInputRef.current?.click()}
                         >
                           <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                          <p className="text-gray-600 dark:text-white mb-3 text-sm">
+                          <p className="text-gray-600 dark:text-gray-400 mb-3 text-sm">
                             {t('expense.dragAndDrop')}
                           </p>
 
@@ -438,7 +438,7 @@ const generateAIDescription = async () => {
                         <img
                           src={uploadedImage}
                           alt="Uploaded receipt"
-                          className="w-full max-h-48 object-contain rounded-lg border bg-gray-50"
+                          className="w-full max-h-48 object-contain rounded-lg border bg-gray-50 dark:bg-gray-800"
                         />
                         <button
                           type="button"
@@ -450,7 +450,7 @@ const generateAIDescription = async () => {
 
                         {isProcessing && (
                           <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
-                            <div className="bg-white p-3 rounded-lg flex items-center space-x-2 text-sm">
+                            <div className="bg-white dark:bg-gray-800 p-3 rounded-lg flex items-center space-x-2 text-sm">
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                               <span>{t('expense.processingWithAI')}</span>
                             </div>
@@ -460,8 +460,8 @@ const generateAIDescription = async () => {
                     )}
 
                     {ocrResults && (
-                      <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                        <div className="flex items-center space-x-2 text-green-700">
+                      <div className="mt-3 p-3 bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg">
+                        <div className="flex items-center space-x-2 text-green-700 dark:text-green-300">
                           <Check className="w-4 h-4" />
                           <span className="font-medium text-sm">{t('expense.dataExtractedSuccessfully')}</span>
                         </div>

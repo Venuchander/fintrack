@@ -865,7 +865,7 @@ const exportToPDF = () => {
                             variant="ghost" 
                             size="sm" 
                             onClick={() => saveEdit(transaction)}
-                            className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                            className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
                           >
                             <Save className="h-3 w-3" />
                           </Button>
@@ -873,7 +873,7 @@ const exportToPDF = () => {
                             variant="ghost" 
                             size="sm" 
                             onClick={cancelEdit}
-                            className="h-7 w-7 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50"
+                            className="h-7 w-7 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
                           >
                             <X className="h-3 w-3" />
                           </Button>
@@ -946,7 +946,7 @@ const exportToPDF = () => {
                                       variant="ghost" 
                                       size="sm" 
                                       onClick={() => confirmDelete(transaction, index)}
-                                      className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                      className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
                                     >
                                       <Trash2 className="h-3 w-3" />
                                     </Button>
@@ -1146,13 +1146,13 @@ const exportToPDF = () => {
                 variant="outline"
                 size="sm"
                 onClick={handleUndo}
-                className="bg-white border-orange-300 text-orange-900 hover:bg-orange-100 text-xs px-2 py-1 h-7 sm:h-8 sm:px-3 sm:py-2"
+                className="bg-white dark:bg-gray-800 border-orange-300 dark:border-orange-700 text-orange-900 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/20 text-xs px-2 py-1 h-7 sm:h-8 sm:px-3 sm:py-2"
               >
                 <Undo className="h-3 w-3 sm:mr-1" />
                 <span className="hidden sm:inline">Undo</span>
               </Button>
             </div>
-            <div className="mt-2 w-full bg-orange-200 rounded-full h-0.5 sm:h-1">
+            <div className="mt-2 w-full bg-orange-200 dark:bg-orange-800 rounded-full h-0.5 sm:h-1">
               <div 
                 className="bg-orange-500 h-0.5 sm:h-1 rounded-full animate-pulse"
                 style={{ width: '100%' }}

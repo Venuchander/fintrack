@@ -57,8 +57,8 @@ const CreditCards = ({ accounts, formatCurrency, getCardBackground }) => {
               </div>
               <div className="p-4">
                 <div className="mb-2">
-                  <p className="text-sm text-gray-600">Credit Utilization</p>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 mt-1">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Credit Utilization</p>
+                  <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-1">
                     <div
                       className="bg-blue-600 h-2.5 rounded-full"
                       style={{
@@ -71,7 +71,7 @@ const CreditCards = ({ accounts, formatCurrency, getCardBackground }) => {
                     />
                   </div>
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   Current Balance:{" "}
                   {formatCurrency(Math.abs(account.balance))}
                 </p>

@@ -212,16 +212,16 @@ const LoginPage = () => {
 
   return (
     <div>
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-900">
         <div className="w-full max-w-[400px] p-6">
           <div className="mb-8">
             <div className="flex items-center mb-8">
               <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900 mb-2">
+            <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
               {currentUser ? "Already Logged In" : "Login"}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-gray-400">
               {currentUser 
                 ? `Welcome back, ${currentUser.email}` 
                 : "Hi, Welcome back 👋"}
@@ -237,7 +237,7 @@ const LoginPage = () => {
           <div className="space-y-6">
             {currentUser ? (
               <div className="space-y-4">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   You are currently logged in. You can:
                 </p>
                 <Button
@@ -301,7 +301,7 @@ const LoginPage = () => {
                         checked={rememberMe}
                         onCheckedChange={setRememberMe}
                       />
-                      <label htmlFor="remember" className="text-sm text-gray-600">
+                      <label htmlFor="remember" className="text-sm text-gray-600 dark:text-gray-400">
                         Remember Me
                       </label>
                     </div>
@@ -345,7 +345,7 @@ const LoginPage = () => {
                   Login with Google
                 </Button>
 
-                <p className="text-center text-sm text-gray-600 mt-4">
+                <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-4">
                   Not registered yet?{" "}
                   <Link
                     to="/signup"

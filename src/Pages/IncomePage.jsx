@@ -395,7 +395,7 @@ export default function IncomeDashboard() {
               <Card className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <CardHeader>
 
-                  <CardDescription className="text-sm font-medium text-white-500 dark:text-white">
+                  <CardDescription className="text-sm font-medium text-muted-foreground">
                     {t('income.cards.totalBalance')}
                   </CardDescription>
 
@@ -411,7 +411,7 @@ export default function IncomeDashboard() {
                   {accounts.map((account, index) => (
                     <Card
                       key={index}
-                      className="rounded-lg border bg-card text-card-foreground shadow-sm"
+                      className="group rounded-lg border bg-card text-card-foreground shadow-sm"
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -509,7 +509,7 @@ export default function IncomeDashboard() {
                               title={t('income.accounts.addFunds')}
                               variant="ghost"
                               size="icon"
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-green-600 hover:bg-green-50 rounded-full"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full"
                               onClick={() => handleOpenAddAmountDialog(index)}
                             >
                               <Plus className="w-7 h-7" />
@@ -519,7 +519,7 @@ export default function IncomeDashboard() {
                               title={t('income.accounts.deleteAccount')}
                               variant="ghost"
                               size="icon"
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-destructive hover:bg-red-50 rounded-full"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-destructive hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
                               onClick={() => handleDeleteAccount(index)}
                             >
                               <Trash2 className="w-4 h-4" />
