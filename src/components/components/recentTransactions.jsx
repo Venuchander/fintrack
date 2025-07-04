@@ -129,12 +129,13 @@ const RecentTransactions = ({
       );
     }
     
-    // Filter by recent (last 2 days) if not showing all
+    // Filter by recent (last 2 days) ONLY if not showing all transactions
     if (!showAllTransactions) {
       const twoDaysAgo = new Date();
       twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
       filtered = filtered.filter(t => new Date(t.date) >= twoDaysAgo);
     }
+    // When showAllTransactions is true, we don't apply any date filter
     
     // Filter by search query
     if (searchQuery.trim()) {

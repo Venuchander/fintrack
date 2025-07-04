@@ -33,7 +33,6 @@ import BankAccounts from "../components/components/bankAccounts";
 import CreditCards from "../components/components/creditCards";
 import FinancialCharts from "../components/components/financialCharts";
 import RecentTransactions from "../components/components/recentTransactions";
-import DarkModeToggle from "../components/ui/DarkModeToggle"; 
 import MonthlyExpenseChart from "../components/components/MonthlyExpenseCharts";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -391,7 +390,7 @@ function Dashboard() {
   // };
 
 
-  const getFilteredTransactions = () => {
+  const getAllTransactions = () => {
     if (!userData?.expenses || !userData?.accounts) return [];
 
     const incomeTransactions = userData.accounts.flatMap((account) => {
@@ -431,12 +430,6 @@ function Dashboard() {
 
     const allTransactions = [...incomeTransactions, ...expenseTransactions]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .filter((transaction) => {
-        if (selectedTransactionType === "all") return true;
-        if (selectedTransactionType === "income") return transaction.isIncome;
-        if (selectedTransactionType === "expense") return !transaction.isIncome;
-        return true;
-      })
       .map((transaction) => ({
         ...transaction,
         displayAmount: transaction.isIncome
@@ -447,8 +440,7 @@ function Dashboard() {
               transaction.accountType ? `(${transaction.accountType})` : ""
             }`
           : transaction.category,
-      }))
-      .slice(0, 5);
+      }));
 
     return allTransactions;
   };
@@ -464,7 +456,7 @@ function Dashboard() {
   const { income, expenses, recurringIncome } = calculateMonthlyFinances();
   const expenseData = prepareExpenseData();
   const incomeVsExpenseData = prepareIncomeVsExpenseData();
-  const filteredTransactions = getFilteredTransactions();
+  const allTransactions = getAllTransactions();
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors">
@@ -603,7 +595,7 @@ function Dashboard() {
 
           {/* Recent Transactions Component */}
           <RecentTransactions
-            transactions={filteredTransactions}
+            transactions={allTransactions}
             selectedTransactionType={selectedTransactionType}
             setSelectedTransactionType={setSelectedTransactionType}
             onUpdateTransaction={handleUpdateTransaction}
