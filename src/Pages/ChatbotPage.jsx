@@ -234,9 +234,7 @@ export default function ChatbotPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={() => setIsDarkMode(!isDarkMode)}>
-                  {isDarkMode ? "Light Mode" : "Dark Mode"}
-                </Button>
+               
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
