@@ -12,9 +12,9 @@ import axios from 'axios';
 import ProfileButton from '../components/components/profile';
 import Sidebar from '../components/components/Sidebar';
 import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDoc, collection, addDoc, query, where, orderBy, getDocs, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
-
+import DarkModeToggle from "../components/ui/DarkModeToggle";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -59,9 +59,7 @@ Financial Overview:
 - Savings Goal: ₹${userData?.savingsGoal || 0}
 
 Recent Activity:
-${userData?.expenses?.slice(-3).map(exp => 
-  `- ${exp.category}: ₹${exp.amount} (${new Date(exp.date).toLocaleDateString()})`
-).join('\n')}
+${userData?.expenses?.slice(-3).map(exp => `- ${exp.category}: ₹${exp.amount} (${new Date(exp.date).toLocaleDateString()})`).join('\n')}
 
 Recent Chat:
 ${messages.slice(-3).map(m => `${m.sender}: ${m.text}`).join('\n')}
@@ -74,12 +72,13 @@ Please provide a helpful and personalized response in ${lang}.`;
 export default function ChatbotPage() {
   const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState([
-    {  text: t("chatbot.welcomeMessage"), sender: 'bot', timestamp: new Date() }
+    { text: t("chatbot.welcomeMessage"), sender: 'bot', timestamp: new Date() }
   ]);
   const [input, setInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const messagesEndRef = useRef(null);
@@ -111,7 +110,6 @@ export default function ChatbotPage() {
     };
   }, [t]);
 
-  // Handle emoji
   const onEmojiClick = (emojiData) => {
     setInput(prev => prev + emojiData.emoji);
     setShowEmojiPicker(false);
@@ -126,38 +124,30 @@ export default function ChatbotPage() {
     });
   };
 
-  // Fetch user data and chat history
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-      setUser(user)
+      setUser(user);
       if (user) {
-        // Fetch user data
-        const userDoc = await getDoc(doc(db, 'users', user.uid))
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setUserData(userDoc.data())
+          setUserData(userDoc.data());
         }
 
-        // Fetch chat history
         const chatQuery = query(
           collection(db, 'chats'),
           where('userId', '==', user.uid),
           orderBy('timestamp', 'asc')
-        )
-        const chatSnapshot = await getDocs(chatQuery)
-        const chatHistory = chatSnapshot.docs.map(doc => doc.data())
-        
+        );
+        const chatSnapshot = await getDocs(chatQuery);
+        const chatHistory = chatSnapshot.docs.map(doc => doc.data());
         if (chatHistory.length > 0) {
-          setMessages(prev => [...prev, ...chatHistory])
+          setMessages(prev => [...prev, ...chatHistory]);
         }
       }
-    })
-    return () => unsubscribe()
-  }, [])
+    });
+    return () => unsubscribe();
+  }, []);
 
-  // Scroll to bottom effect
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])  // Save to Firestore
   const saveMessage = async (message) => {
     try {
       await addDoc(collection(db, 'chats'), {
@@ -170,7 +160,6 @@ export default function ChatbotPage() {
     }
   };
 
-  // AI Response
   const generateResponse = async (userInput) => {
     try {
       const prompt = generateContextualPrompt(userData, messages, userInput, i18n.language);
@@ -186,13 +175,13 @@ export default function ChatbotPage() {
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
-    
+
     const userMessage = {
       text: input,
       sender: 'user',
       timestamp: new Date().toISOString()
     };
-    
+
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
@@ -208,35 +197,35 @@ export default function ChatbotPage() {
       setMessages(prev => [...prev, botMessage]);
       await saveMessage(botMessage);
     } catch (error) {
-      console.error('Send error:', error);
+      const errorMessage = {
+        text: "I apologize, but I encountered an error. Please try again.",
+        sender: 'bot',
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      await saveMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex h-screen w-full">
-      {/* Sidebar overlay */}
-      {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-20" onClick={() => setIsSidebarOpen(false)} />
-      )}
-
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col w-full">
-        {/* Header */}
-        <header className="bg-white shadow-sm sticky top-0 z-10 w-full">
-          <div className="w-full px-4 py-3">
-            <div className="flex justify-between items-center">
+    <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
+      <div className="flex h-screen w-full bg-gray-100 dark:bg-gray-900">
+        {isSidebarOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-20" onClick={() => setIsSidebarOpen(false)} />
+        )}
+        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
+        <div className="flex-1 flex flex-col w-full">
+          <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10 w-full">
+            <div className="w-full px-4 py-3 flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8 sm:h-10 sm:w-10 bg-blue-500">
                   <AvatarImage src="/assets/robot.png" alt="AI" />
                   <AvatarFallback>AI</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h1 className="text-base sm:text-xl font-semibold text-gray-800">
+                  <h1 className="text-base sm:text-xl font-semibold text-gray-800 dark:text-white">
                     {t('chatbot.header')}
                   </h1>
                   <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 hover:bg-green-100">
@@ -245,6 +234,9 @@ export default function ChatbotPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => setIsDarkMode(!isDarkMode)}>
+                  {isDarkMode ? "Light Mode" : "Dark Mode"}
+                </Button>
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -253,79 +245,77 @@ export default function ChatbotPage() {
                 />
               </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* Chat */}
-        <main className="flex-grow overflow-y-auto px-4 py-4 bg-white">
-          <div className="space-y-4">
-            {messages.map((message, index) => (
-              <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}>
-                {message.sender === 'bot' && (
-                  <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0 mt-1">
-                    <AvatarImage src="/assets/robot.png" />
-                    <AvatarFallback>AI</AvatarFallback>
-                  </Avatar>
-                )}
-
-                <div className={`flex flex-col gap-1 ${message.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                  <div className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${
-                    message.sender === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    <div className="text-sm sm:text-base whitespace-pre-wrap">{message.text}</div>
+          <main className="flex-grow overflow-y-auto px-4 py-4 bg-white dark:bg-gray-900">
+            <div className="space-y-4">
+              {messages.map((message, index) => (
+                <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}>
+                  {message.sender === 'bot' && (
+                    <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0 mt-1">
+                      <AvatarImage src="/assets/robot.png" />
+                      <AvatarFallback>AI</AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div className={`flex flex-col gap-1 ${message.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                    <div className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${
+                      message.sender === 'user'
+                        ? 'bg-blue-500 text-white'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white'
+                    }`}>
+                      <div className="text-sm sm:text-base whitespace-pre-wrap">{message.text}</div>
+                    </div>
+                    <span className="text-xs text-gray-500 px-1">{formatTime(message.timestamp)}</span>
                   </div>
-                  <span className="text-xs text-gray-500 px-1">{formatTime(message.timestamp)}</span>
+                  {message.sender === 'user' && (
+                    <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
+                      <AvatarFallback className="text-white">{user?.displayName?.[0] || 'U'}</AvatarFallback>
+                    </Avatar>
+                  )}
                 </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          </main>
 
-                {message.sender === 'user' && (
-                  <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
-                    <AvatarFallback className="text-white">{user?.displayName?.[0] || 'U'}</AvatarFallback>
-                  </Avatar>
+          <footer className="bg-white dark:bg-gray-800 border-t p-3 sticky bottom-0 z-10 w-full">
+            <div className="flex items-center gap-2">
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="p-2 text-gray-400 hover:text-gray-600 rounded-full"
+                  onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                >
+                  {showEmojiPicker ? <X className="h-5 w-5" /> : <SmilePlus className="h-5 w-5" />}
+                </Button>
+                {showEmojiPicker && (
+                  <div className="absolute bottom-12 left-0 z-10 shadow-lg rounded-lg transform scale-90 sm:scale-100 origin-bottom-left">
+                    <EmojiPicker onEmojiClick={onEmojiClick} />
+                  </div>
                 )}
               </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </main>
 
-        {/* Input */}
-        <footer className="bg-white border-t p-3 sticky bottom-0 z-10 w-full">
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-full"
-                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-              >
-                {showEmojiPicker ? <X className="h-5 w-5" /> : <SmilePlus className="h-5 w-5" />}
-              </Button>
-              {showEmojiPicker && (
-                <div className="absolute bottom-12 left-0 z-10 shadow-lg rounded-lg transform scale-90 sm:scale-100 origin-bottom-left">
-                  <EmojiPicker onEmojiClick={onEmojiClick} />
-                </div>
-              )}
+              <div className="flex-1 relative">
+                <Input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={t('chatbot.inputPlaceholder')}
+                  className="rounded-full border-gray-200 pr-12 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm sm:text-base py-2 dark:bg-gray-700 dark:text-white"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                  disabled={isLoading}
+                />
+                <Button
+                  onClick={handleSend}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 p-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors"
+                  disabled={isLoading}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-
-            <div className="flex-1 relative">
-              <Input
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder={t('chatbot.inputPlaceholder')}
-                className="rounded-full border-gray-200 pr-12 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm sm:text-base py-2"
-                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                disabled={isLoading}
-              />
-              <Button
-                onClick={handleSend}
-                className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full h-8 w-8 p-0 flex items-center justify-center bg-blue-500 hover:bg-blue-600 transition-colors"
-                disabled={isLoading}
-              >
-                <Send className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </footer>
+          </footer>
+        </div>
       </div>
       <ToastContainer position="top-center" />
     </div>

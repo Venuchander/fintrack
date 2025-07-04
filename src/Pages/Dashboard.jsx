@@ -33,6 +33,10 @@ import BankAccounts from "../components/components/bankAccounts";
 import CreditCards from "../components/components/creditCards";
 import FinancialCharts from "../components/components/financialCharts";
 import RecentTransactions from "../components/components/recentTransactions";
+import DarkModeToggle from "../components/ui/DarkModeToggle"; 
+import MonthlyExpenseChart from "../components/components/MonthlyExpenseCharts";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 ChartJS.register(
   CategoryScale,
@@ -46,10 +50,6 @@ ChartJS.register(
   Legend
 );
 
-import MonthlyExpenseChart from "../components/components/MonthlyExpenseCharts";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -59,7 +59,6 @@ function Dashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { t } = useTranslation();
 
-  //✨ Toast network status
   useEffect(() => {
     const handleOffline = () => {
       toast.error("You're offline. Please check your Internet Connection.", {
@@ -89,24 +88,20 @@ function Dashboard() {
         setUser(user);
         try {
           const data = await getUserData(user.uid);
-          // Process accounts to combine cash accounts
           if (data?.accounts) {
             const processedAccounts = data.accounts.reduce((acc, account) => {
               if (
                 account.type === "Cash" ||
                 account.name.toLowerCase() === "cash"
               ) {
-                // Find existing cash account
                 const existingCashIndex = acc.findIndex(
                   (a) => a.type === "Cash" || a.name.toLowerCase() === "cash"
                 );
 
                 if (existingCashIndex !== -1) {
-                  // Update existing cash account
                   acc[existingCashIndex] = {
                     ...acc[existingCashIndex],
                     balance: acc[existingCashIndex].balance + account.balance,
-                    // Combine recurring amounts if present
                     recurringAmount:
                       (acc[existingCashIndex].recurringAmount || 0) +
                       (account.recurringAmount || 0),
@@ -115,17 +110,14 @@ function Dashboard() {
                       account.isRecurringIncome,
                   };
                 } else {
-                  // Add new cash account
                   acc.push(account);
                 }
               } else {
-                // Add non-cash account as is
                 acc.push(account);
               }
               return acc;
             }, []);
 
-            // Update the data with processed accounts
             data.accounts = processedAccounts;
           }
           setUserData(data);
@@ -221,16 +213,11 @@ function Dashboard() {
 
   const calculateMonthlyFinances = () => {
     if (!userData?.expenses || !userData?.accounts)
-      return {
-        income: 0,
-        expenses: 0,
-        recurringIncome: 0,
-      };
+      return { income: 0, expenses: 0, recurringIncome: 0 };
 
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
-    // Calculate recurring income from accounts
     const recurringIncome = userData.accounts.reduce((sum, account) => {
       return sum + (account.isRecurringIncome ? account.recurringAmount : 0);
     }, 0);
@@ -243,7 +230,6 @@ function Dashboard() {
       );
     });
 
-    // Sum all transactions for expenses (positive amounts are expenses in your structure)
     const { income: monthlyIncome, expenses: monthlyExpenses } =
       monthlyTransactions.reduce(
         (acc, transaction) => {
@@ -264,6 +250,24 @@ function Dashboard() {
       income: monthlyIncome + recurringIncome,
       expenses: monthlyExpenses,
       recurringIncome,
+    };
+  };
+
+  const getSavingsProgress = () => {
+    if (!userData?.userDetails?.savingsGoal)
+      return { current: 0, goal: 10000, percentage: 0 };
+
+    const monthlyGoal = userData.userDetails.savingsGoal;
+    const totalBalance = userData.userDetails.totalBalance || 0;
+    const progressPercentage = Math.min(
+      (totalBalance / monthlyGoal) * 100,
+      100
+    );
+
+    return {
+      current: totalBalance,
+      goal: monthlyGoal,
+      percentage: progressPercentage,
     };
   };
 
@@ -363,6 +367,7 @@ function Dashboard() {
     };
   };
 
+
   // const getSavingsProgress = () => {
   //   if (!userData?.userDetails?.savingsGoal)
   //     return {
@@ -385,14 +390,13 @@ function Dashboard() {
   //   };
   // };
 
+
   const getFilteredTransactions = () => {
     if (!userData?.expenses || !userData?.accounts) return [];
 
-    // Get all income transactions from accounts (bank, cash, credit, recurring)
     const incomeTransactions = userData.accounts.flatMap((account) => {
       const transactions = [];
 
-      // Add regular balance as income if it's positive
       if (account.balance > 0) {
         transactions.push({
           description: `Balance from ${account.name}`,
@@ -405,7 +409,6 @@ function Dashboard() {
         });
       }
 
-      // Add recurring income if present
       if (account.isRecurringIncome && account.recurringAmount > 0) {
         transactions.push({
           description: `Recurring Income from ${account.name}`,
@@ -421,13 +424,11 @@ function Dashboard() {
       return transactions;
     });
 
-    // Get expense transactions
     const expenseTransactions = userData.expenses.map((transaction) => ({
       ...transaction,
       isIncome: false,
     }));
 
-    // Combine and sort all transactions
     const allTransactions = [...incomeTransactions, ...expenseTransactions]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
       .filter((transaction) => {
@@ -441,7 +442,6 @@ function Dashboard() {
         displayAmount: transaction.isIncome
           ? `+${formatCurrency(transaction.amount)}`
           : `-${formatCurrency(transaction.amount)}`,
-        // Format category to show account type for income
         category: transaction.isIncome
           ? `${transaction.category} ${
               transaction.accountType ? `(${transaction.accountType})` : ""
@@ -467,7 +467,7 @@ function Dashboard() {
   const filteredTransactions = getFilteredTransactions();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors">
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-20"
@@ -480,12 +480,15 @@ function Dashboard() {
         user={user}
       />
 
-      {/* Header */}
-      <header className="bg-white shadow-sm">
+      {/* ✅ Header */}
+      <header className="bg-white dark:bg-gray-800 shadow-sm transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
+
             <h2 className="text-2xl font-semibold text-gray-900">{t('dashboard.title')}</h2>
+
             <div className="flex items-center space-x-4">
+             
               <ProfileButton
                 user={user}
                 onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -498,6 +501,7 @@ function Dashboard() {
       </header>
 
       {/* Main Content */}
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Summary Cards */}
@@ -608,6 +612,7 @@ function Dashboard() {
             onRefreshTransactions={handleRefreshTransactions}
           />
         </div>
+
       </main>
 
       <ToastContainer position="top-center" />
