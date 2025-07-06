@@ -322,7 +322,7 @@ const generateAIDescription = async () => {
 
   return (
    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-    <div className="flex h-screen">
+    <div className="flex min-h-screen flex-col sm:flex-row">
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
             onClick={() => setIsSidebarOpen(false)} />
@@ -334,7 +334,7 @@ const generateAIDescription = async () => {
           user={user}
         />
 
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-h-screen w-full">
 
           <header className="bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -350,8 +350,8 @@ const generateAIDescription = async () => {
           </header>
 
 
-          <main className="flex-1 overflow-y-auto px-4 py-4">
-            <div className="max-w-2xl mx-auto space-y-4 pb-6">
+          <main className="flex-1 overflow-y-auto px-4 py-4 pb-8 sm:pb-6">
+            <div className="max-w-2xl mx-auto space-y-4 pb-8 sm:pb-6 w-full">
               {showSuccess && (
                 <div className="animate-in slide-in-from-top-2 duration-300">
                   <Alert variant="success">
@@ -363,14 +363,14 @@ const generateAIDescription = async () => {
                 </div>
               )}
 
-              <Card>
-                <CardHeader>
+              <Card className="w-full">
+                <CardHeader className="pb-4 sm:pb-6">
                   <CardTitle>{t('expense.addNewExpense')}</CardTitle>
                   <CardDescription>{t('expense.subtitle')}</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6 sm:space-y-4">
                   {/* Receipt Upload Section */}
-                  <div className="mb-6">
+                  <div className="mb-6 sm:mb-4">
                     <label className="block text-sm font-medium text-gray-700 dark:text-white mb-2">
   {t('expense.scanReceipt')}
 </label>
@@ -396,9 +396,9 @@ const generateAIDescription = async () => {
                                 e.stopPropagation();
                                 fileInputRef.current?.click();
                               }}
-                              className="flex items-center px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm"
+                              className="flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-200 text-sm font-medium shadow-sm"
                             >
-                              <FileImage className="w-4 h-4 mr-1" />
+                              <FileImage className="w-4 h-4 mr-2" />
                               {t('expense.chooseFile')}
                             </button>
 
@@ -408,9 +408,9 @@ const generateAIDescription = async () => {
                                 e.stopPropagation();
                                 cameraInputRef.current?.click();
                               }}
-                              className="flex items-center px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors text-sm"
+                              className="flex items-center px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 transition-all duration-200 text-sm font-medium shadow-sm"
                             >
-                              <Camera className="w-4 h-4 mr-1" />
+                              <Camera className="w-4 h-4 mr-2" />
                               {t('expense.takePhoto')}
                             </button>
                           </div>
@@ -470,8 +470,8 @@ const generateAIDescription = async () => {
                   </div>
 
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                      <div className="grid gap-6 md:grid-cols-2">
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-4">
+                      <div className="grid gap-6 sm:gap-4 md:grid-cols-2">
                         <FormField
                           control={form.control}
                           name="amount"
@@ -585,7 +585,7 @@ const generateAIDescription = async () => {
                                   type="button"
                                   onClick={generateAIDescription}
                                   disabled={isGeneratingDescription}
-                                  className="absolute bottom-2 right-2 flex items-center px-2 py-1 bg-purple-500 text-white text-xs rounded-md hover:bg-purple-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                  className="absolute bottom-2 right-2 flex items-center px-2 py-1 bg-gray-800 text-white text-xs rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
                                   {isGeneratingDescription ? (
                                     <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></div>
@@ -710,7 +710,7 @@ const generateAIDescription = async () => {
                           />
                         )}
 
-                      <div className="flex justify-end gap-4">
+                      <div className="flex justify-end gap-4 pt-4">
                         <Button
                           variant="outline"
                           type="button"

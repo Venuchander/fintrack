@@ -56,7 +56,7 @@ export const generateExpenseDescription = async (amount, category, merchant, ite
   try {
     const prompt = `
     Generate a concise, professional expense description based on:
-    - Amount: $${amount}
+    - Amount: ₹${amount}
     - Category: ${category}
     - Merchant: ${merchant}
     - Items: ${items.join(', ')}
