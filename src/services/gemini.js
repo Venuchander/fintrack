@@ -11,18 +11,24 @@ export const extractDataFromReceipt = async (imageFile) => {
     const base64Image = await fileToBase64(imageFile);
     
     const prompt = `
-    Analyze this receipt/bill image and extract the following information in JSON format:
+    You are an AI assistant. Analyze the following receipt or bill image and extract the relevant information. Return the result in strict JSON format.
+
+    All monetary values are in Indian Rupees (INR), but the "amount" field should be returned as a number only (without the ₹ symbol).
+
+    Return the following JSON:
+
     {
-      "amount": "total amount as number",
+      "amount": "total amount in rupees as a number (e.g., 1234.56)",
       "date": "date in YYYY-MM-DD format",
-      "merchant": "merchant/store name",
-      "category": "predicted category from: Food & Dining, Transportation, Shopping, Entertainment, Bills & Utilities, Healthcare, Travel, Education, Business, Other",
+      "merchant": "merchant or store name",
+      "category": "one of: Food & Dining, Transportation, Shopping, Entertainment, Bills & Utilities, Healthcare, Travel, Education, Business, Other",
       "items": ["list of purchased items if visible"],
-      "confidence": "confidence score between 0 and 1"
+      "confidence": "overall confidence score between 0 and 1"
     }
-    
-    If any field cannot be determined, return null for that field.
-    Predict the most appropriate category based on the merchant name and items purchased.
+
+    If any field is unknown or not visible, return null for that field.
+    Predict the most likely category using the merchant name and item names.
+    Return only the JSON. Do not include any explanation or notes.
     `;
 
     const result = await model.generateContent([
@@ -55,15 +61,21 @@ export const extractDataFromReceipt = async (imageFile) => {
 export const generateExpenseDescription = async (amount, category, merchant, items = []) => {
   try {
     const prompt = `
-    Generate a concise, professional expense description based on:
+    Generate a concise and professional expense description suitable for expense tracking or accounting.
+
+    Input:
     - Amount: ₹${amount}
     - Category: ${category}
     - Merchant: ${merchant}
     - Items: ${items.join(', ')}
-    
-    Create a description that would be suitable for expense tracking/accounting.
-    Keep it under 50 characters and professional.
+
+    Output:
+    - A single sentence or phrase (under 50 characters)
+    - Must be professional and relevant to the transaction
+    - Avoid unnecessary punctuation or symbols
+    - Do not include the amount or currency symbol in the output
     `;
+
 
     const result = await model.generateContent(prompt);
     const response = result.response;
