@@ -212,7 +212,10 @@ const LoginPage = () => {
 
   return (
     <div>
+      
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-900">
+  <div className="w-full max-w-[400px] p-6 bg-white dark:bg-gray-800 rounded-xl shadow-md">
+
         <div className="w-full max-w-[400px] p-6">
           <div className="mb-8">
             <div className="flex items-center mb-8">
@@ -258,7 +261,8 @@ const LoginPage = () => {
               <>
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+
                       Email or Username
                     </label>
                     <Input
@@ -267,7 +271,7 @@ const LoginPage = () => {
                       onChange={(e) => setIdentifier(e.target.value)}
                       placeholder="name@example.com or username"
                       required
-                      className="py-5"
+                        className="py-5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     />
                   </div>
 
@@ -326,7 +330,8 @@ const LoginPage = () => {
                     <span className="w-full border-t" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-slate-50 px-2 text-gray-500">
+                    <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400">
+
                       or login with Google
                     </span>
                   </div>
@@ -359,8 +364,14 @@ const LoginPage = () => {
           </div>
         </div>
       </div>
+      </div>
 
-      <ToastContainer position="top-center" />
+   <ToastContainer
+  position="top-center"
+  theme={document.documentElement.classList.contains('dark') ? "dark" : "light"}
+  toastClassName="dark:bg-gray-800 dark:text-white"
+/>
+
     </div>
     
   );
