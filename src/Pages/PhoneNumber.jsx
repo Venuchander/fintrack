@@ -64,7 +64,7 @@ const PhoneNumberPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4">
+    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4 dark:bg-gray-900">
       <div className="space-y-6 w-full max-w-md">
         <div className="space-y-2">
           <div className="flex items-center mb-8">
