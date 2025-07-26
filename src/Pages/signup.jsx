@@ -152,7 +152,9 @@ const SignupPage = () => {
             <div className="flex items-center mb-8">
               <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">Sign Up</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-black">
+  Sign Up
+</h1>
             <p className="text-sm text-muted-foreground">
               Enter your details to create your Fintrack account:
             </p>
@@ -166,26 +168,26 @@ const SignupPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Email*</label>
+              <label className="text-sm font-medium dark:text-black">Email*</label>
               <Input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="h-11"
+                className="h-11 dark:bg-white text-black"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Password*</label>
+                <label className="text-sm font-medium dark:text-black">Password*</label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => handlePasswordChange(e.target.value)}
-                    className="h-11 pr-10"
+                    className="h-11 pr-10 dark:bg-white text-black"
                   />
                   <button
                     type="button"
@@ -216,14 +218,14 @@ const SignupPage = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Confirm Password*</label>
+                <label className="text-sm font-medium dark:text-black">Confirm Password*</label>
                 <div className="relative">
                   <Input
                     type={showConfirmPassword ? "text" : "password"}
                     required
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="h-11 pr-10"
+                    className="h-11 pr-10 dark:bg-white text-black"
                   />
                   <button
                     type="button"
