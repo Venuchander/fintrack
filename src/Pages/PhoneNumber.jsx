@@ -64,7 +64,7 @@ const PhoneNumberPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4">
+    <div className="min-h-screen flex justify-center items-center bg-slate-50 p-4 dark:bg-gray-900">
       <div className="space-y-6 w-full max-w-md">
         <div className="space-y-2">
           <div className="flex items-center mb-8">
@@ -87,8 +87,8 @@ const PhoneNumberPage = () => {
           <div className="space-y-2">
             <label className="text-sm font-medium">Phone Number*</label>
             <div className="flex">
-              <div className="flex items-center px-3 bg-gray-100 border border-r-0 border-gray-200 rounded-l-md">
-                <span className="text-gray-500 text-sm">+91</span>
+              <div className="flex items-center px-3 bg-gray-100 dark:bg-gray-800 border border-r-0 border-gray-200 dark:border-gray-800 rounded-l-md">
+                <span className="text-gray-500 dark:text-gray-400 text-sm">+91</span>
               </div>
               <Input
                 type="tel"
