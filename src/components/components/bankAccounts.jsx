@@ -10,14 +10,15 @@ const BankAccounts = ({ accounts, formatCurrency }) => {
   }
 
   return (
-    <div>
+    <div >
       <h3 className="text-lg font-semibold mb-4">Bank Accounts</h3>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 ">
         {bankAccounts.map((account, index) => (
           <Card
             key={index}
-             className="rounded-lg border bg-card text-gray-900 dark:text-white shadow-sm"
+             className=" transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg rounded-lg border bg-card text-gray-900 dark:text-white shadow-sm"
           >
+         
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <div>
                 <CardTitle className="text-lg font-semibold">

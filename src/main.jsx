@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import './i18n'; 
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from "react-router-dom";
 import "./index.css";
 import LoginPage from "./Pages/login";
 import SignupPage from "./Pages/signup";
@@ -14,14 +14,21 @@ import Income from "./Pages/IncomePage";
 import SettingsPage from "./Pages/SettingsPage";
 import ForgotPasswordPage from "./Pages/ForgotPasswordPage"; // The forget password component
 import FAB from "./components/ui/FAB";
+import 'animate.css';
 
 import ProtectedRoute from "./components/components/ProtectedRoute";
 import AuthRoute from "./components/components/AuthRoute";
 
 const App = () => {
+  const location = useLocation();
+
   return (
-    <>
-      <Routes>
+     <div
+      key={location.pathname} // 🔁 key forces remount on route change
+      className="animate__animated animate__fadeIn animate__delay-0.5s"
+      style={{ animationDuration: "0.5s" }}
+    >
+      <Routes location={location} key={location.pathname}>
         <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} /> {/* Route for forgetpassword page*/}
         <Route path="/signup" element={<AuthRoute><SignupPage /></AuthRoute>} />
@@ -36,9 +43,10 @@ const App = () => {
       </Routes>
 
       <FAB /> 
-    </>
+    </div>
   );
 };
+export default App;
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>

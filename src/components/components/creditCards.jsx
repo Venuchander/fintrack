@@ -14,7 +14,8 @@ const CreditCards = ({ accounts, formatCurrency, getCardBackground }) => {
       <h3 className="text-lg font-semibold mb-4">Credit Cards</h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {creditCards.map((account, index) => (
-          <Card key={index} className="overflow-hidden">
+          <Card 
+          key={index} className="overflow-hidden transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg">
             <CardContent className="p-0">
               <div
                 className={`h-48 p-6 flex flex-col justify-between bg-gradient-to-br ${getCardBackground(
