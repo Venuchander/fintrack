@@ -479,7 +479,7 @@ function Dashboard() {
         <div className="space-y-8">
           {/* Summary Cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card>
+            <Card className="transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   {t('dashboard.cards.totalBalance')}
@@ -493,7 +493,7 @@ function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   {t('dashboard.cards.monthlyIncome')}
@@ -513,7 +513,7 @@ function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   {t('dashboard.cards.monthlyExpenses')}
@@ -527,7 +527,7 @@ function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   {t('dashboard.cards.savingsGoal')}
@@ -565,7 +565,7 @@ function Dashboard() {
           />
 
           {/* monthly expense comparision Chart Component */}
-          <Card>
+          <Card className="transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-lg">
             <CardHeader>
               <CardTitle>{t('dashboard.charts.monthlyExpenseComparison')}</CardTitle>
             </CardHeader>

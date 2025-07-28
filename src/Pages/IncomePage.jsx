@@ -796,7 +796,7 @@ export default function IncomeDashboard() {
                     <p className="text-xs text-red-500 mt-1">{errorMessage}</p>
                   )}
 
-                  <Button className="mt-4" onClick={handleConfirmAddAmount}>
+                  <Button className="mt-4 " onClick={handleConfirmAddAmount}>
                     {t('income.dialogs.addAmount.add')}
                   </Button>
                 </DialogContent>
