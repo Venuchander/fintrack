@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { auth, db } from "./lib/firebase";
-import { createOrUpdateUser } from "./lib/userService";
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
@@ -204,8 +203,8 @@ const LoginPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-900">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 dark:border-indigo-400"></div>
       </div>
     );
   }
@@ -216,7 +215,9 @@ const LoginPage = () => {
         <div className="w-full max-w-[400px] p-6">
           <div className="mb-8">
             <div className="flex items-center mb-8">
-              <div className="text-indigo-600 font-bold text-xl">Fintrack</div>
+              <div className="text-indigo-600 dark:text-indigo-400 font-bold text-xl">
+                Fintrack
+              </div>
             </div>
             <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
               {currentUser ? "Already Logged In" : "Login"}
@@ -229,7 +230,7 @@ const LoginPage = () => {
           </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+            <div className="mb-4 p-3 bg-red-100 dark:bg-red-950/50 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -242,14 +243,14 @@ const LoginPage = () => {
                 </p>
                 <Button
                   onClick={() => navigate("/dashboard")}
-                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white"
                 >
                   Go to dashboard
                 </Button>
                 <Button
                   onClick={handleLogout}
                   variant="outline"
-                  className="w-full py-5"
+                  className="w-full py-5 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                 >
                   Logout
                 </Button>
@@ -258,7 +259,7 @@ const LoginPage = () => {
               <>
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Email or Username
                     </label>
                     <Input
@@ -267,12 +268,12 @@ const LoginPage = () => {
                       onChange={(e) => setIdentifier(e.target.value)}
                       placeholder="name@example.com or username"
                       required
-                      className="py-5"
+                      className="py-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-gray-700">
+                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       Password
                     </label>
                     <div className="relative">
@@ -282,12 +283,12 @@ const LoginPage = () => {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
                         required
-                        className="py-5"
+                        className="py-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 placeholder:text-gray-400 dark:placeholder:text-gray-500"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                       >
                         {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
@@ -300,6 +301,7 @@ const LoginPage = () => {
                         id="remember"
                         checked={rememberMe}
                         onCheckedChange={setRememberMe}
+                        className="border-gray-300 dark:border-gray-600 data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
                       />
                       <label htmlFor="remember" className="text-sm text-gray-600 dark:text-gray-400">
                         Remember Me
@@ -307,7 +309,7 @@ const LoginPage = () => {
                     </div>
                     <Link
                       to="/forgot-password"
-                      className="text-sm text-indigo-600 hover:text-indigo-500"
+                      className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
                     >
                       Forgot Password?
                     </Link>
@@ -315,7 +317,7 @@ const LoginPage = () => {
 
                   <Button
                     type="submit"
-                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-700"
+                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white"
                   >
                     Login
                   </Button>
@@ -323,10 +325,10 @@ const LoginPage = () => {
 
                 <div className="relative mt-6">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
+                    <span className="w-full border-t border-gray-300 dark:border-gray-600" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-slate-50 px-2 text-gray-500">
+                    <span className="bg-slate-50 dark:bg-gray-900 px-2 text-gray-500 dark:text-gray-400">
                       or login with Google
                     </span>
                   </div>
@@ -334,7 +336,7 @@ const LoginPage = () => {
 
                 <Button
                   variant="outline"
-                  className="w-full justify-center gap-2 py-5 font-normal text-gray-700"
+                  className="w-full justify-center gap-2 py-5 font-normal text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
                   onClick={handleGoogleSignIn}
                 >
                   <img
@@ -349,7 +351,7 @@ const LoginPage = () => {
                   Not registered yet?{" "}
                   <Link
                     to="/signup"
-                    className="text-indigo-600 hover:text-indigo-500 font-medium"
+                    className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 font-medium"
                   >
                     Create an account
                   </Link>
@@ -360,7 +362,10 @@ const LoginPage = () => {
         </div>
       </div>
 
-      <ToastContainer position="top-center" />
+      <ToastContainer 
+        position="top-center"
+        theme="auto"
+      />
     </div>
     
   );
