@@ -1,4 +1,4 @@
-import React from 'react';
+import 'react';
 import { Wifi } from 'lucide-react';
 import { Card, CardContent } from '../ui/card';
 

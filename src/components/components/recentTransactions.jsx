@@ -959,9 +959,46 @@ const exportToPDF = () => {
                             </>
                           )}
                           {transaction.isIncome && (
-                            <span className="text-xs text-muted-foreground px-2">
-                              Income items cannot be edited
-                            </span>
+                            <>
+                              <InstantTooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled
+                                        className="h-7 w-7 p-0 text-muted-foreground/40 cursor-not-allowed"
+                                      >
+                                        <Edit2 className="h-3 w-3" />
+                                      </Button>
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <span className="text-xs">Cannot edit or delete income here. Go to the Income page.</span>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </InstantTooltipProvider>
+                              <InstantTooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled
+                                        className="h-7 w-7 p-0 text-muted-foreground/40 cursor-not-allowed"
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <span className="text-xs">Cannot edit or delete income here. Go to the Income page.</span>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </InstantTooltipProvider>
+                            </>
                           )}
                         </div>
                       </TableCell>
@@ -1167,4 +1204,9 @@ const exportToPDF = () => {
   );
 };
 
+const InstantTooltipProvider = ({ children }) => (
+  <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+);
+
 export default RecentTransactions;
+export { InstantTooltipProvider };

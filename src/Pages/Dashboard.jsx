@@ -252,23 +252,6 @@ function Dashboard() {
     };
   };
 
-  const getSavingsProgress = () => {
-    if (!userData?.userDetails?.savingsGoal)
-      return { current: 0, goal: 10000, percentage: 0 };
-
-    const monthlyGoal = userData.userDetails.savingsGoal;
-    const totalBalance = userData.userDetails.totalBalance || 0;
-    const progressPercentage = Math.min(
-      (totalBalance / monthlyGoal) * 100,
-      100
-    );
-
-    return {
-      current: totalBalance,
-      goal: monthlyGoal,
-      percentage: progressPercentage,
-    };
-  };
 
   const prepareExpenseData = () => {
     if (!userData?.expenses) return null;
