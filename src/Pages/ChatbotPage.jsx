@@ -180,12 +180,19 @@ export default function ChatbotPage() {
       text: input,
       sender: 'user',
       timestamp: new Date().toISOString()
-    };
+    }
 
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-    await saveMessage(userMessage);
+    setMessages(prev => [...prev, userMessage])
+    setInput('')
+    const loadingMessage = {
+      text: '<div class="animate-pulse font-semibold">Thinking...</div>',
+      sender: 'bot',
+      timestamp: new Date().toISOString(),
+      isLoading: true
+    }
+    setMessages(prev => [...prev, loadingMessage])
+    setIsLoading(true)
+    await saveMessage(userMessage)
 
     try {
       const aiText = await generateResponse(input);
@@ -193,9 +200,18 @@ export default function ChatbotPage() {
         text: aiText,
         sender: 'bot',
         timestamp: new Date().toISOString()
-      };
-      setMessages(prev => [...prev, botMessage]);
-      await saveMessage(botMessage);
+      }
+      setMessages(prev => {
+        const updated = [...prev]
+        const lastIndex = updated.findIndex(m => m.isLoading)
+        if (lastIndex !== -1) {
+          updated[lastIndex] = botMessage
+        } else {
+          updated.push(botMessage)
+        }
+        return updated
+      })
+      await saveMessage(botMessage)
     } catch (error) {
       const errorMessage = {
         text: "I apologize, but I encountered an error. Please try again.",
@@ -234,7 +250,7 @@ export default function ChatbotPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-               
+
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -248,26 +264,50 @@ export default function ChatbotPage() {
           <main className="flex-grow overflow-y-auto px-4 py-4 bg-white dark:bg-gray-900">
             <div className="space-y-4">
               {messages.map((message, index) => (
-                <div key={index} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'} items-start gap-2`}>
+                <div
+                  key={index}
+                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'
+                    } items-start gap-2`}
+                >
                   {message.sender === 'bot' && (
                     <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0 mt-1">
                       <AvatarImage src="/assets/robot.png" />
                       <AvatarFallback>AI</AvatarFallback>
                     </Avatar>
                   )}
-                  <div className={`flex flex-col gap-1 ${message.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                    <div className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${
-                      message.sender === 'user'
+
+                  <div
+                    className={`flex flex-col gap-1 ${message.sender === 'user' ? 'items-end' : 'items-start'
+                      }`}
+                  >
+                    <div
+                      className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${message.sender === 'user'
                         ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white'
-                    }`}>
-                      <div className="text-sm sm:text-base whitespace-pre-wrap">{message.text}</div>
+                        : 'bg-gray-100 text-gray-800'
+                        }`}
+                    >
+                      <div className="text-sm sm:text-base whitespace-pre-wrap">
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: message.text
+                              .replace(/^\* (.*)/gm, '<li style="margin-left: 1em; list-style-type: disc;">$1</li>')
+                              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                              .replace(/\*(?!\s)(.*?)\*/g, '<strong>$1</strong>')
+                              .replace(/\n/g, '<br />')
+                          }}
+                        ></span>
+                      </div>
+                      <span className="text-xs text-gray-500 px-1">
+                        {formatTime(message.timestamp)}
+                      </span>
                     </div>
-                    <span className="text-xs text-gray-500 px-1">{formatTime(message.timestamp)}</span>
                   </div>
+
                   {message.sender === 'user' && (
                     <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
-                      <AvatarFallback className="text-white">{user?.displayName?.[0] || 'U'}</AvatarFallback>
+                      <AvatarFallback className="text-white">
+                        {user?.displayName?.[0] || 'U'}
+                      </AvatarFallback>
                     </Avatar>
                   )}
                 </div>
