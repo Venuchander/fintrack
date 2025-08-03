@@ -435,7 +435,8 @@ Security Guidelines:
                     <div className="text-sm sm:text-base whitespace-pre-wrap">
                       <span dangerouslySetInnerHTML={{
                         __html: message.text
-                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // bold **text**
+                          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                          .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
                           .replace(/\n/g, '<br />') // line breaks
                       }} />
                     </div>
