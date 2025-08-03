@@ -5,6 +5,7 @@ import ProfileButton from "../components/components/profile";
 import Sidebar from "../components/components/Sidebar";
 import { getUserData, updateUserAccounts } from "./lib/userService";
 import { Button } from "../components/ui/button";
+import DarkModeToggle from "../components/ui/DarkModeToggle";
 import {
   Card,
   CardContent,
@@ -41,6 +42,7 @@ import {
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useTranslation } from "react-i18next";
 
 const iconMap = {
   Bank: <Building className="w-5 h-5" />,
@@ -54,6 +56,7 @@ const getIconComponent = (iconType) => {
 
 export default function IncomeDashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -83,10 +86,12 @@ export default function IncomeDashboard() {
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(null);
   const [additionalAmount, setAdditionalAmount] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  // New state for balance validation
+  const [balanceError, setBalanceError] = useState("");
 
   useEffect(() => {
     const handleOffline = () => {
-      toast.error("You're offline. Please check your Internet Connection.", {
+      toast.error(t('income.offline'), {
         toastId: "offline-toast",
         autoClose: false,
         closeOnClick: false,
@@ -105,7 +110,7 @@ export default function IncomeDashboard() {
       window.removeEventListener("offline", handleOffline);
       window.removeEventListener("online", handleOnline);
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -148,6 +153,12 @@ export default function IncomeDashboard() {
     return () => unsubscribe();
   }, [navigate]);
 
+  const handleEdit = (index, field) => {
+    setEditingId(index);
+    setEditingField(field);
+    setEditValue(accounts[index][field].toString());
+  };
+
   const handleValueChange = async (index, newValue) => {
     try {
       const updatedAccounts = [...accounts];
@@ -177,9 +188,31 @@ export default function IncomeDashboard() {
     }
   };
 
+  // Function to validate balance
+  const validateBalance = (value) => {
+    if (!value || value.trim() === "") {
+      return t('income.form.balance.required');
+    }
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return t('income.form.balance.invalid');
+    }
+    if (numValue < 0) {
+      return t('income.form.balance.negative');
+    }
+    return "";
+  };
+
   const handleAddAccount = async () => {
+    // Validate balance first
+    const balanceValidationError = validateBalance(newAccount.balance);
+    if (balanceValidationError) {
+      setBalanceError(balanceValidationError);
+      return;
+    }
+
     if (newAccount.type === "Credit" && !/^[a-zA-Z][a-zA-Z\s\-'.]{1,49}$/.test(newAccount.creditCardName)) {
-      alert("Credit Card Name must start with a letter and be 2-50 characters long (letters, spaces, hyphens, apostrophes, or periods only).");
+      alert(t('income.form.creditCardName.validation'));
       return;
     }
     if (newAccount.type && newAccount.balance) {
@@ -235,6 +268,7 @@ export default function IncomeDashboard() {
           isRecurringIncome: false,
           recurringAmount: "",
         });
+        setBalanceError(""); // Clear error
         setIsAddingAccount(false);
       } catch (error) {
         console.error("Error adding account:", error);
@@ -277,14 +311,16 @@ export default function IncomeDashboard() {
       console.error("Error adding recurring income:", error);
     }
   };
+
   const handleOpenAddAmountDialog = (index) => {
     setSelectedAccountIndex(index);
     setIsAddAmountDialogOpen(true);
   };
+
   const handleConfirmAddAmount = async () => {
     // Validate the amount
     if (!additionalAmount || Number(additionalAmount) <= 0) {
-      setErrorMessage("Please enter a valid amount greater than 0.");
+      setErrorMessage(t('income.dialogs.addAmount.validation'));
       return;
     }
 
@@ -297,7 +333,7 @@ export default function IncomeDashboard() {
         (sum, acc) => sum + acc.balance,
         0
       );
-      setTotalBalance(newTotal); // ✅ update total balance immediately
+      setTotalBalance(newTotal); 
       setIsAddAmountDialogOpen(false); // close dialog
       setAdditionalAmount(""); // reset input
       setErrorMessage(""); // clear error after success
@@ -308,6 +344,8 @@ export default function IncomeDashboard() {
     }
   };
 
+
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -317,8 +355,8 @@ export default function IncomeDashboard() {
   }
 
   return (
-    <div>
-      <div className="flex h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <div className="flex h-screen">
         <Sidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
@@ -332,41 +370,48 @@ export default function IncomeDashboard() {
         )}
 
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="bg-white shadow-sm">
+          <header className="bg-white dark:bg-gray-800 shadow-sm flex-shrink-0">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  Income Dashboard
+
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+                  {t('income.title')}
+
                 </h2>
-                <ProfileButton
-                  user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                  onLogout={() => auth.signOut()}
-                />
+                <div className="flex items-center gap-4">
+                 
+                  <ProfileButton
+                    user={user}
+                    onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                    onLogout={() => auth.signOut()}
+                  />
+                </div>
               </div>
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto">
-            <div className="max-w-4xl mx-auto p-4">
-              <Card className="mb-8 bg-primary text-primary-foreground">
+          <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
+            <div className="max-w-4xl mx-auto p-6 space-y-6">
+              <Card className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <CardHeader>
-                  <CardDescription className="text-primary-foreground/70">
-                    Total Balance
+
+                  <CardDescription className="text-sm font-medium text-muted-foreground">
+                    {t('income.cards.totalBalance')}
                   </CardDescription>
+
                   <CardTitle className="text-4xl font-bold">
-                    ₹{totalBalance.toLocaleString()}
+                    {t('common.currency')}{totalBalance.toLocaleString()}
                   </CardTitle>
                 </CardHeader>
               </Card>
 
               <div className="space-y-4">
-                <h2 className="text-xl font-semibold px-1">Accounts</h2>
+                <h2 className="text-xl font-semibold px-1">{t('income.accounts.title')}</h2>
                 <div className="grid gap-4">
                   {accounts.map((account, index) => (
                     <Card
                       key={index}
-                      className="group hover:shadow-md transition-shadow"
+                      className="group rounded-lg border bg-card text-card-foreground shadow-sm"
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
@@ -383,6 +428,7 @@ export default function IncomeDashboard() {
                                   value={editValue}
                                   className="w-32 text-sm"
                                   autoFocus
+                                  
                                   onChange={(e) => setEditValue(e.target.value)}
                                   onBlur={() =>
                                     handleValueChange(index, editValue)
@@ -395,7 +441,7 @@ export default function IncomeDashboard() {
                                 />
                               ) : (
                                 <p className="text-sm text-muted-foreground">
-                                  Balance: ₹{account.balance.toLocaleString()}
+                                  {t('income.accounts.balance')}: {t('common.currency')}{account.balance.toLocaleString()}
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -409,13 +455,13 @@ export default function IncomeDashboard() {
                               {account.type === "Credit" && (
                                 <>
                                   <p className="text-sm text-muted-foreground">
-                                    Type: {account.cardType}
+                                    {t('income.accounts.type')}: {account.cardType}
                                   </p>
                                   <p className="text-sm text-muted-foreground">
-                                    Expires: {account.expiryDate}
+                                    {t('income.accounts.expires')}: {account.expiryDate}
                                   </p>
                                   <p className="text-sm text-muted-foreground">
-                                    Credit Limit: ₹
+                                    {t('income.accounts.creditLimit')}: {t('common.currency')}
                                     {account.creditAmount.toLocaleString()}
                                   </p>
                                 </>
@@ -442,7 +488,7 @@ export default function IncomeDashboard() {
                                   />
                                 ) : (
                                   <p className="text-sm text-green-600">
-                                    Monthly Income: ₹
+                                    {t('income.accounts.monthlyIncome')}: {t('common.currency')}
                                     {account.recurringAmount.toLocaleString()}
                                     <Button
                                       variant="ghost"
@@ -460,20 +506,20 @@ export default function IncomeDashboard() {
                           </div>
                           <div className="flex gap-1 items-center">
                             <Button
-                              title="Add funds"
+                              title={t('income.accounts.addFunds')}
                               variant="ghost"
                               size="icon"
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-green-600 hover:bg-green-50 rounded-full"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full"
                               onClick={() => handleOpenAddAmountDialog(index)}
                             >
                               <Plus className="w-7 h-7" />
                             </Button>
 
                             <Button
-                              title="Delete account"
+                              title={t('income.accounts.deleteAccount')}
                               variant="ghost"
                               size="icon"
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-destructive hover:bg-red-50 rounded-full"
+                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-destructive hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
                               onClick={() => handleDeleteAccount(index)}
                             >
                               <Trash2 className="w-4 h-4" />
@@ -487,22 +533,28 @@ export default function IncomeDashboard() {
 
                 <Dialog
                   open={isAddingAccount}
-                  onOpenChange={setIsAddingAccount}
+                  onOpenChange={(open) => {
+                    setIsAddingAccount(open);
+                    if (!open) {
+                      // Clear error when dialog closes
+                      setBalanceError("");
+                    }
+                  }}
                 >
                   <DialogTrigger asChild>
                     <Button className="w-full" size="lg">
                       <Plus className="w-5 h-5 mr-2" />
-                      Add New Account
+                      {t('income.buttons.addNewAccount')}
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="overlay-bubble bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-xl">
                     <DialogHeader>
-                      <DialogTitle>Add New Account</DialogTitle>
+                      <DialogTitle>{t('income.dialogs.addAccount.title')}</DialogTitle>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="accountType" className="text-right">
-                          Type
+                          {t('income.form.accountType.label')}
                         </Label>
                         <Select
                           value={newAccount.type}
@@ -514,19 +566,19 @@ export default function IncomeDashboard() {
                             id="accountType"
                             className="col-span-3"
                           >
-                            <SelectValue placeholder="Select account type" />
+                            <SelectValue placeholder={t('income.form.accountType.placeholder')} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="Bank">Bank</SelectItem>
-                            <SelectItem value="Cash">Cash</SelectItem>
-                            <SelectItem value="Credit">Credit</SelectItem>
+                            <SelectItem value="Bank">{t('income.form.accountType.options.bank')}</SelectItem>
+                            <SelectItem value="Cash">{t('income.form.accountType.options.cash')}</SelectItem>
+                            <SelectItem value="Credit">{t('income.form.accountType.options.credit')}</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       {newAccount.type === "Bank" && (
                         <div className="grid grid-cols-4 items-center gap-4">
                           <Label htmlFor="bankName" className="text-right">
-                            Bank Name
+                            {t('income.form.bankName.label')}
                           </Label>
                           <Input
                             id="bankName"
@@ -548,26 +600,26 @@ export default function IncomeDashboard() {
                               htmlFor="creditCardName"
                               className="text-right"
                             >
-                              Credit Card Name
+                              {t('income.form.creditCardName.label')}
                             </Label>
                             <Input
                               id="creditCardName"
                               value={newAccount.creditCardName}
                               onChange={(e) => {
                                 const value = e.target.value;
-                                  if (/^[a-zA-Z\s\-'.]*$/.test(value)) {
-                                setNewAccount({
-                                  ...newAccount,
-                                  creditCardName: value,
-                                });
-                              }
-                            }}
+                                if (/^[a-zA-Z\s\-'.]*$/.test(value)) {
+                                  setNewAccount({
+                                    ...newAccount,
+                                    creditCardName: value,
+                                  });
+                                }
+                              }}
                               className="col-span-3"
                             />
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="cardType" className="text-right">
-                              Card Type
+                              {t('income.form.cardType.label')}
                             </Label>
                             <Select
                               value={newAccount.cardType}
@@ -582,30 +634,22 @@ export default function IncomeDashboard() {
                                 id="cardType"
                                 className="col-span-3"
                               >
-                                <SelectValue placeholder="Select card type" />
+                                <SelectValue placeholder={t('income.form.cardType.placeholder')} />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="Visa">Visa</SelectItem>
-                                <SelectItem value="Mastercard">
-                                  Mastercard
-                                </SelectItem>
-                                <SelectItem value="American Express">
-                                  American Express
-                                </SelectItem>
-                                <SelectItem value="Discover">
-                                  Discover
-                                </SelectItem>
-                                <SelectItem value="RuPay">RuPay</SelectItem>
-                                <SelectItem value="UnionPay">
-                                  UnionPay
-                                </SelectItem>
-                                <SelectItem value="JCB">JCB</SelectItem>
+                                <SelectItem value="Visa">{t('income.form.cardType.options.visa')}</SelectItem>
+                                <SelectItem value="Mastercard">{t('income.form.cardType.options.mastercard')}</SelectItem>
+                                <SelectItem value="American Express">{t('income.form.cardType.options.americanExpress')}</SelectItem>
+                                <SelectItem value="Discover">{t('income.form.cardType.options.discover')}</SelectItem>
+                                <SelectItem value="RuPay">{t('income.form.cardType.options.rupay')}</SelectItem>
+                                <SelectItem value="UnionPay">{t('income.form.cardType.options.unionpay')}</SelectItem>
+                                <SelectItem value="JCB">{t('income.form.cardType.options.jcb')}</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
                           <div className="grid grid-cols-4 items-center gap-4">
                             <Label htmlFor="expiryDate" className="text-right">
-                              Expiry Date
+                              {t('income.form.expiryDate.label')}
                             </Label>
                             <Input
                               id="expiryDate"
@@ -625,7 +669,7 @@ export default function IncomeDashboard() {
                               htmlFor="creditAmount"
                               className="text-right"
                             >
-                              Credit Amount
+                              {t('income.form.creditAmount.label')}
                             </Label>
                             <Input
                               id="creditAmount"
@@ -644,20 +688,33 @@ export default function IncomeDashboard() {
                       )}
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="balance" className="text-right">
-                          Balance
+                          {t('income.form.balance.label')}
                         </Label>
-                        <Input
-                          id="balance"
-                          type="number"
-                          value={newAccount.balance}
-                          onChange={(e) =>
-                            setNewAccount({
-                              ...newAccount,
-                              balance: e.target.value,
-                            })
-                          }
-                          className="col-span-3"
-                        />
+                        <div className="col-span-3">
+                          <Input
+                            id="balance"
+                            type="number"
+                            value={newAccount.balance}
+                            onChange={(e) => {
+                              setNewAccount({
+                                ...newAccount,
+                                balance: e.target.value,
+                              });
+                              // Clear error when user starts typing
+                              if (balanceError) {
+                                setBalanceError("");
+                              }
+                            }}
+                            className={`${
+                              balanceError ? "border-red-500 border-2" : ""
+                            }`}
+                          />
+                          {balanceError && (
+                            <p className="text-red-500 text-xs mt-1">
+                              {balanceError}
+                            </p>
+                          )}
+                        </div>
                       </div>
                       {newAccount.type === "Bank" && (
                         <>
@@ -666,7 +723,7 @@ export default function IncomeDashboard() {
                               htmlFor="isRecurringIncome"
                               className="text-right"
                             >
-                              Recurring Income
+                              {t('income.form.recurringIncome.label')}
                             </Label>
                             <Switch
                               id="isRecurringIncome"
@@ -685,7 +742,7 @@ export default function IncomeDashboard() {
                                 htmlFor="recurringAmount"
                                 className="text-right"
                               >
-                                Monthly Amount
+                                {t('income.form.monthlyAmount.label')}
                               </Label>
                               <Input
                                 id="recurringAmount"
@@ -704,7 +761,7 @@ export default function IncomeDashboard() {
                         </>
                       )}
                     </div>
-                    <Button onClick={handleAddAccount}>Add Account</Button>
+                    <Button onClick={handleAddAccount}>{t('income.dialogs.addAccount.button')}</Button>
                   </DialogContent>
                 </Dialog>
               </div>
@@ -713,18 +770,18 @@ export default function IncomeDashboard() {
                 open={isAddAmountDialogOpen}
                 onOpenChange={setIsAddAmountDialogOpen}
               >
-                <DialogContent>
+                <DialogContent className="overlay-bubble bg-white dark:bg-gray-800 text-gray-900 dark:text-white rounded-2xl shadow-xl">
                   <DialogHeader>
-                    <DialogTitle>Enter the amount</DialogTitle>
+                    <DialogTitle>{t('income.dialogs.addAmount.title')}</DialogTitle>
                   </DialogHeader>
 
                   <p className="text-sm text-muted-foreground dark:text-gray-300">
-                    This amount will be added to your existing income source.
+                    {t('income.dialogs.addAmount.description')}
                   </p>
 
                   <Input
                     type="number"
-                    placeholder="Amount"
+                    placeholder={t('income.dialogs.addAmount.placeholder')}
                     value={additionalAmount}
                     onChange={(e) => {
                       setAdditionalAmount(e.target.value);
@@ -740,7 +797,7 @@ export default function IncomeDashboard() {
                   )}
 
                   <Button className="mt-4" onClick={handleConfirmAddAmount}>
-                    Add
+                    {t('income.dialogs.addAmount.add')}
                   </Button>
                 </DialogContent>
               </Dialog>
