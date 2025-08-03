@@ -5,7 +5,27 @@
     <link rel="icon" type="image/svg+xml" href="/logo.png" width="31.88" height="32" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Fintrack</title>
+
+    <!-- 🌙 Apply stored dark mode preference -->
+    <script>
+      (function () {
+        try {
+          const theme = localStorage.getItem('theme');
+          if (
+            theme === 'dark' ||
+            (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          ) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {
+          console.error('Theme init error:', e);
+        }
+      })();
+    </script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

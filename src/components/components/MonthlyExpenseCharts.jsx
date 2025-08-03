@@ -9,6 +9,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useTranslation } from "react-i18next";
 
 ChartJS.register(
   CategoryScale,
@@ -20,22 +21,30 @@ ChartJS.register(
 );
 
 const MONTH_ORDER = [
-  "Jan",
-  "Feb",
-  "Mar",
-  "Apr",
-  "May",
-  "Jun",
-  "Jul",
-  "Aug",
-  "Sep",
-  "Oct",
-  "Nov",
-  "Dec",
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
 function MonthlyExpenseChart({ expenses }) {
+  const { t } = useTranslation();
   const [monthlyCategoryData, setMonthlyCategoryData] = useState({});
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Detect dark mode
+  useEffect(() => {
+    const checkDark = () =>
+      setIsDarkMode(document.documentElement.classList.contains("dark"));
+
+    checkDark();
+
+    const observer = new MutationObserver(checkDark);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!expenses || expenses.length === 0) {
@@ -77,14 +86,8 @@ function MonthlyExpenseChart({ expenses }) {
   );
 
   const softColors = [
-    "#4F46E5",
-    "#38BDF8",
-    "#F472B6",
-    "#F59E0B",
-    "#34D399",
-    "#A78BFA",
-    "#FB7185",
-    "#22D3EE",
+    "#4F46E5", "#38BDF8", "#F472B6", "#F59E0B",
+    "#34D399", "#A78BFA", "#FB7185", "#22D3EE",
   ];
 
   const chartData = {
@@ -106,7 +109,7 @@ function MonthlyExpenseChart({ expenses }) {
         position: "bottom",
         labels: {
           font: { size: 14 },
-          color: "#374151",
+          color: isDarkMode ? "#D1D5DB" : "#374151",
           usePointStyle: true,
           pointStyle: "rectRounded",
           padding: 20,
@@ -116,16 +119,18 @@ function MonthlyExpenseChart({ expenses }) {
         display: true,
         text: "Monthly Expenses by Category",
         font: { size: 20, weight: "bold" },
-        color: "#111827",
+        color: isDarkMode ? "#F9FAFB" : "#111827",
         padding: { top: 10, bottom: 20 },
       },
       tooltip: {
-        backgroundColor: "#1F2937",
+        backgroundColor: isDarkMode ? "#1F2937" : "#F9FAFB",
         titleFont: { size: 16 },
         bodyFont: { size: 14 },
         cornerRadius: 6,
         padding: 10,
         boxPadding: 4,
+        titleColor: isDarkMode ? "#E5E7EB" : "#111827",
+        bodyColor: isDarkMode ? "#E5E7EB" : "#111827",
       },
     },
     layout: {
@@ -139,18 +144,18 @@ function MonthlyExpenseChart({ expenses }) {
         },
         ticks: {
           font: { size: 13 },
-          color: "#6B7280",
+          color: isDarkMode ? "#D1D5DB" : "#6B7280",
         },
       },
       y: {
         beginAtZero: true,
         stacked: true,
         grid: {
-          color: "#E5E7EB",
+          color: isDarkMode ? "#374151" : "#E5E7EB",
         },
         ticks: {
           font: { size: 13 },
-          color: "#6B7280",
+          color: isDarkMode ? "#D1D5DB" : "#6B7280",
           stepSize: 500,
         },
       },
@@ -159,14 +164,14 @@ function MonthlyExpenseChart({ expenses }) {
 
   if (!expenses || expenses.length === 0) {
     return (
-      <p className="text-center mt-6 text-gray-500">
-        No expense data found yet.
+      <p className="text-center mt-6 text-gray-500 dark:text-gray-300">
+        {t("dashboard.no")}
       </p>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 mt-8 max-w-full">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-8 max-w-full transition-colors">
       <div className="w-full overflow-x-auto">
         <div className="min-w-[500px] h-[400px]">
           <Bar data={chartData} options={chartOptions} />

@@ -1,0 +1,2222 @@
+{
+  "en": {
+    "translation": {
+      "dashboard": {
+        "title": "Dashboard",
+        "loading": "Loading...",
+        "offline": "You're offline. Please check your Internet Connection.",
+        "no": "No expense data found yet.",
+        "cards": {
+          "totalBalance": "Total Balance",
+          "monthlyIncome": "Monthly Income",
+          "monthlyExpenses": "Monthly Expenses",
+          "savingsGoal": "Savings Goal"
+        },
+        "accounts": {
+          "bankAccounts": "Bank Accounts",
+          "creditCards": "Credit Cards",
+          "balance": "Balance",
+          "availableCredit": "Available Credit",
+          "balanceFrom": "Balance from {{accountName}}",
+          "recurringIncomeFrom": "Recurring Income from {{accountName}}"
+        },
+        "charts": {
+          "monthlyExpenseComparison": "Monthly Expense Comparison",
+          "incomeVsExpense": "Income vs Expense",
+          "expenseBreakdown": "Expense Breakdown",
+          "income": "Income",
+          "expense": "Expense"
+        },
+        "transactions": {
+          "recent": "Recent Transactions",
+          "all": "All Transactions",
+          "searchPlaceholder": "Search transactions...",
+          "filter": "Filter",
+          "resetFilters": "Reset filters",
+          "clearFilters": "Clear filters",
+          "transactionType": "Transaction Type",
+          "income": "Income",
+          "expense": "Expense",
+          "allTypes": "All Types",
+          "export": "Export",
+          "exportPDF": "Export as PDF",
+          "exportExcel": "Export as Excel",
+          "table": {
+            "description": "Description",
+            "category": "Category",
+            "amount": "Amount",
+            "date": "Date",
+            "type": "Type"
+          },
+          "summary": {
+            "transactions": "Transactions",
+            "income": "Income",
+            "expenses": "Expenses",
+            "totalIncome": "Total Income",
+            "totalExpenses": "Total Expenses",
+            "netBalance": "Net Balance"
+          },
+          "empty": {
+            "title": "No transactions found",
+            "recent": "No recent transactions in the last 2 days",
+            "filtered": "Try changing your search or filter criteria"
+          },
+          "viewAll": "View All",
+          "recentOnly": "Recent Only"
+        },
+        "categories": {
+          "food": "Food & Dining",
+          "transport": "Transportation",
+          "utilities": "Bills & Utilities",
+          "shopping": "Shopping",
+          "entertainment": "Entertainment",
+          "health": "Healthcare",
+          "other": "Other",
+          "income": "Income"
+        },
+        "months": {
+          "jan": "Jan",
+          "feb": "Feb",
+          "mar": "Mar",
+          "apr": "Apr",
+          "may": "May",
+          "jun": "Jun",
+          "jul": "Jul",
+          "aug": "Aug",
+          "sep": "Sep",
+          "oct": "Oct",
+          "nov": "Nov",
+          "dec": "Dec"
+        },
+        "filters": {
+          "all": "All Transactions",
+          "income": "Income",
+          "expense": "Expenses"
+        }
+      },
+      "insights": {
+        "title": "AI Financial Insights",
+        "subtitle": "Personalized Financial Recommendations",
+        "loading": "Generating insights...",
+        "offline": "You're offline. Please check your Internet Connection.",
+        "error": "Error generating insights",
+        "sections": {
+          "daily": {
+            "title": "Daily Insights",
+            "description": "Today's financial activity and recommendations"
+          },
+          "weekly": {
+            "title": "Weekly Analysis",
+            "description": "Your spending patterns over the past week"
+          },
+          "monthly": {
+            "title": "Monthly Overview",
+            "description": "Monthly financial performance and trends"
+          },
+          "yearly": {
+            "title": "Yearly Projections",
+            "description": "Long-term financial planning and goals"
+          }
+        },
+        "prompts": {
+          "daily": {
+            "analysisText": "Analyze this user's daily financial activity (all amounts in INR):",
+            "focusAreas": [
+              "Today's spending compared to daily average",
+              "Specific recommendations for tomorrow",
+              "Progress towards daily savings goals in INR"
+            ]
+          },
+          "weekly": {
+            "analysisText": "Analyze this user's weekly financial activity (all amounts in INR):",
+            "focusAreas": [
+              "Highest expense category analysis",
+              "Week-over-week comparison",
+              "Areas for improvement"
+            ]
+          },
+          "monthly": {
+            "analysisText": "Analyze this user's monthly financial activity (all amounts in INR):",
+            "focusAreas": [
+              "Savings progress",
+              "Recurring expenses analysis",
+              "Recommendations for improvement"
+            ]
+          },
+          "yearly": {
+            "analysisText": "Analyze this user's yearly financial trajectory (all amounts in INR):",
+            "focusAreas": [
+              "Progress towards annual goals",
+              "Investment recommendations",
+              "Long-term financial planning"
+            ]
+          }
+        },
+        "dataLabels": {
+          "totalBalance": "Total Balance",
+          "dailyTransactions": "Daily Transactions",
+          "dailyIncome": "Daily Income",
+          "weeklyExpenses": "Weekly Expenses",
+          "weeklyIncome": "Weekly Income",
+          "savingsGoalProgress": "Savings Goal Progress",
+          "monthlyIncome": "Monthly Income",
+          "monthlyExpenses": "Monthly Expenses",
+          "monthlySavings": "Monthly Savings",
+          "annualIncome": "Annual Income",
+          "savingsGoal": "Savings Goal",
+          "investmentPortfolio": "Investment Portfolio",
+          "none": "None"
+        },
+        "instructions": {
+          "format": "Format as bullet points without any introductory text.",
+          "focusOn": "Provide 3 specific, actionable {{timeframe}} insights focusing on:",
+          "timeframes": {
+            "daily": "daily",
+            "weekly": "weekly",
+            "monthly": "monthly",
+            "yearly": "yearly"
+          }
+        }
+      },
+      "income": {
+        "title": "Income Dashboard",
+        "loading": "Loading...",
+        "offline": "You're offline. Please check your Internet Connection.",
+        "cards": {
+          "totalBalance": "Total Balance"
+        },
+        "accounts": {
+          "title": "Accounts",
+          "balance": "Balance",
+          "monthlyIncome": "Monthly Income",
+          "type": "Type",
+          "expires": "Expires",
+          "creditLimit": "Credit Limit",
+          "addFunds": "Add funds",
+          "deleteAccount": "Delete account"
+        },
+        "form": {
+          "addNewAccount": "Add New Account",
+          "accountType": {
+            "label": "Type",
+            "placeholder": "Select account type",
+            "options": {
+              "bank": "Bank",
+              "cash": "Cash",
+              "credit": "Credit"
+            }
+          },
+          "bankName": {
+            "label": "Bank Name"
+          },
+          "creditCardName": {
+            "label": "Credit Card Name",
+            "validation": "Credit Card Name must start with a letter and be 2-50 characters long (letters, spaces, hyphens, apostrophes, or periods only)."
+          },
+          "cardType": {
+            "label": "Card Type",
+            "placeholder": "Select card type",
+            "options": {
+              "visa": "Visa",
+              "mastercard": "Mastercard",
+              "americanExpress": "American Express",
+              "discover": "Discover",
+              "rupay": "RuPay",
+              "unionpay": "UnionPay",
+              "jcb": "JCB"
+            }
+          },
+          "expiryDate": {
+            "label": "Expiry Date"
+          },
+          "creditAmount": {
+            "label": "Credit Amount"
+          },
+          "balance": {
+            "label": "Balance",
+            "required": "Balance is required",
+            "invalid": "Please enter a valid number",
+            "negative": "Balance cannot be negative"
+          },
+          "recurringIncome": {
+            "label": "Recurring Income"
+          },
+          "monthlyAmount": {
+            "label": "Monthly Amount"
+          }
+        },
+        "dialogs": {
+          "addAmount": {
+            "title": "Enter the amount",
+            "description": "This amount will be added to your existing income source.",
+            "placeholder": "Amount",
+            "validation": "Please enter a valid amount greater than 0.",
+            "add": "Add"
+          },
+          "addAccount": {
+            "title": "Add New Account",
+            "button": "Add Account"
+          }
+        },
+        "buttons": {
+          "addNewAccount": "Add New Account"
+        }
+      },
+      "expense": {
+        "title": "Add Expense",
+        "success": "Expense added successfully!",
+        "addNewExpense": "Add New Expense",
+        "subtitle": "Fill in the details or upload a receipt",
+        "scanReceipt": "Upload or Scan Receipt",
+        "dragAndDrop": "Drag and drop or click to upload an image",
+        "chooseFile": "Choose File",
+        "takePhoto": "Take Photo",
+        "processingWithAI": "Processing with AI...",
+        "dataExtractedSuccessfully": "Data extracted successfully!",
+        "form": {
+          "amount": {
+            "label": "Amount"
+          },
+          "date": {
+            "label": "Date",
+            "placeholder": "Pick a date"
+          },
+          "category": {
+            "label": "Category",
+            "placeholder": "Select a category",
+            "options": {
+              "food": "Food & Dining",
+              "transport": "Transportation",
+              "shopping": "Shopping",
+              "entertainment": "Entertainment",
+              "health": "Healthcare",
+              "other": "Other"
+            }
+          }
+        },
+        "description": "Description",
+        "addDetails": "Add any relevant details...",
+        "paymentMethod": "Payment Method",
+        "cash": "Cash",
+        "bankPaymentType": "Bank Payment Type",
+        "upi": "UPI",
+        "debitCard": "Debit Card",
+        "check": "Cheque",
+        "cancel": "Cancel",
+        "addExpense": "Add Expense"
+      },
+      "chatbot": {
+        "header": "AI Assistant",
+        "welcomeMessage": "Hello! I'm your AI financial assistant. How can I help you today?",
+        "status": {
+          "online": "Online",
+          "thinking": "Thinking..."
+        },
+        "callButton": "Call",
+        "alert": {
+          "loginToCall": "Please log in to make a call",
+          "phoneNotFound": "Phone number not found in your profile"
+        },
+        "callInitiatedMessage": "📞 Voice call initiated for financial consultation",
+        "error": {
+          "processingRequest": "I apologize, but I encountered an error processing your request. Please try again."
+        },
+        "inputPlaceholder": "Type your message..."
+      },
+      "sidebar": {
+        "dashboard": "Dashboard",
+        "income": "Income",
+        "expenses": "Expenses",
+        "chatbot": "Chatbot",
+        "insights": "AI Insights",
+        "settings": "Settings",
+        "logout": "Logout"
+      },
+      "settings": {
+        "title": "Settings",
+        "loading": "Loading...",
+        "offline": "You're offline. Please check your Internet Connection.",
+        "phoneNumber": {
+          "title": "Phone Number",
+          "description": "Manage your contact number",
+          "placeholder": "Enter your phone number",
+          "save": "Save",
+          "saving": "Saving...",
+          "cancel": "Cancel",
+          "edit": "Edit",
+          "noPhoneSet": "No phone number set"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Manage your notification preferences",
+          "enableNotifications": "Enable Notifications"
+        },
+        "language": {
+          "title": "Preferred Language",
+          "description": "Choose your language for the app"
+        }
+      },
+      "common": {
+        "currency": "₹",
+        "profile": "Profile",
+        "logout": "Logout",
+        "menu": "Menu",
+        "close": "Close",
+        "required": "required",
+        "optional": "optional",
+        "loading": "Loading...",
+        "noData": "No data available"
+      }
+    }
+  },
+  "es": {
+    "translation": {
+      "dashboard": {
+        "title": "Panel",
+        "loading": "Cargando...",
+        "offline": "Estás sin conexión. Por favor, revisa tu conexión a Internet.",
+        "no": "Aún no hay datos de gastos.",
+        "cards": {
+          "totalBalance": "Saldo total",
+          "monthlyIncome": "Ingresos mensuales",
+          "monthlyExpenses": "Gastos mensuales",
+          "savingsGoal": "Meta de ahorro"
+        },
+        "accounts": {
+          "bankAccounts": "Cuentas bancarias",
+          "creditCards": "Tarjetas de crédito",
+          "balance": "Saldo",
+          "availableCredit": "Crédito disponible",
+          "balanceFrom": "Saldo de {{accountName}}",
+          "recurringIncomeFrom": "Ingresos recurrentes de {{accountName}}"
+        },
+        "charts": {
+          "monthlyExpenseComparison": "Comparación de gastos mensuales",
+          "incomeVsExpense": "Ingresos vs Gastos",
+          "expenseBreakdown": "Desglose de gastos",
+          "income": "Ingresos",
+          "expense": "Gasto"
+        },
+        "transactions": {
+          "recent": "Transacciones recientes",
+          "all": "Todas las transacciones",
+          "searchPlaceholder": "Buscar transacciones...",
+          "filter": "Filtro",
+          "resetFilters": "Restablecer filtros",
+          "clearFilters": "Limpiar filtros",
+          "transactionType": "Tipo de transacción",
+          "income": "Ingreso",
+          "expense": "Gasto",
+          "allTypes": "Todos los tipos",
+          "export": "Exportar",
+          "exportPDF": "Exportar como PDF",
+          "exportExcel": "Exportar como Excel",
+          "table": {
+            "description": "Descripción",
+            "category": "Categoría",
+            "amount": "Monto",
+            "date": "Fecha",
+            "type": "Tipo"
+          },
+          "summary": {
+            "transactions": "Transacciones",
+            "income": "Ingresos",
+            "expenses": "Gastos",
+            "totalIncome": "Total ingresos",
+            "totalExpenses": "Total gastos",
+            "netBalance": "Balance neto"
+          },
+          "empty": {
+            "title": "No se encontraron transacciones",
+            "recent": "No hay transacciones recientes en los últimos 2 días",
+            "filtered": "Prueba cambiando los criterios de búsqueda o filtros"
+          },
+          "viewAll": "Ver todo",
+          "recentOnly": "Solo recientes"
+        },
+        "categories": {
+          "food": "Comida y bebida",
+          "transport": "Transporte",
+          "utilities": "Facturas y servicios",
+          "shopping": "Compras",
+          "entertainment": "Entretenimiento",
+          "health": "Salud",
+          "other": "Otro",
+          "income": "Ingresos"
+        },
+        "months": {
+          "jan": "Ene",
+          "feb": "Feb",
+          "mar": "Mar",
+          "apr": "Abr",
+          "may": "May",
+          "jun": "Jun",
+          "jul": "Jul",
+          "aug": "Ago",
+          "sep": "Sep",
+          "oct": "Oct",
+          "nov": "Nov",
+          "dec": "Dic"
+        },
+        "filters": {
+          "all": "Todas las transacciones",
+          "income": "Ingresos",
+          "expense": "Gastos"
+        }
+      },
+      "insights": {
+        "title": "Perspectivas Financieras AI",
+        "subtitle": "Recomendaciones financieras personalizadas",
+        "loading": "Generando ideas...",
+        "offline": "Estás sin conexión. Por favor, revisa tu conexión a Internet.",
+        "error": "Error al generar ideas",
+        "sections": {
+          "daily": {
+            "title": "Ideas diarias",
+            "description": "Actividad financiera y recomendaciones de hoy"
+          },
+          "weekly": {
+            "title": "Análisis semanal",
+            "description": "Tus patrones de gasto durante la última semana"
+          },
+          "monthly": {
+            "title": "Resumen mensual",
+            "description": "Rendimiento financiero y tendencias mensuales"
+          },
+          "yearly": {
+            "title": "Proyecciones anuales",
+            "description": "Planificación financiera a largo plazo y metas"
+          }
+        },
+        "prompts": {
+          "daily": {
+            "analysisText": "Analiza la actividad financiera diaria de este usuario (todos los montos en INR):",
+            "focusAreas": [
+              "Gastos de hoy comparados con el promedio diario",
+              "Recomendaciones específicas para mañana",
+              "Progreso hacia la meta de ahorro diaria en INR"
+            ]
+          },
+          "weekly": {
+            "analysisText": "Analiza la actividad financiera semanal de este usuario (todos los montos en INR):",
+            "focusAreas": [
+              "Análisis de la categoría de gasto más alta",
+              "Comparación semana a semana",
+              "Áreas de mejora"
+            ]
+          },
+          "monthly": {
+            "analysisText": "Analiza la actividad financiera mensual de este usuario (todos los montos en INR):",
+            "focusAreas": [
+              "Progreso de ahorro",
+              "Análisis de gastos recurrentes",
+              "Recomendaciones para mejorar"
+            ]
+          },
+          "yearly": {
+            "analysisText": "Analiza la trayectoria financiera anual de este usuario (todos los montos en INR):",
+            "focusAreas": [
+              "Progreso hacia metas anuales",
+              "Recomendaciones de inversión",
+              "Planificación financiera a largo plazo"
+            ]
+          }
+        },
+        "dataLabels": {
+          "totalBalance": "Saldo total",
+          "dailyTransactions": "Transacciones diarias",
+          "dailyIncome": "Ingresos diarios",
+          "weeklyExpenses": "Gastos semanales",
+          "weeklyIncome": "Ingresos semanales",
+          "savingsGoalProgress": "Progreso de la meta de ahorro",
+          "monthlyIncome": "Ingresos mensuales",
+          "monthlyExpenses": "Gastos mensuales",
+          "monthlySavings": "Ahorro mensual",
+          "annualIncome": "Ingresos anuales",
+          "savingsGoal": "Meta de ahorro",
+          "investmentPortfolio": "Portafolio de inversión",
+          "none": "Ninguno"
+        },
+        "instructions": {
+          "format": "Formatea como viñetas sin texto introductorio.",
+          "focusOn": "Proporciona 3 ideas específicas y accionables {{timeframe}} enfocadas en:",
+          "timeframes": {
+            "daily": "diario",
+            "weekly": "semanal",
+            "monthly": "mensual",
+            "yearly": "anual"
+          }
+        }
+      },
+      "income": {
+        "title": "Panel de ingresos",
+        "loading": "Cargando...",
+        "offline": "Estás sin conexión. Por favor, revisa tu conexión a Internet.",
+        "cards": {
+          "totalBalance": "Saldo total"
+        },
+        "accounts": {
+          "title": "Cuentas",
+          "balance": "Saldo",
+          "monthlyIncome": "Ingresos mensuales",
+          "type": "Tipo",
+          "expires": "Expira",
+          "creditLimit": "Límite de crédito",
+          "addFunds": "Agregar fondos",
+          "deleteAccount": "Eliminar cuenta"
+        },
+        "form": {
+          "addNewAccount": "Agregar nueva cuenta",
+          "accountType": {
+            "label": "Tipo",
+            "placeholder": "Seleccione tipo de cuenta",
+            "options": {
+              "bank": "Banco",
+              "cash": "Efectivo",
+              "credit": "Crédito"
+            }
+          },
+          "bankName": {
+            "label": "Nombre del banco"
+          },
+          "creditCardName": {
+            "label": "Nombre de la tarjeta",
+            "validation": "El nombre de la tarjeta debe comenzar con letra y tener entre 2‑50 caracteres (solo letras, espacios, guiones, apóstrofes o puntos)."
+          },
+          "cardType": {
+            "label": "Tipo de tarjeta",
+            "placeholder": "Seleccione tipo de tarjeta",
+            "options": {
+              "visa": "Visa",
+              "mastercard": "Mastercard",
+              "americanExpress": "American Express",
+              "discover": "Discover",
+              "rupay": "RuPay",
+              "unionpay": "UnionPay",
+              "jcb": "JCB"
+            }
+          },
+          "expiryDate": {
+            "label": "Fecha de expiración"
+          },
+          "creditAmount": {
+            "label": "Monto de crédito"
+          },
+          "balance": {
+            "label": "Saldo",
+            "required": "el saldo es obligatorio",
+            "invalid": "Por favor ingrese un número válido",
+            "negative": "El saldo no puede ser negativo"
+          },
+          "recurringIncome": {
+            "label": "Ingresos recurrentes"
+          },
+          "monthlyAmount": {
+            "label": "Monto mensual"
+          }
+        },
+        "dialogs": {
+          "addAmount": {
+            "title": "Ingrese el monto",
+            "description": "Este monto se sumará a tu fuente de ingresos existente.",
+            "placeholder": "Monto",
+            "validation": "Por favor ingrese un monto válido mayor que 0.",
+            "add": "Agregar"
+          },
+          "addAccount": {
+            "title": "Agregar nueva cuenta",
+            "button": "Agregar cuenta"
+          }
+        },
+        "buttons": {
+          "addNewAccount": "Agregar nueva cuenta"
+        }
+      },
+      "expense": {
+        "title": "Agregar gasto",
+        "success": "¡Gasto añadido con éxito!",
+        "addNewExpense": "Agregar nuevo gasto",
+        "subtitle": "Rellene los detalles o suba un recibo",
+        "scanReceipt": "Subir o escanear recibo",
+        "dragAndDrop": "Arrastra o haz clic para subir una imagen",
+        "chooseFile": "Elegir archivo",
+        "takePhoto": "Tomar foto",
+        "processingWithAI": "Procesando con IA...",
+        "dataExtractedSuccessfully": "¡Datos extraídos correctamente!",
+        "form": {
+          "amount": {
+            "label": "Monto"
+          },
+          "date": {
+            "label": "Fecha",
+            "placeholder": "Seleccione una fecha"
+          },
+          "category": {
+            "label": "Categoría",
+            "placeholder": "Seleccione una categoría",
+            "options": {
+              "food": "Comida y bebida",
+              "transport": "Transporte",
+              "shopping": "Compras",
+              "entertainment": "Entretenimiento",
+              "health": "Salud",
+              "other": "Otro"
+            }
+          }
+        },
+        "description": "Descripción",
+        "addDetails": "Añadir detalles relevantes...",
+        "paymentMethod": "Método de pago",
+        "cash": "Efectivo",
+        "bankPaymentType": "Tipo de pago bancario",
+        "upi": "UPI",
+        "debitCard": "Tarjeta de débito",
+        "check": "Cheque",
+        "cancel": "Cancelar",
+        "addExpense": "Añadir gasto"
+      },
+      "chatbot": {
+        "header": "Asistente AI",
+        "welcomeMessage": "¡Hola! Soy tu asistente financiero AI. ¿En qué puedo ayudarte hoy?",
+        "status": {
+          "online": "En línea",
+          "thinking": "Pensando..."
+        },
+        "callButton": "Llamar",
+        "alert": {
+          "loginToCall": "Por favor inicia sesión para hacer una llamada",
+          "phoneNotFound": "Número de teléfono no encontrado en tu perfil"
+        },
+        "callInitiatedMessage": "📞 Llamada iniciada para consulta financiera",
+        "error": {
+          "processingRequest": "Lo siento, pero hubo un error procesando tu solicitud. Por favor, inténtalo de nuevo."
+        },
+        "inputPlaceholder": "Escribe tu mensaje..."
+      },
+      "sidebar": {
+        "dashboard": "Panel",
+        "income": "Ingresos",
+        "expenses": "Gastos",
+        "chatbot": "Asistente",
+        "insights": "Perspectivas AI",
+        "settings": "Configuración",
+        "logout": "Cerrar sesión"
+      },
+      "settings": {
+        "title": "Configuración",
+        "loading": "Cargando...",
+        "offline": "Estás sin conexión. Por favor, revisa tu conexión a Internet.",
+        "phoneNumber": {
+          "title": "Número de teléfono",
+          "description": "Gestiona tu número de contacto",
+          "placeholder": "Ingresa tu número de teléfono",
+          "save": "Guardar",
+          "saving": "Guardando...",
+          "cancel": "Cancelar",
+          "edit": "Editar",
+          "noPhoneSet": "No hay número de teléfono establecido"
+        },
+        "notifications": {
+          "title": "Notificaciones",
+          "description": "Gestiona tus preferencias de notificación",
+          "enableNotifications": "Activar notificaciones"
+        },
+        "language": {
+          "title": "Idioma preferido",
+          "description": "Elige tu idioma para la aplicación"
+        }
+      },
+      "common": {
+        "currency": "₹",
+        "profile": "Perfil",
+        "logout": "Cerrar sesión",
+        "menu": "Menú",
+        "close": "Cerrar",
+        "required": "obligatorio",
+        "optional": "opcional",
+        "loading": "Cargando...",
+        "noData": "No hay datos disponibles"
+      }
+    }
+  },
+  "fr": {
+    "translation": {
+      "dashboard": {
+        "title": "Tableau de bord",
+        "loading": "Chargement...",
+        "offline": "Vous êtes hors ligne. Veuillez vérifier votre connexion Internet.",
+        "no": "Aucune donnée de dépenses trouvée pour le moment.",
+        "cards": {
+          "totalBalance": "Solde total",
+          "monthlyIncome": "Revenus mensuels",
+          "monthlyExpenses": "Dépenses mensuelles",
+          "savingsGoal": "Objectif d’épargne"
+        },
+        "accounts": {
+          "bankAccounts": "Comptes bancaires",
+          "creditCards": "Cartes de crédit",
+          "balance": "Solde",
+          "availableCredit": "Crédit disponible",
+          "balanceFrom": "Solde de {{accountName}}",
+          "recurringIncomeFrom": "Revenus récurrents de {{accountName}}"
+        },
+        "charts": {
+          "monthlyExpenseComparison": "Comparaison des dépenses mensuelles",
+          "incomeVsExpense": "Revenus vs Dépenses",
+          "expenseBreakdown": "Répartition des dépenses",
+          "income": "Revenu",
+          "expense": "Dépense"
+        },
+        "transactions": {
+          "recent": "Transactions récentes",
+          "all": "Toutes les transactions",
+          "searchPlaceholder": "Rechercher des transactions...",
+          "filter": "Filtrer",
+          "resetFilters": "Réinitialiser les filtres",
+          "clearFilters": "Effacer les filtres",
+          "transactionType": "Type de transaction",
+          "income": "Revenu",
+          "expense": "Dépense",
+          "allTypes": "Tous types",
+          "export": "Exporter",
+          "exportPDF": "Exporter en PDF",
+          "exportExcel": "Exporter en Excel",
+          "table": {
+            "description": "Description",
+            "category": "Catégorie",
+            "amount": "Montant",
+            "date": "Date",
+            "type": "Type"
+          },
+          "summary": {
+            "transactions": "Transactions",
+            "income": "Revenus",
+            "expenses": "Dépenses",
+            "totalIncome": "Revenus totaux",
+            "totalExpenses": "Dépenses totales",
+            "netBalance": "Solde net"
+          },
+          "empty": {
+            "title": "Aucune transaction trouvée",
+            "recent": "Aucune transaction récente ces 2 derniers jours",
+            "filtered": "Essayez de modifier vos critères de recherche ou de filtre"
+          },
+          "viewAll": "Voir tout",
+          "recentOnly": "Récents uniquement"
+        },
+        "categories": {
+          "food": "Alimentation & restauration",
+          "transport": "Transport",
+          "utilities": "Factures & services",
+          "shopping": "Achats",
+          "entertainment": "Divertissement",
+          "health": "Santé",
+          "other": "Autre",
+          "income": "Revenu"
+        },
+        "months": {
+          "jan": "Jan",
+          "feb": "Fév",
+          "mar": "Mar",
+          "apr": "Avr",
+          "may": "Mai",
+          "jun": "Juin",
+          "jul": "Juil",
+          "aug": "Aoû",
+          "sep": "Sep",
+          "oct": "Oct",
+          "nov": "Nov",
+          "dec": "Déc"
+        },
+        "filters": {
+          "all": "Toutes les transactions",
+          "income": "Revenus",
+          "expense": "Dépenses"
+        }
+      },
+      "insights": {
+        "title": "Insights financiers IA",
+        "subtitle": "Recommandations financières personnalisées",
+        "loading": "Génération des insights...",
+        "offline": "Vous êtes hors ligne. Veuillez vérifier votre connexion Internet.",
+        "error": "Erreur lors de la génération des insights",
+        "sections": {
+          "daily": {
+            "title": "Insights quotidiens",
+            "description": "Activité financière et recommandations du jour"
+          },
+          "weekly": {
+            "title": "Analyse hebdomadaire",
+            "description": "Vos habitudes de dépenses durant la semaine passée"
+          },
+          "monthly": {
+            "title": "Aperçu mensuel",
+            "description": "Performance financière et tendances du mois"
+          },
+          "yearly": {
+            "title": "Projections annuelles",
+            "description": "Planification financière et objectifs à long terme"
+          }
+        },
+        "prompts": {
+          "daily": {
+            "analysisText": "Analysez l'activité financière quotidienne de cet utilisateur (tous les montants en INR) :",
+            "focusAreas": [
+              "Dépenses d'aujourd'hui comparées à la moyenne quotidienne",
+              "Recommandations spécifiques pour demain",
+              "Progrès vers l'objectif d’épargne journalier en INR"
+            ]
+          },
+          "weekly": {
+            "analysisText": "Analysez l'activité financière hebdomadaire de cet utilisateur (tous les montants en INR) :",
+            "focusAreas": [
+              "Analyse de la catégorie de dépense la plus élevée",
+              "Comparaison semaine après semaine",
+              "Domaines à améliorer"
+            ]
+          },
+          "monthly": {
+            "analysisText": "Analysez l'activité financière mensuelle de cet utilisateur (tous les montants en INR) :",
+            "focusAreas": [
+              "Avancement des économies",
+              "Analyse des dépenses récurrentes",
+              "Recommandations d’amélioration"
+            ]
+          },
+          "yearly": {
+            "analysisText": "Analysez la trajectoire financière annuelle de cet utilisateur (tous les montants en INR) :",
+            "focusAreas": [
+              "Avancement vers les objectifs annuels",
+              "Recommandations d’investissement",
+              "Planification financière à long terme"
+            ]
+          }
+        },
+        "dataLabels": {
+          "totalBalance": "Solde total",
+          "dailyTransactions": "Transactions quotidiennes",
+          "dailyIncome": "Revenus quotidiens",
+          "weeklyExpenses": "Dépenses hebdomadaires",
+          "weeklyIncome": "Revenus hebdomadaires",
+          "savingsGoalProgress": "Progrès de l’objectif d’épargne",
+          "monthlyIncome": "Revenus mensuels",
+          "monthlyExpenses": "Dépenses mensuelles",
+          "monthlySavings": "Économies mensuelles",
+          "annualIncome": "Revenus annuels",
+          "savingsGoal": "Objectif d’épargne",
+          "investmentPortfolio": "Portefeuille d’investissement",
+          "none": "Aucun"
+        },
+        "instructions": {
+          "format": "Formatez en points sans texte introductif.",
+          "focusOn": "Fournissez 3 insights spécifiques et exploitables {{timeframe}} axés sur :",
+          "timeframes": {
+            "daily": "quotidiennement",
+            "weekly": "hebdomadaire",
+            "monthly": "mensuel",
+            "yearly": "annuel"
+          }
+        }
+      },
+      "income": {
+        "title": "Tableau des revenus",
+        "loading": "Chargement...",
+        "offline": "Vous êtes hors ligne. Veuillez vérifier votre connexion Internet.",
+        "cards": {
+          "totalBalance": "Solde total"
+        },
+        "accounts": {
+          "title": "Comptes",
+          "balance": "Solde",
+          "monthlyIncome": "Revenus mensuels",
+          "type": "Type",
+          "expires": "Expire",
+          "creditLimit": "Limite de crédit",
+          "addFunds": "Ajouter des fonds",
+          "deleteAccount": "Supprimer le compte"
+        },
+        "form": {
+          "addNewAccount": "Ajouter un nouveau compte",
+          "accountType": {
+            "label": "Type",
+            "placeholder": "Sélectionner le type de compte",
+            "options": {
+              "bank": "Banque",
+              "cash": "Espèces",
+              "credit": "Crédit"
+            }
+          },
+          "bankName": {
+            "label": "Nom de la banque"
+          },
+          "creditCardName": {
+            "label": "Nom de la carte de crédit",
+            "validation": "Le nom de la carte doit commencer par une lettre et comporter 2 à 50 caractères (lettres, espaces, tirets, apostrophes ou points seulement)."
+          },
+          "cardType": {
+            "label": "Type de carte",
+            "placeholder": "Sélectionner le type de carte",
+            "options": {
+              "visa": "Visa",
+              "mastercard": "Mastercard",
+              "americanExpress": "American Express",
+              "discover": "Discover",
+              "rupay": "RuPay",
+              "unionpay": "UnionPay",
+              "jcb": "JCB"
+            }
+          },
+          "expiryDate": {
+            "label": "Date d’expiration"
+          },
+          "creditAmount": {
+            "label": "Montant du crédit"
+          },
+          "balance": {
+            "label": "Solde",
+            "required": "requis",
+            "invalid": "Veuillez entrer un nombre valide",
+            "negative": "Le solde ne peut pas être négatif"
+          },
+          "recurringIncome": {
+            "label": "Revenus récurrents"
+          },
+          "monthlyAmount": {
+            "label": "Montant mensuel"
+          }
+        },
+        "dialogs": {
+          "addAmount": {
+            "title": "Entrez le montant",
+            "description": "Ce montant sera ajouté à votre source de revenu existante.",
+            "placeholder": "Montant",
+            "validation": "Veuillez entrer un montant valide supérieur à 0.",
+            "add": "Ajouter"
+          },
+          "addAccount": {
+            "title": "Ajouter un nouveau compte",
+            "button": "Ajouter le compte"
+          }
+        },
+        "buttons": {
+          "addNewAccount": "Ajouter un nouveau compte"
+        }
+      },
+      "expense": {
+        "title": "Ajouter une dépense",
+        "success": "Dépense ajoutée avec succès !",
+        "addNewExpense": "Ajouter une nouvelle dépense",
+        "subtitle": "Remplissez les détails ou téléchargez un reçu",
+        "scanReceipt": "Télécharger ou scanner un reçu",
+        "dragAndDrop": "Glissez-déposez ou cliquez pour télécharger une image",
+        "chooseFile": "Choisir un fichier",
+        "takePhoto": "Prendre une photo",
+        "processingWithAI": "Traitement par IA...",
+        "dataExtractedSuccessfully": "Données extraites avec succès !",
+        "form": {
+          "amount": {
+            "label": "Montant"
+          },
+          "date": {
+            "label": "Date",
+            "placeholder": "Choisissez une date"
+          },
+          "category": {
+            "label": "Catégorie",
+            "placeholder": "Sélectionnez une catégorie",
+            "options": {
+              "food": "Alimentation et restauration",
+              "transport": "Transport",
+              "shopping": "Achats",
+              "entertainment": "Divertissement",
+              "health": "Santé",
+              "other": "Autre"
+            }
+          }
+        },
+        "description": "Description",
+        "addDetails": "Ajouter des détails pertinents...",
+        "paymentMethod": "Mode de paiement",
+        "cash": "Espèces",
+        "bankPaymentType": "Type de paiement bancaire",
+        "upi": "UPI",
+        "debitCard": "Carte de débit",
+        "check": "Chèque",
+        "cancel": "Annuler",
+        "addExpense": "Ajouter la dépense"
+      },
+      "chatbot": {
+        "header": "Assistant IA",
+        "welcomeMessage": "Bonjour ! Je suis votre assistant financier IA. Comment puis-je vous aider aujourd’hui ?",
+        "status": {
+          "online": "En ligne",
+          "thinking": "Réflexion..."
+        },
+        "callButton": "Appeler",
+        "alert": {
+          "loginToCall": "Veuillez vous connecter pour passer un appel",
+          "phoneNotFound": "Numéro de téléphone non trouvé dans votre profil"
+        },
+        "callInitiatedMessage": "📞 Appel initié pour une consultation financière",
+        "error": {
+          "processingRequest": "Désolé, une erreur est survenue lors du traitement de votre demande. Veuillez réessayer."
+        },
+        "inputPlaceholder": "Tapez votre message..."
+      },
+      "sidebar": {
+        "dashboard": "Tableau de bord",
+        "income": "Revenus",
+        "expenses": "Dépenses",
+        "chatbot": "Assistant",
+        "insights": "Insights IA",
+        "settings": "Paramètres",
+        "logout": "Déconnexion"
+      },
+      "settings": {
+        "title": "Paramètres",
+        "loading": "Chargement...",
+        "offline": "Vous êtes hors ligne. Veuillez vérifier votre connexion Internet.",
+        "phoneNumber": {
+          "title": "Numéro de téléphone",
+          "description": "Gérez votre numéro de contact",
+          "placeholder": "Entrez votre numéro de téléphone",
+          "save": "Enregistrer",
+          "saving": "Enregistrement…",
+          "cancel": "Annuler",
+          "edit": "Éditer",
+          "noPhoneSet": "Aucun numéro de téléphone défini"
+        },
+        "notifications": {
+          "title": "Notifications",
+          "description": "Gérez vos préférences de notification",
+          "enableNotifications": "Activer les notifications"
+        },
+        "language": {
+          "title": "Langue préférée",
+          "description": "Choisissez votre langue pour l’application"
+        }
+      },
+      "common": {
+        "currency": "₹",
+        "profile": "Profil",
+        "logout": "Déconnexion",
+        "menu": "Menu",
+        "close": "Fermer",
+        "required": "requis",
+        "optional": "facultatif",
+        "loading": "Chargement...",
+        "noData": "Aucune donnée disponible"
+      }
+    }
+  },
+  "de": {
+    "translation": {
+      "dashboard": {
+        "title": "Dashboard",
+        "loading": "Wird geladen...",
+        "offline": "Sie sind offline. Bitte prüfen Sie Ihre Internetverbindung.",
+        "no": "Noch keine Ausgabendaten vorhanden.",
+        "cards": {
+          "totalBalance": "Gesamtguthaben",
+          "monthlyIncome": "Monatliches Einkommen",
+          "monthlyExpenses": "Monatliche Ausgaben",
+          "savingsGoal": "Sparziel"
+        },
+        "accounts": {
+          "bankAccounts": "Bankkonten",
+          "creditCards": "Kreditkarten",
+          "balance": "Kontostand",
+          "availableCredit": "Verfügbares Kreditlimit",
+          "balanceFrom": "Kontostand von {{accountName}}",
+          "recurringIncomeFrom": "Wiederkehrendes Einkommen von {{accountName}}"
+        },
+        "charts": {
+          "monthlyExpenseComparison": "Vergleich monatlicher Ausgaben",
+          "incomeVsExpense": "Einnahmen vs Ausgaben",
+          "expenseBreakdown": "Ausgabenaufstellung",
+          "income": "Einnahmen",
+          "expense": "Ausgaben"
+        },
+        "transactions": {
+          "recent": "Neueste Transaktionen",
+          "all": "Alle Transaktionen",
+          "searchPlaceholder": "Transaktionen durchsuchen...",
+          "filter": "Filter",
+          "resetFilters": "Filter zurücksetzen",
+          "clearFilters": "Filter löschen",
+          "transactionType": "Transaktionstyp",
+          "income": "Einnahme",
+          "expense": "Ausgabe",
+          "allTypes": "Alle Typen",
+          "export": "Exportieren",
+          "exportPDF": "Als PDF exportieren",
+          "exportExcel": "Als Excel exportieren",
+          "table": {
+            "description": "Beschreibung",
+            "category": "Kategorie",
+            "amount": "Betrag",
+            "date": "Datum",
+            "type": "Typ"
+          },
+          "summary": {
+            "transactions": "Transaktionen",
+            "income": "Einnahmen",
+            "expenses": "Ausgaben",
+            "totalIncome": "Gesamteinnahmen",
+            "totalExpenses": "Gesamtausgaben",
+            "netBalance": "Nettoguthaben"
+          },
+          "empty": {
+            "title": "Keine Transaktionen gefunden",
+            "recent": "In den letzten 2 Tagen keine Transaktionen",
+            "filtered": "Versuchen Sie andere Such- oder Filterkriterien"
+          },
+          "viewAll": "Alle anzeigen",
+          "recentOnly": "Nur Neueste"
+        },
+        "categories": {
+          "food": "Essen & Trinken",
+          "transport": "Transport",
+          "utilities": "Rechnungen & Versorgung",
+          "shopping": "Einkaufen",
+          "entertainment": "Unterhaltung",
+          "health": "Gesundheit",
+          "other": "Sonstiges",
+          "income": "Einkommen"
+        },
+        "months": {
+          "jan": "Jan",
+          "feb": "Feb",
+          "mar": "Mär",
+          "apr": "Apr",
+          "may": "Mai",
+          "jun": "Jun",
+          "jul": "Jul",
+          "aug": "Aug",
+          "sep": "Sep",
+          "oct": "Okt",
+          "nov": "Nov",
+          "dec": "Dez"
+        },
+        "filters": {
+          "all": "Alle Transaktionen",
+          "income": "Einnahmen",
+          "expense": "Ausgaben"
+        }
+      },
+      "insights": {
+        "title": "KI-Finanz‑Insights",
+        "subtitle": "Personalisierte Finanzempfehlungen",
+        "loading": "Insights werden generiert...",
+        "offline": "Sie sind offline. Bitte prüfen Sie Ihre Internetverbindung.",
+        "error": "Fehler bei der Generierung der Insights",
+        "sections": {
+          "daily": {
+            "title": "Tägliche Insights",
+            "description": "Heutige Finanzaktivitäten und Empfehlungen"
+          },
+          "weekly": {
+            "title": "Wöchentliche Analyse",
+            "description": "Ihre Ausgabemuster der letzten Woche"
+          },
+          "monthly": {
+            "title": "Monatliche Übersicht",
+            "description": "Monatliche finanzielle Performance und Trends"
+          },
+          "yearly": {
+            "title": "Jahresprognose",
+            "description": "Langfristige Finanzplanung und Ziele"
+          }
+        },
+        "prompts": {
+          "daily": {
+            "analysisText": "Analysieren Sie die heutigen Finanzaktivitäten dieses Nutzers (alle Beträge in INR):",
+            "focusAreas": [
+              "Heutige Ausgaben im Vergleich zum Tagesdurchschnitt",
+              "Spezifische Empfehlungen für morgen",
+              "Fortschritt zum täglichen Sparziel in INR"
+            ]
+          },
+          "weekly": {
+            "analysisText": "Analysieren Sie die wöchentlichen Finanzaktivitäten dieses Nutzers (alle Beträge in INR):",
+            "focusAreas": [
+              "Kategorie mit den höchsten Ausgaben",
+              "Vergleich Woche zu Woche",
+              "Verbesserungsbereiche"
+            ]
+          },
+          "monthly": {
+            "analysisText": "Analysieren Sie die monatlichen Finanzaktivitäten dieses Nutzers (alle Beträge in INR):",
+            "focusAreas": [
+              "Sparfortschritt",
+              "Analyse wiederkehrender Ausgaben",
+              "Empfehlungen zur Verbesserung"
+            ]
+          },
+          "yearly": {
+            "analysisText": "Analysieren Sie die jährliche Finanzentwicklung dieses Nutzers (alle Beträge in INR):",
+            "focusAreas": [
+              "Fortschritt zu Jahreszielen",
+              "Investitionsempfehlungen",
+              "Langfristige Finanzplanung"
+            ]
+          }
+        },
+        "dataLabels": {
+          "totalBalance": "Gesamtguthaben",
+          "dailyTransactions": "Tägliche Transaktionen",
+          "dailyIncome": "Tägliche Einnahmen",
+          "weeklyExpenses": "Wöchentliche Ausgaben",
+          "weeklyIncome": "Wöchentliches Einkommen",
+          "savingsGoalProgress": "Sparziel‑Fortschritt",
+          "monthlyIncome": "Monatliches Einkommen",
+          "monthlyExpenses": "Monatliche Ausgaben",
+          "monthlySavings": "Monatliche Einsparungen",
+          "annualIncome": "Jahreseinkommen",
+          "savingsGoal": "Sparziel",
+          "investmentPortfolio": "Investitions‑Portfolio",
+          "none": "Keine"
+        },
+        "instructions": {
+          "format": "Als Aufzählung ohne Einleitung formatieren.",
+          "focusOn": "Geben Sie 3 spezifische, umsetzbare {{timeframe}}‑Insights zu:",
+          "timeframes": {
+            "daily": "täglich",
+            "weekly": "wöchentlich",
+            "monthly": "monatlich",
+            "yearly": "jährlich"
+          }
+        }
+      },
+      "income": {
+        "title": "Einkommens‑Dashboard",
+        "loading": "Wird geladen...",
+        "offline": "Sie sind offline. Bitte prüfen Sie Ihre Internetverbindung.",
+        "cards": {
+          "totalBalance": "Gesamtguthaben"
+        },
+        "accounts": {
+          "title": "Konten",
+          "balance": "Saldo",
+          "monthlyIncome": "Monatliches Einkommen",
+          "type": "Typ",
+          "expires": "Läuft ab",
+          "creditLimit": "Kreditlimit",
+          "addFunds": "Geld hinzufügen",
+          "deleteAccount": "Konto löschen"
+        },
+        "form": {
+          "addNewAccount": "Neues Konto hinzufügen",
+          "accountType": {
+            "label": "Typ",
+            "placeholder": "Kontotyp wählen",
+            "options": {
+              "bank": "Bank",
+              "cash": "Bar",
+              "credit": "Kredit"
+            }
+          },
+          "bankName": {
+            "label": "Bankname"
+          },
+          "creditCardName": {
+            "label": "Kreditkartenname",
+            "validation": "Der Kartenname muss mit einem Buchstaben beginnen und 2–50 Zeichen lang sein (nur Buchstaben, Leerzeichen, Bindestriche, Apostrophe oder Punkte)."
+          },
+          "cardType": {
+            "label": "Kartentyp",
+            "placeholder": "Kartentyp wählen",
+            "options": {
+              "visa": "Visa",
+              "mastercard": "Mastercard",
+              "americanExpress": "American Express",
+              "discover": "Discover",
+              "rupay": "RuPay",
+              "unionpay": "UnionPay",
+              "jcb": "JCB"
+            }
+          },
+          "expiryDate": {
+            "label": "Ablaufdatum"
+          },
+          "creditAmount": {
+            "label": "Kreditbetrag"
+          },
+          "balance": {
+            "label": "Saldo",
+            "required": "erforderlich",
+            "invalid": "Bitte geben Sie eine gültige Zahl ein",
+            "negative": "Der Saldo darf nicht negativ sein"
+          },
+          "recurringIncome": {
+            "label": "Wiederkehrendes Einkommen"
+          },
+          "monthlyAmount": {
+            "label": "Monatlicher Betrag"
+          }
+        },
+        "dialogs": {
+          "addAmount": {
+            "title": "Betrag eingeben",
+            "description": "Dieser Betrag wird Ihrem bestehenden Einkommenskonto hinzugefügt.",
+            "placeholder": "Betrag",
+            "validation": "Bitte geben Sie einen gültigen Betrag > 0 ein.",
+            "add": "Hinzufügen"
+          },
+          "addAccount": {
+            "title": "Neues Konto hinzufügen",
+            "button": "Konto hinzufügen"
+          }
+        },
+        "buttons": {
+          "addNewAccount": "Neues Konto hinzufügen"
+        }
+      },
+      "expense": {
+        "title": "Ausgabe hinzufügen",
+        "success": "Ausgabe erfolgreich hinzugefügt!",
+        "addNewExpense": "Neue Ausgabe hinzufügen",
+        "subtitle": "Details eingeben oder Beleg hochladen",
+        "scanReceipt": "Beleg hochladen oder scannen",
+        "dragAndDrop": "Ziehen oder klicken, um ein Bild hochzuladen",
+        "chooseFile": "Datei auswählen",
+        "takePhoto": "Foto machen",
+        "processingWithAI": "Wird mit KI verarbeitet...",
+        "dataExtractedSuccessfully": "Daten erfolgreich extrahiert!",
+        "form": {
+          "amount": {
+            "label": "Betrag"
+          },
+          "date": {
+            "label": "Datum",
+            "placeholder": "Datum auswählen"
+          },
+          "category": {
+            "label": "Kategorie",
+            "placeholder": "Kategorie wählen",
+            "options": {
+              "food": "Essen & Trinken",
+              "transport": "Transport",
+              "shopping": "Einkaufen",
+              "entertainment": "Unterhaltung",
+              "health": "Gesundheit",
+              "other": "Sonstiges"
+            }
+          }
+        },
+        "description": "Beschreibung",
+        "addDetails": "Relevante Details hinzufügen…",
+        "paymentMethod": "Zahlungsmethode",
+        "cash": "Bar",
+        "bankPaymentType": "Bankzahlungstyp",
+        "upi": "UPI",
+        "debitCard": "Debitkarte",
+        "check": "Scheck",
+        "cancel": "Abbrechen",
+        "addExpense": "Ausgabe hinzufügen"
+      },
+      "chatbot": {
+        "header": "KI‑Assistent",
+        "welcomeMessage": "Hallo! Ich bin dein KI‑Finanzassistent. Wie kann ich dir heute helfen?",
+        "status": {
+          "online": "Online",
+          "thinking": "Denkt…"
+        },
+        "callButton": "Anrufen",
+        "alert": {
+          "loginToCall": "Bitte einloggen, um anzurufen",
+          "phoneNotFound": "Telefonnummer nicht im Profil gefunden"
+        },
+        "callInitiatedMessage": "📞 Sprachanruf für Finanzberatung gestartet",
+        "error": {
+          "processingRequest": "Entschuldigung, beim Bearbeiten Ihrer Anfrage ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+        },
+        "inputPlaceholder": "Nachricht eingeben..."
+      },
+      "sidebar": {
+        "dashboard": "Dashboard",
+        "income": "Einnahmen",
+        "expenses": "Ausgaben",
+        "chatbot": "Assistent",
+        "insights": "KI‑Insights",
+        "settings": "Einstellungen",
+        "logout": "Abmelden"
+      },
+      "settings": {
+        "title": "Einstellungen",
+        "loading": "Wird geladen...",
+        "offline": "Sie sind offline. Bitte prüfen Sie Ihre Internetverbindung.",
+        "phoneNumber": {
+          "title": "Telefonnummer",
+          "description": "Verwalte deine Kontaktnummer",
+          "placeholder": "Telefonnummer eingeben",
+          "save": "Speichern",
+          "saving": "Wird gespeichert...",
+          "cancel": "Abbrechen",
+          "edit": "Bearbeiten",
+          "noPhoneSet": "Keine Telefonnummer hinterlegt"
+        },
+        "notifications": {
+          "title": "Benachrichtigungen",
+          "description": "Verwalte deine Benachrichtigungseinstellungen",
+          "enableNotifications": "Benachrichtigungen aktivieren"
+        },
+        "language": {
+          "title": "Bevorzugte Sprache",
+          "description": "Wähle deine Anwendungssprache"
+        }
+      },
+      "common": {
+        "currency": "₹",
+        "profile": "Profil",
+        "logout": "Abmelden",
+        "menu": "Menü",
+        "close": "Schließen",
+        "required": "Pflichtfeld",
+        "optional": "Optional",
+        "loading": "Wird geladen...",
+        "noData": "Keine Daten vorhanden"
+      }
+    }
+  },
+  "zh": {
+    "translation": {
+      "dashboard": {
+        "title": "仪表板",
+        "loading": "加载中...",
+        "offline": "您已离线。请检查您的网络连接。",
+        "no": "尚未发现支出数据。",
+        "cards": {
+          "totalBalance": "总余额",
+          "monthlyIncome": "月收入",
+          "monthlyExpenses": "月支出",
+          "savingsGoal": "储蓄目标"
+        },
+        "accounts": {
+          "bankAccounts": "银行账户",
+          "creditCards": "信用卡",
+          "balance": "余额",
+          "availableCredit": "可用信用",
+          "balanceFrom": "{{accountName}} 余额",
+          "recurringIncomeFrom": "来自 {{accountName}} 的定期收入"
+        },
+        "charts": {
+          "monthlyExpenseComparison": "每月支出比较",
+          "incomeVsExpense": "收入 vs 支出",
+          "expenseBreakdown": "支出细分",
+          "income": "收入",
+          "expense": "支出"
+        },
+        "transactions": {
+          "recent": "最近交易",
+          "all": "所有交易",
+          "searchPlaceholder": "搜索交易…",
+          "filter": "筛选",
+          "resetFilters": "重置筛选条件",
+          "clearFilters": "清除筛选",
+          "transactionType": "交易类型",
+          "income": "收入",
+          "expense": "支出",
+          "allTypes": "所有类型",
+          "export": "导出",
+          "exportPDF": "导出为 PDF",
+          "exportExcel": "导出为 Excel",
+          "table": {
+            "description": "描述",
+            "category": "类别",
+            "amount": "金额",
+            "date": "日期",
+            "type": "类型"
+          },
+          "summary": {
+            "transactions": "交易",
+            "income": "收入",
+            "expenses": "支出",
+            "totalIncome": "总收入",
+            "totalExpenses": "总支出",
+            "netBalance": "净余额"
+          },
+          "empty": {
+            "title": "未找到交易",
+            "recent": "最近 2 天内无交易",
+            "filtered": "尝试更改搜索或筛选条件"
+          },
+          "viewAll": "查看全部",
+          "recentOnly": "仅最近"
+        },
+        "categories": {
+          "food": "餐饮",
+          "transport": "交通",
+          "utilities": "账单与服务",
+          "shopping": "购物",
+          "entertainment": "娱乐",
+          "health": "健康",
+          "other": "其他",
+          "income": "收入"
+        },
+        "months": {
+          "jan": "1月",
+          "feb": "2月",
+          "mar": "3月",
+          "apr": "4月",
+          "may": "5月",
+          "jun": "6月",
+          "jul": "7月",
+          "aug": "8月",
+          "sep": "9月",
+          "oct": "10月",
+          "nov": "11月",
+          "dec": "12月"
+        },
+        "filters": {
+          "all": "所有交易",
+          "income": "收入",
+          "expense": "支出"
+        }
+      },
+      "insights": {
+        "title": "AI 财务洞察",
+        "subtitle": "个性化财务建议",
+        "loading": "正在生成洞察…",
+        "offline": "您已离线。请检查您的网络连接。",
+        "error": "生成洞察失败",
+        "sections": {
+          "daily": {
+            "title": "每日洞察",
+            "description": "今日财务活动和建议"
+          },
+          "weekly": {
+            "title": "每周分析",
+            "description": "过去一周的支出模式"
+          },
+          "monthly": {
+            "title": "每月概览",
+            "description": "每月财务表现和趋势"
+          },
+          "yearly": {
+            "title": "年度预测",
+            "description": "长期财务规划与目标"
+          }
+        },
+        "prompts": {
+          "daily": {
+            "analysisText": "分析该用户的每日财务活动（所有金额均为 INR）：",
+            "focusAreas": [
+              "今日支出与日均值对比",
+              "针对明日的具体建议",
+              "每日储蓄目标进度（INR）"
+            ]
+          },
+          "weekly": {
+            "analysisText": "分析该用户的每周财务活动（所有金额均为 INR）：",
+            "focusAreas": [
+              "最高支出类别分析",
+              "环比分析",
+              "改进之处"
+            ]
+          },
+          "monthly": {
+            "analysisText": "分析该用户的每月财务活动（所有金额均为 INR）：",
+            "focusAreas": [
+              "储蓄进度",
+              "经常性支出分析",
+              "改进建议"
+            ]
+          },
+          "yearly": {
+            "analysisText": "分析该用户的年度财务轨迹（所有金额均为 INR）：",
+            "focusAreas": [
+              "年度目标进度",
+              "投资建议",
+              "长期财务规划"
+            ]
+          }
+        },
+        "dataLabels": {
+          "totalBalance": "总余额",
+          "dailyTransactions": "每日交易",
+          "dailyIncome": "每日收入",
+          "weeklyExpenses": "每周支出",
+          "weeklyIncome": "每周收入",
+          "savingsGoalProgress": "储蓄目标进度",
+          "monthlyIncome": "月收入",
+          "monthlyExpenses": "月支出",
+          "monthlySavings": "月储蓄",
+          "annualIncome": "年收入",
+          "savingsGoal": "储蓄目标",
+          "investmentPortfolio": "投资组合",
+          "none": "无"
+        },
+        "instructions": {
+          "format": "以项目符号格式，无需引言。",
+          "focusOn": "提供 3 条针对{{timeframe}} 的具体可行洞察，重点包括：",
+          "timeframes": {
+            "daily": "每日",
+            "weekly": "每周",
+            "monthly": "每月",
+            "yearly": "每年"
+          }
+        }
+      },
+      "income": {
+        "title": "收入仪表板",
+        "loading": "加载中...",
+        "offline": "您已离线。请检查您的网络连接。",
+        "cards": {
+          "totalBalance": "总余额"
+        },
+        "accounts": {
+          "title": "账户",
+          "balance": "余额",
+          "monthlyIncome": "月收入",
+          "type": "类型",
+          "expires": "到期时间",
+          "creditLimit": "信用额度",
+          "addFunds": "添加资金",
+          "deleteAccount": "删除账户"
+        },
+        "form": {
+          "addNewAccount": "添加新账户",
+          "accountType": {
+            "label": "类型",
+            "placeholder": "选择账户类型",
+            "options": {
+              "bank": "银行",
+              "cash": "现金",
+              "credit": "信用"
+            }
+          },
+          "bankName": {
+            "label": "银行名称"
+          },
+          "creditCardName": {
+            "label": "信用卡名称",
+            "validation": "信用卡名称须以字母开头，长度为 2-50 个字符（仅限字母、空格、连字符、撇号或句点）。"
+          },
+          "cardType": {
+            "label": "卡类型",
+            "placeholder": "选择卡类型",
+            "options": {
+              "visa": "Visa",
+              "mastercard": "Mastercard",
+              "americanExpress": "American Express",
+              "discover": "Discover",
+              "rupay": "RuPay",
+              "unionpay": "UnionPay",
+              "jcb": "JCB"
+            }
+          },
+          "expiryDate": {
+            "label": "有效期"
+          },
+          "creditAmount": {
+            "label": "信用额度"
+          },
+          "balance": {
+            "label": "余额",
+            "required": "必填项",
+            "invalid": "请输入有效数字",
+            "negative": "余额不能为负"
+          },
+          "recurringIncome": {
+            "label": "定期收入"
+          },
+          "monthlyAmount": {
+            "label": "月金额"
+          }
+        },
+        "dialogs": {
+          "addAmount": {
+            "title": "输入金额",
+            "description": "该金额将添加到您的现有收入来源。",
+            "placeholder": "金额",
+            "validation": "请输入大于 0 的有效金额。",
+            "add": "添加"
+          },
+          "addAccount": {
+            "title": "添加新账户",
+            "button": "添加账户"
+          }
+        },
+        "buttons": {
+          "addNewAccount": "添加新账户"
+        }
+      },
+      "expense": {
+        "title": "添加支出",
+        "success": "支出添加成功！",
+        "addNewExpense": "添加新支出",
+        "subtitle": "填写详情或上传收据",
+        "scanReceipt": "上传或扫描收据",
+        "dragAndDrop": "拖放或点击上传图片",
+        "chooseFile": "选择文件",
+        "takePhoto": "拍照",
+        "processingWithAI": "AI 正在处理...",
+        "dataExtractedSuccessfully": "数据提取成功！",
+        "form": {
+          "amount": {
+            "label": "金额"
+          },
+          "date": {
+            "label": "日期",
+            "placeholder": "选择日期"
+          },
+          "category": {
+            "label": "类别",
+            "placeholder": "选择类别",
+            "options": {
+              "food": "餐饮",
+              "transport": "交通",
+              "shopping": "购物",
+              "entertainment": "娱乐",
+              "health": "健康",
+              "other": "其他"
+            }
+          }
+        },
+        "description": "描述",
+        "addDetails": "添加相关详情…",
+        "paymentMethod": "付款方式",
+        "cash": "现金",
+        "bankPaymentType": "银行付款方式",
+        "upi": "UPI",
+        "debitCard": "借记卡",
+        "check": "支票",
+        "cancel": "取消",
+        "addExpense": "添加支出"
+      },
+      "chatbot": {
+        "header": "AI 助手",
+        "welcomeMessage": "您好！我是您的 AI 财务助手。今天我能为您做些什么？",
+        "status": {
+          "online": "在线",
+          "thinking": "思考中…"
+        },
+        "callButton": "呼叫",
+        "alert": {
+          "loginToCall": "请登录以进行呼叫",
+          "phoneNotFound": "在您的资料中未找到电话号码"
+        },
+        "callInitiatedMessage": "📞 已发起财务咨询通话",
+        "error": {
+          "processingRequest": "抱歉，处理您的请求时出错。请再试一次。"
+        },
+        "inputPlaceholder": "输入消息..."
+      },
+      "sidebar": {
+        "dashboard": "仪表板",
+        "income": "收入",
+        "expenses": "支出",
+        "chatbot": "助手",
+        "insights": "AI 洞察",
+        "settings": "设置",
+        "logout": "退出登录"
+      },
+      "settings": {
+        "title": "设置",
+        "loading": "加载中...",
+        "offline": "您已离线。请检查您的网络连接。",
+        "phoneNumber": {
+          "title": "电话号码",
+          "description": "管理您的联系号码",
+          "placeholder": "输入电话号码",
+          "save": "保存",
+          "saving": "保存中…",
+          "cancel": "取消",
+          "edit": "编辑",
+          "noPhoneSet": "未设置电话号码"
+        },
+        "notifications": {
+          "title": "通知",
+          "description": "管理您的通知偏好",
+          "enableNotifications": "启用通知"
+        },
+        "language": {
+          "title": "首选语言",
+          "description": "为应用选择语言"
+        }
+      },
+      "common": {
+        "currency": "₹",
+        "profile": "个人资料",
+        "logout": "退出登录",
+        "menu": "菜单",
+        "close": "关闭",
+        "required": "必填",
+        "optional": "可选",
+        "loading": "加载中...",
+        "noData": "无可用数据"
+      }
+    }
+  },
+  "hi": {
+    "translation": {
+      "dashboard": {
+        "title": "डैशबोर्ड",
+        "loading": "लोड हो रहा है...",
+        "offline": "आप ऑफ़लाइन हैं। कृपया अपना इंटरनेट कनेक्शन जांचें।",
+        "no": "अभी तक कोई खर्च डेटा नहीं मिला।",
+        "cards": {
+          "totalBalance": "कुल संतुलन",
+          "monthlyIncome": "मासिक आय",
+          "monthlyExpenses": "मासिक खर्च",
+          "savingsGoal": "बचत लक्ष्य"
+        },
+        "accounts": {
+          "bankAccounts": "बैंक खाते",
+          "creditCards": "क्रेडिट कार्ड",
+          "balance": "बैलेंस",
+          "availableCredit": "उपलब्ध क्रेडिट",
+          "balanceFrom": "{{accountName}} से राशि",
+          "recurringIncomeFrom": "{{accountName}} से आवर्ती आय"
+        },
+        "charts": {
+          "monthlyExpenseComparison": "मासिक खर्च तुलना",
+          "incomeVsExpense": "आय बनाम खर्च",
+          "expenseBreakdown": "खर्च विभाजन",
+          "income": "आय",
+          "expense": "खर्च"
+        },
+        "transactions": {
+          "recent": "हाल की लेन-देन",
+          "all": "सभी लेन‑देन",
+          "searchPlaceholder": "लेन‑देन खोजें...",
+          "filter": "फ़िल्टर",
+          "resetFilters": "फिल्टर रीसेट करें",
+          "clearFilters": "फ़िल्टर साफ़ करें",
+          "transactionType": "लेन‑देन प्रकार",
+          "income": "आय",
+          "expense": "खर्च",
+          "allTypes": "सभी प्रकार",
+          "export": "निर्यात करें",
+          "exportPDF": "पीडीएफ़ के रूप में निर्यात करें",
+          "exportExcel": "एक्सेल के रूप में निर्यात करें",
+          "table": {
+            "description": "विवरण",
+            "category": "श्रेणी",
+            "amount": "राशि",
+            "date": "तारीख",
+            "type": "प्रकार"
+          },
+          "summary": {
+            "transactions": "लेन‑देन",
+            "income": "आय",
+            "expenses": "खर्च",
+            "totalIncome": "कुल आय",
+            "totalExpenses": "कुल खर्च",
+            "netBalance": "शुद्ध संतुलन"
+          },
+          "empty": {
+            "title": "कोई लेन‑देन नहीं मिला",
+            "recent": "पिछले 2 दिनों में कोई हाल की लेन‑देन नहीं",
+            "filtered": "खोज या फ़िल्टर मानदंड बदलने का प्रयास करें"
+          },
+          "viewAll": "सब देखें",
+          "recentOnly": "केवल हाल के"
+        },
+        "categories": {
+          "food": "भोजन एवं भोजनालय",
+          "transport": "यातायात",
+          "utilities": "बिल और उपयोगिताएं",
+          "shopping": "ख़रीदारी",
+          "entertainment": "मनोरंजन",
+          "health": "स्वास्थ्य",
+          "other": "अन्य",
+          "income": "आय"
+        },
+        "months": {
+          "jan": "जन",
+          "feb": "फ़र",
+          "mar": "मार्च",
+          "apr": "अप्रै",
+          "may": "मई",
+          "jun": "जून",
+          "jul": "जुल",
+          "aug": "अग",
+          "sep": "सित",
+          "oct": "अक्टू",
+          "nov": "नव",
+          "dec": "दिस"
+        },
+        "filters": {
+          "all": "सभी लेन‑देन",
+          "income": "आय",
+          "expense": "खर्च"
+        }
+      },
+      "insights": {
+        "title": "एआई वित्तीय अंतर्दृष्टियाँ",
+        "subtitle": "व्यक्तिगत वित्तीय सुझाव",
+        "loading": "अंतर्दृष्टियाँ तैयार की जा रही हैं...",
+        "offline": "आप ऑफ़लाइन हैं। कृपया अपना इंटरनेट कनेक्शन जांचें।",
+        "error": "अंतर्दृष्टि उत्पन्न करने में त्रुटि",
+        "sections": {
+          "daily": {
+            "title": "दैनिक अंतर्दृष्टियाँ",
+            "description": "आज की वित्तीय गतिविधियाँ और सुझाव"
+          },
+          "weekly": {
+            "title": "साप्ताहिक विश्लेषण",
+            "description": "पिछले सप्ताह के आपके खर्च के पैटर्न"
+          },
+          "monthly": {
+            "title": "मासिक अवलोकन",
+            "description": "मासिक वित्तीय प्रदर्शन और रुझान"
+          },
+          "yearly": {
+            "title": "वार्षिक पूर्वानुमान",
+            "description": "दीर्घकालिक वित्तीय योजना और लक्ष्य"
+          }
+        },
+        "prompts": {
+          "daily": {
+            "analysisText": "इस उपयोगकर्ता की दैनिक वित्तीय गतिविधियों का विश्लेषण करें (सभी राशि INR में):",
+            "focusAreas": [
+              "दैनिक औसत की तुलना में आज का खर्च",
+              "कल के लिए विशिष्ट सुझाव",
+              "दैनिक बचत लक्ष्य की प्रगति INR में"
+            ]
+          },
+          "weekly": {
+            "analysisText": "इस उपयोगकर्ता की साप्ताहिक वित्तीय गतिविधियों का विश्लेषण करें (सभी राशि INR में):",
+            "focusAreas": [
+              "सबसे उच्च खर्च श्रेणी",
+              "सप्ताह-दर-सप्ताह तुलना",
+              "सुधार के क्षेत्र"
+            ]
+          },
+          "monthly": {
+            "analysisText": "इस उपयोगकर्ता की मासिक वित्तीय गतिविधियों का विश्लेषण करें (सभी राशि INR में):",
+            "focusAreas": [
+              "बचत की प्रगति",
+              "आवर्ती खर्च का विश्लेषण",
+              "सुधार के सुझाव"
+            ]
+          },
+          "yearly": {
+            "analysisText": "इस उपयोगकर्ता की वार्षिक वित्तीय प्रगति का विश्लेषण करें (सभी राशि INR में):",
+            "focusAreas": [
+              "वार्षिक लक्ष्यों की प्रगति",
+              "निवेश सुझाव",
+              "दीर्घकालिक वित्तीय योजना"
+            ]
+          }
+        },
+        "dataLabels": {
+          "totalBalance": "कुल संतुलन",
+          "dailyTransactions": "दैनिक लेन‑देन",
+          "dailyIncome": "दैनिक आय",
+          "weeklyExpenses": "साप्ताहिक खर्च",
+          "weeklyIncome": "साप्ताहिक आय",
+          "savingsGoalProgress": "बचत लक्ष्य प्रगति",
+          "monthlyIncome": "मासिक आय",
+          "monthlyExpenses": "मासिक खर्च",
+          "monthlySavings": "मासिक बचत",
+          "annualIncome": "वार्षिक आय",
+          "savingsGoal": "बचत लक्ष्य",
+          "investmentPortfolio": "निवेश पोर्टफोलियो",
+          "none": "कोई नहीं"
+        },
+        "instructions": {
+          "format": "बुलेट पॉइंट के रूप में प्रारूपित करें, कोई परिचयात्मक पाठ नहीं।",
+          "focusOn": "3 विशिष्ट, कार्यात्मक {{timeframe}} अंतर्दृष्टियाँ प्रदान करें, निम्न पर ध्यान केंद्रित करते हुए:",
+          "timeframes": {
+            "daily": "दैनिक",
+            "weekly": "साप्ताहिक",
+            "monthly": "मासिक",
+            "yearly": "वार्षिक"
+          }
+        }
+      },
+      "income": {
+        "title": "आय डैशबोर्ड",
+        "loading": "लोड हो रहा है...",
+        "offline": "आप ऑफ़लाइन हैं। कृपया अपना इंटरनेट कनेक्शन जांचें।",
+        "cards": {
+          "totalBalance": "कुल संतुलन"
+        },
+        "accounts": {
+          "title": "खाते",
+          "balance": "संतुलन",
+          "monthlyIncome": "मासिक आय",
+          "type": "प्रकार",
+          "expires": "समाप्त होती है",
+          "creditLimit": "क्रेडिट सीमा",
+          "addFunds": "फंड जोड़ें",
+          "deleteAccount": "खाता हटाएँ"
+        },
+        "form": {
+          "addNewAccount": "नया खाता जोड़ें",
+          "accountType": {
+            "label": "प्रकार",
+            "placeholder": "खाते का प्रकार चुनें",
+            "options": {
+              "bank": "बैंक",
+              "cash": "नकद",
+              "credit": "क्रेडिट"
+            }
+          },
+          "bankName": {
+            "label": "बैंक नाम"
+          },
+          "creditCardName": {
+            "label": "क्रेडिट कार्ड नाम",
+            "validation": "कार्ड का नाम अक्षर से शुरू होना चाहिए और 2‑50 वर्ण लंबा होना चाहिए (केवल अक्षर, रिक्त स्थान, डैश, एपोस्ट्रॉफी या डॉट)।"
+          },
+          "cardType": {
+            "label": "कार्ड का प्रकार",
+            "placeholder": "कार्ड का प्रकार चुनें",
+            "options": {
+              "visa": "Visa",
+              "mastercard": "Mastercard",
+              "americanExpress": "American Express",
+              "discover": "Discover",
+              "rupay": "RuPay",
+              "unionpay": "UnionPay",
+              "jcb": "JCB"
+            }
+          },
+          "expiryDate": {
+            "label": "समाप्ति तिथि"
+          },
+          "creditAmount": {
+            "label": "क्रेडिट राशि"
+          },
+          "balance": {
+            "label": "संतुलन",
+            "required": "अनिवार्य",
+            "invalid": "कृपया एक मान्य संख्या दर्ज करें",
+            "negative": "संतुलन ऋणात्मक नहीं हो सकता"
+          },
+          "recurringIncome": {
+            "label": "आवर्ती आय"
+          },
+          "monthlyAmount": {
+            "label": "मासिक राशि"
+          }
+        },
+        "dialogs": {
+          "addAmount": {
+            "title": "राशि दर्ज करें",
+            "description": "यह राशि आपके मौजूदा आय स्रोत में जोड़ी जाएगी।",
+            "placeholder": "राशि",
+            "validation": "कृपया 0 से अधिक एक मान्य राशि दर्ज करें।",
+            "add": "जोड़ें"
+          },
+          "addAccount": {
+            "title": "नया खाता जोड़ें",
+            "button": "खाता जोड़ें"
+          }
+        },
+        "buttons": {
+          "addNewAccount": "नया खाता जोड़ें"
+        }
+      },
+      "expense": {
+        "title": "खर्च जोड़ें",
+        "success": "खर्च सफलतापूर्वक जोड़ दिया गया!",
+        "addNewExpense": "नया खर्च जोड़ें",
+        "subtitle": "विवरण भरें या रसीद अपलोड करें",
+        "scanReceipt": "रसीद अपलोड या स्कैन करें",
+        "dragAndDrop": "अपलोड करने के लिए ड्रैग करें या क्लिक करें",
+        "chooseFile": "फ़ाइल चुनें",
+        "takePhoto": "फ़ोटो लें",
+        "processingWithAI": "एआई द्वारा संसाधित हो रहा है...",
+        "dataExtractedSuccessfully": "डेटा सफलतापूर्वक निकाला गया!",
+        "form": {
+          "amount": {
+            "label": "राशि"
+          },
+          "date": {
+            "label": "तारीख",
+            "placeholder": "तारीख चुनें"
+          },
+          "category": {
+            "label": "श्रेणी",
+            "placeholder": "श्रेणी चुनें",
+            "options": {
+              "food": "भोजन एवं भोजनालय",
+              "transport": "यातायात",
+              "shopping": "ख़रीदारी",
+              "entertainment": "मनोरंजन",
+              "health": "स्वास्थ्य",
+              "other": "अन्य"
+            }
+          }
+        },
+        "description": "विवरण",
+        "addDetails": "प्रासंगिक विवरण जोड़ें…",
+        "paymentMethod": "भुगतान विधि",
+        "cash": "नकद",
+        "bankPaymentType": "बैंक भुगतान प्रकार",
+        "upi": "UPI",
+        "debitCard": "डेबिट कार्ड",
+        "check": "चेक",
+        "cancel": "रद्द करें",
+        "addExpense": "खर्च जोड़ें"
+      },
+      "chatbot": {
+        "header": "एआई सहायक",
+        "welcomeMessage": "नमस्ते! मैं आपका एआई वित्तीय सहायक हूँ। आज मैं आपकी कैसे मदद कर सकता हूँ?",
+        "status": {
+          "online": "ऑनलाइन",
+          "thinking": "सोच रहा हूँ..."
+        },
+        "callButton": "कॉल करें",
+        "alert": {
+          "loginToCall": "कृपया कॉल करने के लिए लॉगिन करें",
+          "phoneNotFound": "आपकी प्रोफ़ाइल में फोन नंबर नहीं मिला"
+        },
+        "callInitiatedMessage": "📞 वित्तीय परामर्श के लिए कॉल शुरू की गई",
+        "error": {
+          "processingRequest": "क्षमा करें, आपकी अनुरोध को संसाधित करते समय त्रुटि हुई। कृपया पुनः प्रयास करें।"
+        },
+        "inputPlaceholder": "अपना संदेश टाइप करें..."
+      },
+      "sidebar": {
+        "dashboard": "डैशबोर्ड",
+        "income": "आय",
+        "expenses": "खर्च",
+        "chatbot": "सहायक",
+        "insights": "एआई अंतर्दृष्टि",
+        "settings": "सेटिंग्स",
+        "logout": "लॉग आउट"
+      },
+      "settings": {
+        "title": "सेटिंग्स",
+        "loading": "लोड हो रहा है...",
+        "offline": "आप ऑफ़लाइन हैं। कृपया अपना इंटरनेट कनेक्शन जांचें।",
+        "phoneNumber": {
+          "title": "फ़ोन नंबर",
+          "description": "अपना संपर्क नंबर प्रबंधित करें",
+          "placeholder": "फ़ोन नंबर दर्ज करें",
+          "save": "सहेजें",
+          "saving": "सहेजा जा रहा है...",
+          "cancel": "रद्द करें",
+          "edit": "संपादित करें",
+          "noPhoneSet": "कोई फ़ोन नंबर सेट नहीं है"
+        },
+        "notifications": {
+          "title": "सूचनाएं",
+          "description": "अपनी सूचना वरीयताएँ प्रबंधित करें",
+          "enableNotifications": "सूचनाएं सक्षम करें"
+        },
+        "language": {
+          "title": "पसंदीदा भाषा",
+          "description": "ऐप के लिए अपनी भाषा चुनें"
+        }
+      },
+      "common": {
+        "currency": "₹",
+        "profile": "प्रोफ़ाइल",
+        "logout": "लॉग आउट",
+        "menu": "मेनू",
+        "close": "बंद करें",
+        "required": "आवश्यक",
+        "optional": "वैकल्पिक",
+        "loading": "लोड हो रहा है...",
+        "noData": "कोई डेटा उपलब्ध नहीं"
+      }
+    }
+  }
+}

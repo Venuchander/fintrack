@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
-import { getUserData } from "./lib/userService";
+import { useTranslation } from 'react-i18next'
+import { getUserData, updateExpense, deleteExpense, restoreExpense } from "./lib/userService";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,13 +16,11 @@ import {
   Legend,
 } from "chart.js";
 import {
-  DollarSign,
   Wallet,
   TrendingUp,
   TrendingDown,
   Target,
 } from "lucide-react";
-import { Button } from "../components/ui/button";
 import {
   Card,
   CardContent,
@@ -34,6 +33,9 @@ import BankAccounts from "../components/components/bankAccounts";
 import CreditCards from "../components/components/creditCards";
 import FinancialCharts from "../components/components/financialCharts";
 import RecentTransactions from "../components/components/recentTransactions";
+import MonthlyExpenseChart from "../components/components/MonthlyExpenseCharts";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 ChartJS.register(
   CategoryScale,
@@ -47,10 +49,6 @@ ChartJS.register(
   Legend
 );
 
-import MonthlyExpenseChart from "../components/components/MonthlyExpenseCharts";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 function Dashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
@@ -58,8 +56,8 @@ function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTransactionType, setSelectedTransactionType] = useState("all");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { t } = useTranslation();
 
-  //✨ Toast network status
   useEffect(() => {
     const handleOffline = () => {
       toast.error("You're offline. Please check your Internet Connection.", {
@@ -89,24 +87,20 @@ function Dashboard() {
         setUser(user);
         try {
           const data = await getUserData(user.uid);
-          // Process accounts to combine cash accounts
           if (data?.accounts) {
             const processedAccounts = data.accounts.reduce((acc, account) => {
               if (
                 account.type === "Cash" ||
                 account.name.toLowerCase() === "cash"
               ) {
-                // Find existing cash account
                 const existingCashIndex = acc.findIndex(
                   (a) => a.type === "Cash" || a.name.toLowerCase() === "cash"
                 );
 
                 if (existingCashIndex !== -1) {
-                  // Update existing cash account
                   acc[existingCashIndex] = {
                     ...acc[existingCashIndex],
                     balance: acc[existingCashIndex].balance + account.balance,
-                    // Combine recurring amounts if present
                     recurringAmount:
                       (acc[existingCashIndex].recurringAmount || 0) +
                       (account.recurringAmount || 0),
@@ -115,17 +109,14 @@ function Dashboard() {
                       account.isRecurringIncome,
                   };
                 } else {
-                  // Add new cash account
                   acc.push(account);
                 }
               } else {
-                // Add non-cash account as is
                 acc.push(account);
               }
               return acc;
             }, []);
 
-            // Update the data with processed accounts
             data.accounts = processedAccounts;
           }
           setUserData(data);
@@ -149,6 +140,65 @@ function Dashboard() {
     }).format(amount);
   };
 
+  // Handle updating transactions
+  const handleUpdateTransaction = async (updatedTransaction) => {
+    if (!user) return;
+
+    try {
+      await updateExpense(user.uid, updatedTransaction);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle deleting transactions
+  const handleDeleteTransaction = async (transaction) => {
+    if (!user) return;
+
+    try {
+      await deleteExpense(user.uid, transaction.id);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle restoring transactions
+  const handleRestoreTransaction = async (transaction) => {
+    if (!user) return;
+
+    try {
+      console.log('Dashboard: Attempting to restore transaction:', transaction);
+      await restoreExpense(user.uid, transaction);
+      // Refresh user data
+      const data = await getUserData(user.uid);
+      setUserData(data);
+      console.log('Dashboard: Transaction restored successfully');
+    } catch (error) {
+      console.error("Dashboard: Error restoring transaction:", error);
+      throw error;
+    }
+  };
+
+  // Handle refreshing transactions
+  const handleRefreshTransactions = async () => {
+    if (!user) return;
+
+    try {
+      const data = await getUserData(user.uid);
+      setUserData(data);
+    } catch (error) {
+      console.error("Error refreshing transactions:", error);
+    }
+  };
+
   const getCardBackground = (cardType) => {
     const types = {
       visa: "from-[#1A1F71] to-[#4B1F71]",
@@ -162,16 +212,11 @@ function Dashboard() {
 
   const calculateMonthlyFinances = () => {
     if (!userData?.expenses || !userData?.accounts)
-      return {
-        income: 0,
-        expenses: 0,
-        recurringIncome: 0,
-      };
+      return { income: 0, expenses: 0, recurringIncome: 0 };
 
     const currentMonth = new Date().getMonth();
     const currentYear = new Date().getFullYear();
 
-    // Calculate recurring income from accounts
     const recurringIncome = userData.accounts.reduce((sum, account) => {
       return sum + (account.isRecurringIncome ? account.recurringAmount : 0);
     }, 0);
@@ -184,7 +229,6 @@ function Dashboard() {
       );
     });
 
-    // Sum all transactions for expenses (positive amounts are expenses in your structure)
     const { income: monthlyIncome, expenses: monthlyExpenses } =
       monthlyTransactions.reduce(
         (acc, transaction) => {
@@ -207,6 +251,7 @@ function Dashboard() {
       recurringIncome,
     };
   };
+
 
   const prepareExpenseData = () => {
     if (!userData?.expenses) return null;
@@ -304,36 +349,36 @@ function Dashboard() {
     };
   };
 
-  const getSavingsProgress = () => {
-    if (!userData?.userDetails?.savingsGoal)
-      return {
-        current: 0,
-        goal: 10000,
-        percentage: 0,
-      };
 
-    const monthlyGoal = userData.userDetails.savingsGoal;
-    const totalBalance = userData.userDetails.totalBalance || 0;
-    const progressPercentage = Math.min(
-      (totalBalance / monthlyGoal) * 100,
-      100
-    );
+  // const getSavingsProgress = () => {
+  //   if (!userData?.userDetails?.savingsGoal)
+  //     return {
+  //       current: 0,
+  //       goal: 10000,
+  //       percentage: 0,
+  //     };
 
-    return {
-      current: totalBalance,
-      goal: monthlyGoal,
-      percentage: progressPercentage,
-    };
-  };
+  //   const monthlyGoal = userData.userDetails.savingsGoal;
+  //   const totalBalance = userData.userDetails.totalBalance || 0;
+  //   const progressPercentage = Math.min(
+  //     (totalBalance / monthlyGoal) * 100,
+  //     100
+  //   );
 
-  const getFilteredTransactions = () => {
+  //   return {
+  //     current: totalBalance,
+  //     goal: monthlyGoal,
+  //     percentage: progressPercentage,
+  //   };
+  // };
+
+
+  const getAllTransactions = () => {
     if (!userData?.expenses || !userData?.accounts) return [];
 
-    // Get all income transactions from accounts (bank, cash, credit, recurring)
     const incomeTransactions = userData.accounts.flatMap((account) => {
       const transactions = [];
 
-      // Add regular balance as income if it's positive
       if (account.balance > 0) {
         transactions.push({
           description: `Balance from ${account.name}`,
@@ -346,7 +391,6 @@ function Dashboard() {
         });
       }
 
-      // Add recurring income if present
       if (account.isRecurringIncome && account.recurringAmount > 0) {
         transactions.push({
           description: `Recurring Income from ${account.name}`,
@@ -362,34 +406,24 @@ function Dashboard() {
       return transactions;
     });
 
-    // Get expense transactions
     const expenseTransactions = userData.expenses.map((transaction) => ({
       ...transaction,
       isIncome: false,
     }));
 
-    // Combine and sort all transactions
     const allTransactions = [...incomeTransactions, ...expenseTransactions]
       .sort((a, b) => new Date(b.date) - new Date(a.date))
-      .filter((transaction) => {
-        if (selectedTransactionType === "all") return true;
-        if (selectedTransactionType === "income") return transaction.isIncome;
-        if (selectedTransactionType === "expense") return !transaction.isIncome;
-        return true;
-      })
       .map((transaction) => ({
         ...transaction,
         displayAmount: transaction.isIncome
           ? `+${formatCurrency(transaction.amount)}`
           : `-${formatCurrency(transaction.amount)}`,
-        // Format category to show account type for income
         category: transaction.isIncome
           ? `${transaction.category} ${
               transaction.accountType ? `(${transaction.accountType})` : ""
             }`
           : transaction.category,
-      }))
-      .slice(0, 5);
+      }));
 
     return allTransactions;
   };
@@ -403,16 +437,15 @@ function Dashboard() {
   }
 
   const { income, expenses, recurringIncome } = calculateMonthlyFinances();
-  const savingsProgress = getSavingsProgress();
   const expenseData = prepareExpenseData();
   const incomeVsExpenseData = prepareIncomeVsExpenseData();
-  const filteredTransactions = getFilteredTransactions();
+  const allTransactions = getAllTransactions();
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white transition-colors">
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-20"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
@@ -422,23 +455,26 @@ function Dashboard() {
         user={user}
       />
 
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
-            <div className="flex items-center space-x-4">
-              <ProfileButton
-                user={user}
-                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-                onLogout={() => auth.signOut()}
-              />
-            </div>
-          </div>
-        </div>
-      </header>
-
+      {/* ✅ Header */}
+   
+   <header className="relative z-10 bg-white dark:bg-gray-800 shadow-sm transition-colors">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex justify-between items-center py-4 relative">
+      <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+        {t('dashboard.title')}
+      </h2>
+      <div className="absolute right-0 flex items-center space-x-4">
+        <ProfileButton
+          user={user}
+          onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          onLogout={() => auth.signOut()}
+        />
+      </div>
+    </div>
+  </div>
+</header>
       {/* Main Content */}
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-8">
           {/* Summary Cards */}
@@ -446,7 +482,7 @@ function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Balance
+                  {t('dashboard.cards.totalBalance')}
                 </CardTitle>
                 <Wallet className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -460,7 +496,7 @@ function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Monthly Income
+                  {t('dashboard.cards.monthlyIncome')}
                 </CardTitle>
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -480,7 +516,7 @@ function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Monthly Expenses
+                  {t('dashboard.cards.monthlyExpenses')}
                 </CardTitle>
                 <TrendingDown className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -494,7 +530,7 @@ function Dashboard() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Savings Goal
+                  {t('dashboard.cards.savingsGoal')}
                 </CardTitle>
                 <Target className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -531,20 +567,25 @@ function Dashboard() {
           {/* monthly expense comparision Chart Component */}
           <Card>
             <CardHeader>
-              <CardTitle>Monthly Expense Comparison</CardTitle>
+              <CardTitle>{t('dashboard.charts.monthlyExpenseComparison')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <MonthlyExpenseChart expenses={userData?.expenses} />
+              <MonthlyExpenseChart expenses={userData?.expenses} t={t} />
             </CardContent>
           </Card>
 
           {/* Recent Transactions Component */}
           <RecentTransactions
-            transactions={filteredTransactions}
+            transactions={allTransactions}
             selectedTransactionType={selectedTransactionType}
             setSelectedTransactionType={setSelectedTransactionType}
+            onUpdateTransaction={handleUpdateTransaction}
+            onDeleteTransaction={handleDeleteTransaction}
+            onRestoreTransaction={handleRestoreTransaction}
+            onRefreshTransactions={handleRefreshTransactions}
           />
         </div>
+
       </main>
 
       <ToastContainer position="top-center" />

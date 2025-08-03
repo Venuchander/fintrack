@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -25,20 +25,33 @@ import {
   ChevronRight, 
   FileDown, 
   FileText,
-  Info
+  Info,
+  Edit2,
+  Trash2,
+  Save,
+  X,
+  Undo,
+  AlertTriangle
 } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { useToast } from "../hooks/use-toast";
+import { Toaster } from "../ui/toaster";
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-
+import { useTranslation } from 'react-i18next';
 const RecentTransactions = ({ 
   transactions, 
   selectedTransactionType, 
-  setSelectedTransactionType 
+  setSelectedTransactionType,
+  onUpdateTransaction,
+  onDeleteTransaction,
+  onRestoreTransaction,
+  onRefreshTransactions
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showAllTransactions, setShowAllTransactions] = useState(false);
@@ -49,13 +62,32 @@ const RecentTransactions = ({
   const [showCategoryFilter, setShowCategoryFilter] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
+  const [isExporting, setIsExporting] = useState(false)
+  const {t} =useTranslation();
+  
+  // New state for edit and delete functionality
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [editValues, setEditValues] = useState({});
+  const [deleteConfirmation, setDeleteConfirmation] = useState(null);
+  const [undoData, setUndoData] = useState(null);
+  const [undoTimer, setUndoTimer] = useState(null);
+  const [showUndo, setShowUndo] = useState(false);
+  const { toast } = useToast();
+  
+  // Clear undo timer on component unmount
+  useEffect(() => {
+    return () => {
+      if (undoTimer) {
+        clearTimeout(undoTimer);
+      }
+    };
+  }, [undoTimer]);
   
   // Determine items per page based on screen size
   const getItemsPerPage = () => {
-    if (isMobile) return 3;
-    if (isSmallScreen) return 4;
-    return 5;
+    if (isMobile) return 10;
+    if (isSmallScreen) return 8;
+    return 10;
   };
   
   const itemsPerPage = getItemsPerPage();
@@ -97,12 +129,13 @@ const RecentTransactions = ({
       );
     }
     
-    // Filter by recent (last 2 days) if not showing all
+    // Filter by recent (last 2 days) ONLY if not showing all transactions
     if (!showAllTransactions) {
       const twoDaysAgo = new Date();
       twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
       filtered = filtered.filter(t => new Date(t.date) >= twoDaysAgo);
     }
+    // When showAllTransactions is true, we don't apply any date filter
     
     // Filter by search query
     if (searchQuery.trim()) {
@@ -153,6 +186,172 @@ const RecentTransactions = ({
     setSelectedTransactionType("all");
   };
 
+  // Handle editing transactions
+  const startEdit = (transaction, index) => {
+    setEditingTransaction(index);
+    setEditValues({
+      description: transaction.description || '',
+      category: transaction.category,
+      amount: Math.abs(parseFloat(transaction.displayAmount.replace(/[^\d.-]/g, ''))),
+      date: transaction.date,
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingTransaction(null);
+    setEditValues({});
+  };
+
+  const saveEdit = async (transaction) => {
+    try {
+      const updatedTransaction = {
+        ...transaction,
+        description: editValues.description,
+        category: editValues.category,
+        amount: parseFloat(editValues.amount),
+        date: editValues.date,
+      };
+
+      if (onUpdateTransaction) {
+        await onUpdateTransaction(updatedTransaction);
+        toast({
+          title: "Updated",
+          description: "Transaction updated successfully.",
+          duration: 2000,
+        });
+      }
+
+      setEditingTransaction(null);
+      setEditValues({});
+      
+      // Refresh transactions if callback provided
+      if (onRefreshTransactions) {
+        onRefreshTransactions();
+      }
+    } catch (error) {
+      console.error("Error updating transaction:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update transaction.",
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
+  };
+
+  // Handle deleting transactions
+  const confirmDelete = (transaction, index) => {
+    setDeleteConfirmation({ transaction, index });
+  };
+
+  const executeDelete = async () => {
+    if (!deleteConfirmation) return;
+
+    try {
+      const { transaction } = deleteConfirmation;
+      
+      if (onDeleteTransaction) {
+        await onDeleteTransaction(transaction);
+      }
+
+      // Set up undo functionality
+      setUndoData({
+        transaction,
+        action: 'delete',
+        timestamp: Date.now(),
+      });
+
+      // Show undo toast
+      setShowUndo(true);
+
+      // Set timer to hide undo after 5 seconds
+      const timer = setTimeout(() => {
+        setShowUndo(false);
+        setUndoData(null);
+        setUndoTimer(null);
+      }, 5000);
+      
+      setUndoTimer(timer);
+
+      toast({
+        title: "Deleted",
+        description: "Transaction deleted. Undo available for 5 seconds.",
+        duration: 2000,
+      });
+
+      setDeleteConfirmation(null);
+      
+      // Refresh transactions if callback provided
+      if (onRefreshTransactions) {
+        onRefreshTransactions();
+      }
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete transaction.",
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmation(null);
+  };
+
+  // Handle undo functionality
+  const handleUndo = async () => {
+    if (!undoData) return;
+
+    try {
+      if (undoData.action === 'delete') {
+        console.log('Attempting to restore transaction:', undoData.transaction);
+        
+        // Use the restore callback if available, otherwise fall back to update
+        if (onRestoreTransaction) {
+          await onRestoreTransaction(undoData.transaction);
+        } else if (onUpdateTransaction) {
+          // Fallback approach - try to re-add as new transaction
+          const transactionToRestore = {
+            ...undoData.transaction,
+            id: undefined, // Remove ID to create new one
+            amount: Math.abs(undoData.transaction.amount),
+          };
+          await onUpdateTransaction(transactionToRestore);
+        }
+        
+        toast({
+          title: "Restored",
+          description: "Transaction restored successfully.",
+          duration: 2000,
+        });
+      }
+
+      // Clear undo data and timer
+      setShowUndo(false);
+      setUndoData(null);
+      if (undoTimer) {
+        clearTimeout(undoTimer);
+        setUndoTimer(null);
+      }
+
+      // Refresh transactions if callback provided
+      if (onRefreshTransactions) {
+        onRefreshTransactions();
+      }
+    } catch (error) {
+      console.error("Error undoing action:", error);
+      console.error("Transaction data:", undoData.transaction);
+      toast({
+        title: "Error",
+        description: `Failed to restore: ${error.message}`,
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
+  };
+
   // Generate CSV data for Excel export with direct download
   const exportToExcel = () => {
     if (filteredTransactions.length === 0) {
@@ -198,247 +397,185 @@ const RecentTransactions = ({
       setIsExporting(false);
     }
   };
+  // Replace your existing exportToPDF function with this corrected version
 
-  // Generate PDF and download directly (using jsPDF)
-  // Generate PDF and download directly (using jsPDF)
-  const exportToPDF = () => {
-    if (filteredTransactions.length === 0) {
-      alert("No transactions to export");
-      return;
-    }
+const exportToPDF = () => {
+  if (filteredTransactions.length === 0) {
+    alert("No transactions to export");
+    return;
+  }
+  
+  setIsExporting(true);
+  
+  try {
+    console.log("Starting PDF generation with", filteredTransactions.length, "transactions");
+
     
-    setIsExporting(true);
+    // Create PDF document
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
     
-    try {
-      // Create PDF document with explicit settings
-      const doc = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // Add title
-      doc.setFontSize(18);
-      doc.text("Transaction Report", 14, 22);
-      
-      // Add generation date
-      doc.setFontSize(10);
-      doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric'
-      })}`, 14, 30);
-      
-      // Add summary section
-      doc.setFontSize(12);
-      doc.text("Summary", 14, 40);
-      
-      // Safer parsing of currency values
-      const parseCurrency = (str) => {
-        try {
-          if (typeof str !== 'string') {
-            return typeof str === 'number' ? str : 0;
-          }
-          // Remove currency symbols, commas, and other non-numeric chars except decimal point and minus
-          const cleaned = str.replace(/[^\d.-]/g, '');
-          const value = parseFloat(cleaned);
-          return isNaN(value) ? 0 : value;
-        } catch (e) {
-          console.warn("Failed to parse amount:", str, e);
-          return 0;
-        }
-      };
-      
-      const totalIncome = filteredTransactions
-        .filter(t => t.isIncome)
-        .reduce((sum, t) => sum + parseCurrency(t.displayAmount), 0);
+    console.log("PDF document created");
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text("Transaction Report", 14, 22);
+    
+    // Add generation date
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString('en-IN')}`, 14, 30);
+    
+    // Add summary
+    doc.setFontSize(12);
+    doc.text("Summary", 14, 40);
+    
+    const totalIncome = filteredTransactions
+      .filter(t => t.isIncome)
+      .reduce((sum, t) => {
+        const amount = parseFloat(t.displayAmount.replace(/[^\d.-]/g, ''));
+        return sum + (isNaN(amount) ? 0 : amount);
+      }, 0);
         
-      const totalExpense = filteredTransactions
-        .filter(t => !t.isIncome)
-        .reduce((sum, t) => sum + parseCurrency(t.displayAmount), 0);
-      
-      // Custom format currency function that uses "Rs. " prefix instead of the rupee symbol
-      const formatCurrency = (amount) => {
-        const formatter = new Intl.NumberFormat('en-IN', {
-          maximumFractionDigits: 0
-        });
+    const totalExpense = filteredTransactions
+      .filter(t => !t.isIncome)
+      .reduce((sum, t) => {
+        const amount = parseFloat(t.displayAmount.replace(/[^\d.-]/g, ''));
+        return sum + (isNaN(amount) ? 0 : amount);
+      }, 0);
+    
+    console.log("Calculated totals - Income:", totalIncome, "Expense:", totalExpense);
+    
+    doc.setFontSize(10);
+    doc.text(`Total Transactions: ${filteredTransactions.length}`, 14, 48);
+    doc.text(`Income: Rs ${totalIncome.toLocaleString('en-IN')}`, 14, 54);
+    doc.text(`Expenses: Rs ${totalExpense.toLocaleString('en-IN')}`, 14, 60);
+    doc.text(`Net: Rs ${(totalIncome - totalExpense).toLocaleString('en-IN')}`, 14, 66);
+    
+    // Add transactions table
+    const tableData = filteredTransactions.map(t => {
+      try {
+        // Clean and format amount properly
+        const rawAmount = parseFloat(t.displayAmount.replace(/[^\d.-]/g, ''));
+        const formattedAmount = `Rs ${isNaN(rawAmount) ? '0' : rawAmount.toLocaleString('en-IN')}`;
         
-        const prefix = amount >= 0 ? "Rs. " : "-Rs. ";
-        const absAmount = Math.abs(amount);
+        return [
+          (t.description || 'No description').toString().substring(0, 40),
+          (t.category || 'Unknown').toString().substring(0, 15),
+          formattedAmount,
+          new Date(t.date).toLocaleDateString('en-IN'),
+          t.isIncome ? 'Income' : 'Expense'
+        ];
+      } catch (error) {
+        console.error("Error processing transaction for PDF:", t, error);
+        return [
+          'Error processing transaction',
+          'Unknown',
+          'Rs 0',
+          'Invalid Date',
+          'Unknown'
+        ];
+      }
+    });
+    
+    console.log("Table data prepared, rows:", tableData.length);
+    
+    // Simple table without autoTable plugin
+    const startY = 75;
+    const lineHeight = 6;
+    let currentY = startY;
+    
+    // Table header
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.rect(14, currentY, 180, 8);
+    doc.text('Description', 16, currentY + 5);
+    doc.text('Category', 71, currentY + 5);
+    doc.text('Amount', 101, currentY + 5);
+    doc.text('Date', 136, currentY + 5);
+    doc.text('Type', 166, currentY + 5);
+    currentY += 8;
+    
+    // Table rows
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    
+    tableData.forEach((row, index) => {
+      if (currentY > 270) { // Check if we need a new page
+        doc.addPage();
+        currentY = 20;
         
-        return `${prefix}${formatter.format(absAmount)}`;
-      };
-      
-      doc.setFontSize(10);
-      doc.text(`Total Transactions: ${filteredTransactions.length}`, 14, 48);
-      doc.text(`Income Transactions: ${filteredTransactions.filter(t => t.isIncome).length}`, 14, 54);
-      doc.text(`Expense Transactions: ${filteredTransactions.filter(t => !t.isIncome).length}`, 14, 60);
-      doc.text(`Total Income: ${formatCurrency(totalIncome)}`, 14, 66);
-      doc.text(`Total Expenses: ${formatCurrency(-totalExpense)}`, 14, 72);
-      doc.text(`Net Balance: ${formatCurrency(totalIncome - totalExpense)}`, 14, 78);
-      
-      // Add transaction table
-      doc.setFontSize(12);
-      doc.text("Transaction Details", 14, 90);
-      
-      // Define column headers and widths
-      const columns = [
-        { header: "Description", width: 50 },
-        { header: "Category", width: 30 },
-        { header: "Amount", width: 25 },
-        { header: "Date", width: 25 },
-        { header: "Type", width: 20 }
-      ];
-      
-      // Draw header row
-      let startY = 95;
-      let startX = 14;
-      
-      // Draw header background
-      doc.setFillColor(66, 66, 66);
-      doc.rect(startX, startY, columns.reduce((sum, col) => sum + col.width, 0), 7, 'F');
-      
-      // Draw header text
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(8);
-      
-      columns.forEach(col => {
-        doc.text(col.header, startX + 2, startY + 5);
-        startX += col.width;
-      });
-      
-      // Reset text color
-      doc.setTextColor(0, 0, 0);
-      
-      // Draw data rows
-      startY += 7; // Move down after header
-      
-      // Process all transactions
-      for (let i = 0; i < filteredTransactions.length; i++) {
-        const t = filteredTransactions[i];
+        // Repeat header on new page
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(10);
+        doc.rect(14, currentY, 180, 8);
+        doc.text('Description', 16, currentY + 5);
+        doc.text('Category', 71, currentY + 5);
+        doc.text('Amount', 101, currentY + 5);
+        doc.text('Date', 136, currentY + 5);
+        doc.text('Type', 166, currentY + 5);
+        currentY += 8;
         
-        // Set row background - alternate colors
-        if (i % 2 === 1) {
-          doc.setFillColor(240, 240, 240);
-          doc.rect(14, startY, columns.reduce((sum, col) => sum + col.width, 0), 7, 'F');
-        }
-        
-        startX = 14;
-        
-        // Handle potentially null or undefined values
-        const description = ((t.description || '') + '').substring(0, 20); // Limit length for PDF
-        const category = (t.category || '') + '';
-        
-        // Format amount with "Rs." prefix to avoid encoding issues
-        let amountStr = '';
-        try {
-          const amountValue = parseCurrency(t.displayAmount);
-          const isNegative = amountValue < 0 || (typeof t.displayAmount === 'string' && t.displayAmount.includes('-'));
-          
-          // Use plain "Rs." with no special characters
-          const prefix = !isNegative ? "+" : "-";
-          const absAmount = Math.abs(amountValue);
-          
-          amountStr = `${prefix}Rs. ${new Intl.NumberFormat('en-IN', {
-            maximumFractionDigits: 0
-          }).format(absAmount)}`;
-        } catch (e) {
-          amountStr = t.displayAmount || '0';
-        }
-        
-        // Format date
-        let dateStr = '';
-        try {
-          if (t.date) {
-            const dateObj = new Date(t.date);
-            if (!isNaN(dateObj.getTime())) {
-              dateStr = dateObj.toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'numeric',
-                year: 'numeric'
-              }).replace(/\//g, '/'); // Ensure consistent date separator
-            }
-          }
-        } catch (e) {
-          dateStr = '';
-        }
-        
-        const type = t.isIncome ? 'Income' : 'Expense';
-        
-        // Draw cell values
-        const rowData = [description, category, amountStr, dateStr, type];
-        
-        for (let j = 0; j < columns.length; j++) {
-          // Align amount to right
-          if (j === 2) { // Amount column
-            const textWidth = doc.getStringUnitWidth(rowData[j]) * doc.internal.getFontSize() / doc.internal.scaleFactor;
-            doc.text(rowData[j], startX + columns[j].width - textWidth - 2, startY + 5);
-          } else {
-            doc.text(rowData[j], startX + 2, startY + 5);
-          }
-          startX += columns[j].width;
-        }
-        
-        startY += 7; // Move to next row
-        
-        // Add new page if needed
-        if (startY > 270) {
-          doc.addPage();
-          startY = 20;
-          
-          // Add header on new page
-          startX = 14;
-          doc.setFillColor(66, 66, 66);
-          doc.rect(startX, startY, columns.reduce((sum, col) => sum + col.width, 0), 7, 'F');
-          
-          doc.setTextColor(255, 255, 255);
-          columns.forEach(col => {
-            doc.text(col.header, startX + 2, startY + 5);
-            startX += col.width;
-          });
-          
-          doc.setTextColor(0, 0, 0);
-          startY += 7;
-        }
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
       }
       
-      // Draw borders around the table
-      doc.setLineWidth(0.1);
-      doc.line(14, 95, 14 + columns.reduce((sum, col) => sum + col.width, 0), 95); // Top border
-      doc.line(14, 95, 14, startY); // Left border
-      doc.line(14 + columns.reduce((sum, col) => sum + col.width, 0), 95, 14 + columns.reduce((sum, col) => sum + col.width, 0), startY); // Right border
-      doc.line(14, startY, 14 + columns.reduce((sum, col) => sum + col.width, 0), startY); // Bottom border
-      
-      // Draw column separators
-      let colX = 14;
-      for (let i = 0; i < columns.length - 1; i++) {
-        colX += columns[i].width;
-        doc.line(colX, 95, colX, startY);
+      // Alternate row colors
+      if (index % 2 === 0) {
+        doc.setFillColor(245, 245, 245);
+        doc.rect(14, currentY, 180, lineHeight, 'F');
       }
       
-      // Footer
-      const pageCount = doc.internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.text(
-          `Page ${i} of ${pageCount}`,
-          doc.internal.pageSize.width / 2,
-          doc.internal.pageSize.height - 10,
-          { align: 'center' }
-        );
-      }
+      // Row border
+      doc.rect(14, currentY, 180, lineHeight);
       
-      // Save file with date in filename
-      doc.save(`transaction_report_${new Date().toISOString().split('T')[0]}.pdf`);
+      // Cell content
+      doc.text(row[0], 16, currentY + 4);
+      doc.text(row[1], 71, currentY + 4);
+      doc.text(row[2], 101, currentY + 4);
+      doc.text(row[3], 136, currentY + 4);
+      doc.text(row[4], 166, currentY + 4);
       
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert(`Failed to generate PDF: ${error.message}`);
-    } finally {
-      setIsExporting(false);
-    }
-  };
+      currentY += lineHeight;
+    });
+    
+    console.log("Table added successfully");
+    
+    // Save file
+    const fileName = `transaction_report_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    
+    console.log("PDF saved successfully:", fileName);
+    
+    // Show success message
+    toast({
+      title: "Export Successful",
+      description: "PDF report has been downloaded successfully.",
+      duration: 3000,
+    });
+    
+  } catch (error) {
+    console.error("Error generating PDF:", error);
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      transactionCount: filteredTransactions.length,
+      sampleTransaction: filteredTransactions[0]
+    });
+    
+    // Show error message
+    toast({
+      title: "Export Failed",
+      description: `Failed to generate PDF: ${error.message}`,
+      variant: "destructive",
+      duration: 5000,
+    });
+  } finally {
+    setIsExporting(false);
+  }
+};
 
   // Format currency for display
   const formatCurrency = (amount) => {
@@ -475,10 +612,10 @@ const RecentTransactions = ({
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-col space-y-3 sm:space-y-4 p-3 sm:p-6">
+  <CardHeader className="flex flex-col space-y-3 sm:space-y-4 p-3 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
           <CardTitle className="text-lg sm:text-xl">
-            {showAllTransactions ? "All Transactions" : "Recent Transactions"}
+            {showAllTransactions ? t('dashboard.transactions.all') : t('dashboard.transactions.recent')}
             {selectedCategories.length > 0 && (
               <Badge variant="outline" className="ml-2 font-normal text-xs">
                 {selectedCategories.length} {selectedCategories.length === 1 ? 'category' : 'categories'} selected
@@ -489,13 +626,13 @@ const RecentTransactions = ({
           <div className="flex items-center space-x-2 mt-2 sm:mt-0">
             {selectedTransactionType !== 'all' && (
               <Badge variant={selectedTransactionType === 'income' ? 'success' : 'destructive'} className="capitalize">
-                {selectedTransactionType}
+                {selectedTransactionType === 'income' ? t('dashboard.transactions.income') : t('dashboard.transactions.expense')}
               </Badge>
             )}
             
             {showAllTransactions && filteredTransactions.length > 0 && selectedCategories.length === 0 && selectedTransactionType === 'all' && !searchQuery && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2">
-                Reset filters
+                {t('dashboard.transactions.resetFilters')}
               </Button>
             )}
           </div>
@@ -506,7 +643,7 @@ const RecentTransactions = ({
             <div className="relative w-full">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search transactions..."
+                placeholder={t('dashboard.transactions.searchPlaceholder')}
                 className="pl-8 w-full"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -518,7 +655,7 @@ const RecentTransactions = ({
                 <PopoverTrigger asChild>
                   <Button variant="outline" className="flex-1 sm:flex-none">
                     <Filter className="h-4 w-4 mr-2" />
-                    Filter
+                    {t('dashboard.transactions.filter')}
                     {selectedCategories.length > 0 && (
                       <Badge variant="secondary" className="ml-2">
                         {selectedCategories.length}
@@ -575,7 +712,7 @@ const RecentTransactions = ({
                     disabled={filteredTransactions.length === 0 || isExporting}
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    Export
+                    {t('dashboard.transactions.export')}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-[200px] p-0" side="bottom">
@@ -587,7 +724,7 @@ const RecentTransactions = ({
                       disabled={filteredTransactions.length === 0 || isExporting}
                     >
                       <FileText className="mr-2 h-4 w-4" />
-                      Export as PDF
+                      {t('dashboard.transactions.exportPDF')}
                     </Button>
                     <Button 
                       variant="ghost" 
@@ -596,7 +733,7 @@ const RecentTransactions = ({
                       disabled={filteredTransactions.length === 0 || isExporting}
                     >
                       <FileDown className="mr-2 h-4 w-4" />
-                      Export as Excel
+                      {t('dashboard.transactions.exportExcel')}
                     </Button>
                   </div>
                 </PopoverContent>
@@ -607,12 +744,12 @@ const RecentTransactions = ({
                 onValueChange={setSelectedTransactionType}
               >
                 <SelectTrigger className="flex-1 sm:flex-none sm:w-[140px]">
-                  <SelectValue placeholder="Transaction Type" />
+                  <SelectValue placeholder={t('dashboard.transactions.transactionType')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="income">Income</SelectItem>
-                  <SelectItem value="expense">Expenses</SelectItem>
+                  <SelectItem value="all">{t('dashboard.transactions.allTypes')}</SelectItem>
+                  <SelectItem value="income">{t('dashboard.transactions.income')}</SelectItem>
+                  <SelectItem value="expense">{t('dashboard.transactions.expense')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -623,27 +760,27 @@ const RecentTransactions = ({
         {summary && showAllTransactions && filteredTransactions.length > 0 && (
           <div className="grid grid-cols-2 gap-2 mt-2 bg-muted/30 p-2 sm:p-3 rounded-md sm:grid-cols-3 lg:grid-cols-6">
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Transactions</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.transactions')}</span>
               <span className="font-medium">{summary.totalTransactions}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Income</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.income')}</span>
               <span className="font-medium text-green-600">{summary.incomeTransactions}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Expenses</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.expenses')}</span>
               <span className="font-medium text-red-600">{summary.expenseTransactions}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Total Income</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.totalIncome')}</span>
               <span className="font-medium text-green-600">{summary.totalIncome}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Total Expenses</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.totalExpenses')}</span>
               <span className="font-medium text-red-600">{summary.totalExpense}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Net Balance</span>
+              <span className="text-xs text-muted-foreground">{t('dashboard.transactions.summary.netBalance')}</span>
               <span className="font-medium">{summary.netBalance}</span>
             </div>
           </div>
@@ -652,85 +789,252 @@ const RecentTransactions = ({
       
       <CardContent className="p-0 sm:p-6">
         <div className="overflow-x-auto">
-          <Table className="min-w-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-1/3 sm:w-auto">Description</TableHead>
-                <TableHead className="hidden sm:table-cell">Category</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead className="hidden sm:table-cell">Date</TableHead>
-                <TableHead>Type</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedTransactions.length > 0 ? (
-                paginatedTransactions.map((transaction, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="cursor-help">{transaction.description}</span>
-                          </TooltipTrigger>
-                          <TooltipContent side="top" align="start" className="max-w-xs">
-                            <p>{transaction.description}</p>
-                            {/* Show hidden info on mobile */}
-                            <div className="block sm:hidden mt-1 text-xs">
-                              <p>Category: {transaction.category}</p>
-                              <p>Date: {new Date(transaction.date).toLocaleDateString('en-IN')}</p>
-                            </div>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell max-w-[120px] truncate">{transaction.category}</TableCell>
-                    <TableCell 
-                      className={transaction.isIncome ? 'text-green-600 whitespace-nowrap font-medium' : 'text-red-600 whitespace-nowrap font-medium'}
-                    >
-                      {transaction.displayAmount}
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell whitespace-nowrap">
-                      {new Date(transaction.date).toLocaleDateString('en-IN')}
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant={transaction.isIncome ? "success" : "destructive"} 
-                        className="rounded-md text-xs sm:text-sm"
-                      >
-                        {transaction.isIncome ? 'Income' : 'Expense'}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-24 sm:h-32 text-center">
-                      <div className="flex flex-col items-center justify-center gap-1 p-4">
-                        <Info className="h-8 w-8 text-muted-foreground/60" />
-                        <p className="text-lg font-medium">No transactions found</p>
-                        {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
-                          <p className="text-sm text-muted-foreground">Try changing your search or filter criteria</p>
-                        )}
-                        {!showAllTransactions && (
-                          <p className="text-sm text-muted-foreground">No recent transactions in the last 2 days</p>
-                        )}
-                        {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={clearFilters} 
-                            className="mt-2"
-                          >
-                            Clear filters
-                          </Button>
-                        )}
-                      </div>
+        <Table className="min-w-full">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-1/3 sm:w-auto">Description</TableHead>
+              <TableHead className="hidden sm:table-cell">Category</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead className="hidden sm:table-cell">Date</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead className="w-20">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedTransactions.length > 0 ? (
+              paginatedTransactions.map((transaction, index) => (
+                <TableRow key={transaction.id || index}>
+                  {editingTransaction === index ? (
+                    // Edit mode
+                    <>
+                      <TableCell className="p-2">
+                        <Input
+                          value={editValues.description}
+                          onChange={(e) => setEditValues(prev => ({ ...prev, description: e.target.value }))}
+                          placeholder="Description"
+                          className="h-8 text-sm"
+                        />
                       </TableCell>
-                    </TableRow>
+                      <TableCell className="hidden sm:table-cell p-2">
+                        <Select
+                          value={editValues.category}
+                          onValueChange={(value) => setEditValues(prev => ({ ...prev, category: value }))}
+                        >
+                          <SelectTrigger className="h-8 text-sm">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {categories.map(cat => (
+                              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <div className="relative">
+                          <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-sm">₹</span>
+                          <Input
+                            type="number"
+                            value={editValues.amount}
+                            onChange={(e) => setEditValues(prev => ({ ...prev, amount: e.target.value }))}
+                            className="h-8 pl-6 text-sm"
+                            min="0"
+                            step="0.01"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell p-2">
+                        <Input
+                          type="date"
+                          value={editValues.date ? new Date(editValues.date).toISOString().split('T')[0] : ''}
+                          onChange={(e) => setEditValues(prev => ({ ...prev, date: new Date(e.target.value).toISOString() }))}
+                          className="h-8 text-sm"
+                        />
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <Badge 
+                          variant={transaction.isIncome ? "success" : "destructive"} 
+                          className="rounded-md text-xs"
+                        >
+                          {transaction.isIncome ? 'Income' : 'Expense'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <div className="flex justify-end gap-1">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => saveEdit(transaction)}
+                            className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50 dark:hover:bg-green-900/20"
+                          >
+                            <Save className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={cancelEdit}
+                            className="h-7 w-7 p-0 text-gray-600 hover:text-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </>
+                  ) : (
+                    // View mode
+                    <>
+                      <TableCell className="font-medium truncate max-w-[120px] sm:max-w-[200px]">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="cursor-help">{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</span>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" align="start" className="max-w-xs">
+                              <p>{transaction.description && transaction.description.trim() !== '' ? transaction.description : 'No description added'}</p>
+                              {/* Show hidden info on mobile */}
+                              <div className="block sm:hidden mt-1 text-xs">
+                                <p>Category: {transaction.category}</p>
+                                <p>Date: {new Date(transaction.date).toLocaleDateString('en-IN')}</p>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell max-w-[120px] truncate">{transaction.category}</TableCell>
+                      <TableCell 
+                        className={transaction.isIncome ? 'text-green-600 whitespace-nowrap font-medium' : 'text-red-600 whitespace-nowrap font-medium'}
+                      >
+                        {transaction.displayAmount}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell whitespace-nowrap">
+                        {new Date(transaction.date).toLocaleDateString('en-IN')}
+                      </TableCell>
+                      <TableCell>
+                        <Badge 
+                          variant={transaction.isIncome ? "success" : "destructive"} 
+                          className="rounded-md text-xs sm:text-sm"
+                        >
+                          {transaction.isIncome ? 'Income' : 'Expense'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="p-2">
+                        <div className="flex justify-end gap-1">
+                          {!transaction.isIncome && (
+                            <>
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => startEdit(transaction, index)}
+                                      className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    >
+                                      <Edit2 className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Edit transaction</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                              
+                              <TooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => confirmDelete(transaction, index)}
+                                      className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>Delete transaction</p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </>
+                          )}
+                          {transaction.isIncome && (
+                            <>
+                              <InstantTooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled
+                                        className="h-7 w-7 p-0 text-muted-foreground/40 cursor-not-allowed"
+                                      >
+                                        <Edit2 className="h-3 w-3" />
+                                      </Button>
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <span className="text-xs">Cannot edit or delete income here. Go to the Income page.</span>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </InstantTooltipProvider>
+                              <InstantTooltipProvider>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled
+                                        className="h-7 w-7 p-0 text-muted-foreground/40 cursor-not-allowed"
+                                      >
+                                        <Trash2 className="h-3 w-3" />
+                                      </Button>
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <span className="text-xs">Cannot edit or delete income here. Go to the Income page.</span>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </InstantTooltipProvider>
+                            </>
+                          )}
+                        </div>
+                      </TableCell>
+                    </>
                   )}
-                </TableBody>
-              </Table>
-            </div>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 sm:h-32 text-center">
+                  <div className="flex flex-col items-center justify-center gap-1 p-4">
+                    <Info className="h-8 w-8 text-muted-foreground/60" />
+                    <p className="text-lg font-medium">{t('dashboard.transactions.empty.title')}</p>
+                    {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
+                      <p className="text-sm text-muted-foreground">{t('dashboard.transactions.empty.filtered')}</p>
+                    )}
+                    {!showAllTransactions && (
+                      <p className="text-sm text-muted-foreground">{t('dashboard.transactions.empty.recent')}</p>
+                    )}
+                    {showAllTransactions && (searchQuery || selectedCategories.length > 0 || selectedTransactionType !== 'all') && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={clearFilters} 
+                        className="mt-2"
+                      >
+                        {t('dashboard.transactions.clearFilters')}
+                      </Button>
+                    )}
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
           </CardContent>
       
           <CardFooter className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 sm:p-6">
@@ -801,7 +1105,7 @@ const RecentTransactions = ({
           }}
           className="flex-1 sm:flex-initial text-xs sm:text-sm"
         >
-          {showAllTransactions ? "Recent Only" : "View All"}
+          {showAllTransactions ? t('dashboard.transactions.recentOnly') : t('dashboard.transactions.viewAll')}
         </Button>
         
         <div className="flex items-center gap-1">
@@ -827,8 +1131,82 @@ const RecentTransactions = ({
         </div>
       </div>
     </CardFooter>
+    
+    {/* Delete Confirmation Dialog */}
+    <Dialog open={!!deleteConfirmation} onOpenChange={() => setDeleteConfirmation(null)}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-red-600" />
+            Confirm Deletion
+          </DialogTitle>
+          <DialogDescription>
+            Are you sure you want to delete this transaction? This action cannot be undone directly, but you&apos;ll have 5 seconds to undo after deletion.
+          </DialogDescription>
+        </DialogHeader>
+        {deleteConfirmation && (
+          <div className="py-4">
+            <div className="space-y-2 text-sm">
+              <p><strong>Description:</strong> {deleteConfirmation.transaction.description || 'No description'}</p>
+              <p><strong>Category:</strong> {deleteConfirmation.transaction.category}</p>
+              <p><strong>Amount:</strong> {deleteConfirmation.transaction.displayAmount}</p>
+              <p><strong>Date:</strong> {new Date(deleteConfirmation.transaction.date).toLocaleDateString('en-IN')}</p>
+            </div>
+          </div>
+        )}
+        <DialogFooter>
+          <Button variant="outline" onClick={cancelDelete}>
+            Cancel
+          </Button>
+          <Button variant="destructive" onClick={executeDelete}>
+            Delete Transaction
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    {/* Undo Toast */}
+    {showUndo && undoData && (
+      <div className="fixed top-16 left-2 right-2 sm:top-4 sm:right-4 sm:left-auto sm:w-auto z-50 animate-in slide-in-from-top-2 duration-300">
+        <Card className="border border-orange-200 bg-orange-50 shadow-lg max-w-sm mx-auto sm:mx-0">
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-orange-900 truncate">
+                  Transaction deleted
+                </p>
+                <p className="text-xs text-orange-700 hidden sm:block">
+                  Click undo to restore the transaction
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleUndo}
+                className="bg-white dark:bg-gray-800 border-orange-300 dark:border-orange-700 text-orange-900 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/20 text-xs px-2 py-1 h-7 sm:h-8 sm:px-3 sm:py-2"
+              >
+                <Undo className="h-3 w-3 sm:mr-1" />
+                <span className="hidden sm:inline">Undo</span>
+              </Button>
+            </div>
+            <div className="mt-2 w-full bg-orange-200 dark:bg-orange-800 rounded-full h-0.5 sm:h-1">
+              <div 
+                className="bg-orange-500 h-0.5 sm:h-1 rounded-full animate-pulse"
+                style={{ width: '100%' }}
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )}
+    <Toaster />
     </Card>
   );
 };
 
+const InstantTooltipProvider = ({ children }) => (
+  <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+);
+
 export default RecentTransactions;
+export { InstantTooltipProvider };
