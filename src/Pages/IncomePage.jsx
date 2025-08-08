@@ -374,10 +374,9 @@ export default function IncomeDashboard() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
 
-                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                  {t('income.title')}
-
-                </h2>
+               <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white">
+  {t('income.title')}
+</h2>
                 <div className="flex items-center gap-4">
                  
                   <ProfileButton
@@ -391,14 +390,12 @@ export default function IncomeDashboard() {
           </header>
 
           <main className="flex-1 overflow-y-auto bg-gray-100 dark:bg-gray-900">
-            <div className="max-w-4xl mx-auto p-6 space-y-6">
+           <div className="max-w-4xl mx-auto p-4 sm:p-6 space-y-6">
               <Card className="rounded-lg border bg-card text-card-foreground shadow-sm">
                 <CardHeader>
-
-                  <CardDescription className="text-sm font-medium text-muted-foreground">
-                    {t('income.cards.totalBalance')}
-                  </CardDescription>
-
+<CardDescription className="text-xs sm:text-sm font-medium text-muted-foreground">
+  {t('income.cards.totalBalance')}
+</CardDescription>
                   <CardTitle className="text-4xl font-bold">
                     {t('common.currency')}{totalBalance.toLocaleString()}
                   </CardTitle>
@@ -407,13 +404,13 @@ export default function IncomeDashboard() {
 
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold px-1">{t('income.accounts.title')}</h2>
-                <div className="grid gap-4">
+               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {accounts.map((account, index) => (
                     <Card
                       key={index}
                       className="group rounded-lg border bg-card text-card-foreground shadow-sm"
                     >
-                      <CardContent className="p-4">
+                      <CardContent className="p-3 sm:p-4">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
                             <div className="p-2 rounded-full bg-primary/10 text-primary">

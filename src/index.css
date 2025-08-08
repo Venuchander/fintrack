@@ -82,4 +82,7 @@
     max-width: 100%;
     box-sizing: border-box;
   }
+  .settings-container {
+    padding-top: 80px; /* or margin-top */
+  }
 }
