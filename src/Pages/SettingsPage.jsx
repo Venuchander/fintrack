@@ -17,13 +17,14 @@ import LanguageSwitcher from "../components/components/LanguageSwitcher";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from 'react-i18next'
+import { useSidebar } from '../contexts/SidebarContext'
 
 const SettingsPage = () => {
   const navigate = useNavigate()
   const { t } = useTranslation();
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar()
   const [notificationsEnabled, setNotificationsEnabled] = useState(true)
   const [phoneNumber, setPhoneNumber] = useState('')
   const [isEditingPhone, setIsEditingPhone] = useState(false)
@@ -117,14 +118,14 @@ const SettingsPage = () => {
         {isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-20"
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={closeSidebar}
             aria-label="Close sidebar"
           />
         )}
 
         <Sidebar
           isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
+          onClose={closeSidebar}
           user={user}
         />
 
@@ -136,7 +137,7 @@ const SettingsPage = () => {
                 <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('settings.title')}</h1>
                 <ProfileButton
                   user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onMenuToggle={toggleSidebar}
                   onLogout={() => auth.signOut()}
                 />
 

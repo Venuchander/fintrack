@@ -27,6 +27,7 @@ import * as z from "zod";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from 'react-i18next';
+import { useSidebar } from "../contexts/SidebarContext";
 
 const formSchema = z.object({
   amount: z.string().min(1, "Amount is required"),
@@ -48,7 +49,7 @@ function AddExpense() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(false)
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const [showSuccess, setShowSuccess] = useState(false);
   const [bankAccounts, setBankAccounts] = useState([]);
   const [creditCards, setCreditCards] = useState([]);
@@ -325,12 +326,12 @@ const generateAIDescription = async () => {
     <div className="flex min-h-screen flex-col sm:flex-row">
         {isSidebarOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-20"
-            onClick={() => setIsSidebarOpen(false)} />
+            onClick={closeSidebar} />
         )}
 
         <Sidebar
           isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
+          onClose={closeSidebar}
           user={user}
         />
 
@@ -342,7 +343,7 @@ const generateAIDescription = async () => {
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('expense.title')}</h2>
                 <ProfileButton
                   user={user}
-                  onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  onMenuToggle={toggleSidebar}
                   onLogout={() => auth.signOut()}
                 />
               </div>
@@ -486,7 +487,7 @@ const generateAIDescription = async () => {
                                     step="0.01"
                                     min="0"
                                     placeholder="0.00"
-                                    className="pl-7"
+                                    className="pl-7 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                                     {...field}
                                   />
                                 </div>

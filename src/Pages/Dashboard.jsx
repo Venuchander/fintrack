@@ -36,6 +36,7 @@ import RecentTransactions from "../components/components/recentTransactions";
 import MonthlyExpenseChart from "../components/components/MonthlyExpenseCharts";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSidebar } from "../contexts/SidebarContext";
 
 ChartJS.register(
   CategoryScale,
@@ -55,7 +56,7 @@ function Dashboard() {
   const [userData, setUserData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTransactionType, setSelectedTransactionType] = useState("all");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -446,12 +447,12 @@ function Dashboard() {
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30"
-          onClick={() => setIsSidebarOpen(false)}
+          onClick={closeSidebar}
         />
       )}
       <Sidebar
         isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
+        onClose={closeSidebar}
         user={user}
       />
 
@@ -466,7 +467,7 @@ function Dashboard() {
       <div className="absolute right-0 flex items-center space-x-4">
         <ProfileButton
           user={user}
-          onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          onMenuToggle={toggleSidebar}
           onLogout={() => auth.signOut()}
         />
       </div>

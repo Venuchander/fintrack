@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "./lib/firebase";
 import ProfileButton from "../components/components/profile";
 import Sidebar from "../components/components/Sidebar";
 import { getUserData, updateUserAccounts } from "./lib/userService";
 import { Button } from "../components/ui/button";
-import DarkModeToggle from "../components/ui/DarkModeToggle";
 import {
   Card,
   CardContent,
@@ -31,6 +30,12 @@ import {
 } from "../components/ui/select";
 import { Switch } from "../components/ui/switch";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import {
   CreditCard,
   Wallet,
   Building,
@@ -38,11 +43,14 @@ import {
   Plus,
   Edit,
   Trash2,
+  MoreVertical,
+  X,
 } from "lucide-react";
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
+import { useSidebar } from "../contexts/SidebarContext";
 
 const iconMap = {
   Bank: <Building className="w-5 h-5" />,
@@ -59,10 +67,20 @@ export default function IncomeDashboard() {
   const { t } = useTranslation();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
   const [accounts, setAccounts] = useState([]);
   const [totalBalance, setTotalBalance] = useState(0);
   const [editingId, setEditingId] = useState(null);
+
+  // Format currency consistently with Dashboard
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
   const [newAccount, setNewAccount] = useState({
     type: "",
     name: "",
@@ -78,10 +96,6 @@ export default function IncomeDashboard() {
   const [isAddingAccount, setIsAddingAccount] = useState(false);
   const [editValue, setEditValue] = useState("");
   const [editingField, setEditingField] = useState("");
-  const [recurringIncome, setRecurringIncome] = useState({
-    amount: 0,
-    type: "",
-  });
   const [isAddAmountDialogOpen, setIsAddAmountDialogOpen] = useState(false);
   const [selectedAccountIndex, setSelectedAccountIndex] = useState(null);
   const [additionalAmount, setAdditionalAmount] = useState("");
@@ -132,15 +146,6 @@ export default function IncomeDashboard() {
               return sum + account.balance;
             }, 0);
             setTotalBalance(total);
-            const passiveSalaryAccount = displayAccounts.find(
-              (account) => account.name === "Passive/Salary"
-            );
-            if (passiveSalaryAccount) {
-              setRecurringIncome({
-                amount: passiveSalaryAccount.balance,
-                type: "Passive/Salary",
-              });
-            }
           }
         } catch (error) {
           console.error("Error fetching accounts:", error);
@@ -157,6 +162,12 @@ export default function IncomeDashboard() {
     setEditingId(index);
     setEditingField(field);
     setEditValue(accounts[index][field].toString());
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditingField("");
+    setEditValue("");
   };
 
   const handleValueChange = async (index, newValue) => {
@@ -290,28 +301,6 @@ export default function IncomeDashboard() {
     }
   };
 
-  const handleRecurringIncome = async () => {
-    try {
-      const updatedAccounts = accounts.map((account) => {
-        if (account.isRecurringIncome) {
-          return {
-            ...account,
-            balance: account.balance + account.recurringAmount,
-          };
-        }
-        return account;
-      });
-      setAccounts(updatedAccounts);
-
-      if (user) {
-        const result = await updateUserAccounts(user.uid, updatedAccounts);
-        setTotalBalance(result.totalBalance);
-      }
-    } catch (error) {
-      console.error("Error adding recurring income:", error);
-    }
-  };
-
   const handleOpenAddAmountDialog = (index) => {
     setSelectedAccountIndex(index);
     setIsAddAmountDialogOpen(true);
@@ -359,13 +348,13 @@ export default function IncomeDashboard() {
       <div className="flex h-screen">
         <Sidebar
           isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
+          onClose={closeSidebar}
           user={user}
         />
         {isSidebarOpen && (
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-20"
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={closeSidebar}
           />
         )}
 
@@ -382,7 +371,7 @@ export default function IncomeDashboard() {
                  
                   <ProfileButton
                     user={user}
-                    onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                    onMenuToggle={toggleSidebar}
                     onLogout={() => auth.signOut()}
                   />
                 </div>
@@ -400,7 +389,7 @@ export default function IncomeDashboard() {
                   </CardDescription>
 
                   <CardTitle className="text-4xl font-bold">
-                    {t('common.currency')}{totalBalance.toLocaleString()}
+                    {formatCurrency(totalBalance)}
                   </CardTitle>
                 </CardHeader>
               </Card>
@@ -423,33 +412,37 @@ export default function IncomeDashboard() {
                               <h3 className="font-medium">{account.name}</h3>
                               {editingId === index &&
                               editingField === "balance" ? (
-                                <Input
-                                  type="number"
-                                  value={editValue}
-                                  className="w-32 text-sm"
-                                  autoFocus
-                                  
-                                  onChange={(e) => setEditValue(e.target.value)}
-                                  onBlur={() =>
-                                    handleValueChange(index, editValue)
-                                  }
-                                  onKeyPress={(e) => {
-                                    if (e.key === "Enter") {
-                                      handleValueChange(index, editValue);
+                                <div className="flex items-center gap-2">
+                                  <Input
+                                    type="number"
+                                    value={editValue}
+                                    className="w-32 text-sm [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                                    autoFocus
+                                    
+                                    onChange={(e) => setEditValue(e.target.value)}
+                                    onBlur={() =>
+                                      handleValueChange(index, editValue)
                                     }
-                                  }}
-                                />
-                              ) : (
-                                <p className="text-sm text-muted-foreground">
-                                  {t('income.accounts.balance')}: {t('common.currency')}{account.balance.toLocaleString()}
+                                    onKeyPress={(e) => {
+                                      if (e.key === "Enter") {
+                                        handleValueChange(index, editValue);
+                                      } else if (e.key === "Escape") {
+                                        handleCancelEdit();
+                                      }
+                                    }}
+                                  />
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="ml-2"
-                                    onClick={() => handleEdit(index, "balance")}
+                                    onClick={handleCancelEdit}
+                                    className="h-7 w-7 p-0"
                                   >
-                                    <Edit className="w-3 h-3" />
+                                    <X className="w-3 h-3" />
                                   </Button>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-muted-foreground">
+                                  {t('income.accounts.balance')}: {formatCurrency(account.balance)}
                                 </p>
                               )}
                               {account.type === "Credit" && (
@@ -461,69 +454,93 @@ export default function IncomeDashboard() {
                                     {t('income.accounts.expires')}: {account.expiryDate}
                                   </p>
                                   <p className="text-sm text-muted-foreground">
-                                    {t('income.accounts.creditLimit')}: {t('common.currency')}
-                                    {account.creditAmount.toLocaleString()}
+                                    {t('income.accounts.creditLimit')}: {formatCurrency(account.creditAmount)}
                                   </p>
                                 </>
                               )}
                               {account.isRecurringIncome &&
                                 (editingId === index &&
                                 editingField === "recurringAmount" ? (
-                                  <Input
-                                    type="number"
-                                    value={editValue}
-                                    className="w-32 text-sm"
-                                    autoFocus
-                                    onChange={(e) =>
-                                      setEditValue(e.target.value)
-                                    }
-                                    onBlur={() =>
-                                      handleValueChange(index, editValue)
-                                    }
-                                    onKeyPress={(e) => {
-                                      if (e.key === "Enter") {
-                                        handleValueChange(index, editValue);
+                                  <div className="flex items-center gap-2">
+                                    <Input
+                                      type="number"
+                                      value={editValue}
+                                      className="w-32 text-sm [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
+                                      autoFocus
+                                      onChange={(e) =>
+                                        setEditValue(e.target.value)
                                       }
-                                    }}
-                                  />
-                                ) : (
-                                  <p className="text-sm text-muted-foreground">
-                                    {t('income.accounts.monthlyIncome')}: {t('common.currency')}
-                                    {account.recurringAmount.toLocaleString()}
+                                      onBlur={() =>
+                                        handleValueChange(index, editValue)
+                                      }
+                                      onKeyPress={(e) => {
+                                        if (e.key === "Enter") {
+                                          handleValueChange(index, editValue);
+                                        } else if (e.key === "Escape") {
+                                          handleCancelEdit();
+                                        }
+                                      }}
+                                    />
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      className="ml-2"
-                                      onClick={() =>
-                                        handleEdit(index, "recurringAmount")
-                                      }
+                                      onClick={handleCancelEdit}
+                                      className="h-7 w-7 p-0"
                                     >
-                                      <Edit className="w-3 h-3" />
+                                      <X className="w-3 h-3" />
                                     </Button>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-muted-foreground">
+                                    {t('income.accounts.monthlyIncome')}: {formatCurrency(account.recurringAmount)}
                                   </p>
                                 ))}
                             </div>
                           </div>
-                          <div className="flex gap-1 items-center">
-                            <Button
-                              title={t('income.accounts.addFunds')}
-                              variant="ghost"
-                              size="icon"
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-full"
-                              onClick={() => handleOpenAddAmountDialog(index)}
-                            >
-                              <Plus className="w-7 h-7" />
-                            </Button>
-
-                            <Button
-                              title={t('income.accounts.deleteAccount')}
-                              variant="ghost"
-                              size="icon"
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-destructive hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
-                              onClick={() => handleDeleteAccount(index)}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                          <div className="flex items-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 rounded-full"
+                                >
+                                  <MoreVertical className="w-4 h-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="w-48">
+                                <DropdownMenuItem
+                                  onClick={() => handleOpenAddAmountDialog(index)}
+                                  className="text-green-600 focus:text-green-600"
+                                >
+                                  <Plus className="w-4 h-4 mr-2" />
+                                  {t('income.accounts.addFunds')} 
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                  onClick={() => handleEdit(index, "balance")}
+                                  className="text-blue-600 focus:text-blue-600"
+                                >
+                                  <Edit className="w-4 h-4 mr-2" />
+                                  Edit Balance
+                                </DropdownMenuItem>
+                                {account.isRecurringIncome && (
+                                  <DropdownMenuItem
+                                    onClick={() => handleEdit(index, "recurringAmount")}
+                                    className="text-blue-600 focus:text-blue-600"
+                                  >
+                                    <Edit className="w-4 h-4 mr-2" />
+                                    Edit Monthly Income
+                                  </DropdownMenuItem>
+                                )}
+                                <DropdownMenuItem
+                                  onClick={() => handleDeleteAccount(index)}
+                                  className="text-red-600 focus:text-red-600"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  {t('income.accounts.deleteAccount')}
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
                       </CardContent>
@@ -681,7 +698,7 @@ export default function IncomeDashboard() {
                                   creditAmount: e.target.value,
                                 })
                               }
-                              className="col-span-3"
+                              className="col-span-3 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                             />
                           </div>
                         </>
@@ -705,7 +722,7 @@ export default function IncomeDashboard() {
                                 setBalanceError("");
                               }
                             }}
-                            className={`${
+                            className={`[&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] ${
                               balanceError ? "border-red-500 border-2" : ""
                             }`}
                           />
@@ -754,7 +771,7 @@ export default function IncomeDashboard() {
                                     recurringAmount: e.target.value,
                                   })
                                 }
-                                className="col-span-3"
+                                className="col-span-3 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield]"
                               />
                             </div>
                           )}
@@ -787,7 +804,7 @@ export default function IncomeDashboard() {
                       setAdditionalAmount(e.target.value);
                       if (errorMessage) setErrorMessage("");
                     }}
-                    className={`mt-2 ${
+                    className={`mt-2 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [-moz-appearance:textfield] ${
                       errorMessage ? "border border-red-500" : ""
                     }`}
                   />

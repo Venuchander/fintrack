@@ -9,6 +9,7 @@ import Sidebar from '../components/components/Sidebar';
 import { Loader2 } from 'lucide-react';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSidebar } from '../contexts/SidebarContext';
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEN_AI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -33,7 +34,7 @@ const Insights = () => {
   const [userData, setUserData] = useState(null);
   const [insights, setInsights] = useState({ daily: [], weekly: [], monthly: [], yearly: [] });
   const [isLoading, setIsLoading] = useState(true);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const { isSidebarOpen, toggleSidebar, closeSidebar } = useSidebar();
 
   const formatINR = (amount) => `${t('common.currency')}${amount?.toLocaleString('en-IN') || 0}`;
 
@@ -168,14 +169,14 @@ const Insights = () => {
   return (
     <div>
       <div className="flex h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
-        {isSidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-20" onClick={() => setIsSidebarOpen(false)} />}
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
+        {isSidebarOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-20" onClick={closeSidebar} />}
+        <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} user={user} />
         <div className="flex-1 flex flex-col">
           <header className="bg-white dark:bg-gray-800 shadow-sm">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between items-center py-4">
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">{t('insights.title')}</h2>
-                <ProfileButton user={user} onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)} onLogout={() => auth.signOut()} />
+                <ProfileButton user={user} onMenuToggle={toggleSidebar} onLogout={() => auth.signOut()} />
               </div>
             </div>
           </header>

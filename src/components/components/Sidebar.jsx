@@ -1,12 +1,12 @@
 // Sidebar.jsx
 import React from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { PieChart, IndianRupee, MessageSquare, Brain, LogOut, Wallet, Settings, Bot } from 'lucide-react'
+import { PieChart, IndianRupee, MessageSquare, LogOut, Wallet, Settings, Bot } from 'lucide-react'
 import { Button } from "../ui/button"
 import { auth } from "../../Pages/lib/firebase"
 import { useTranslation } from "react-i18next";
 
-const Sidebar = ({ isOpen, onClose, user }) => {
+const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useTranslation();
