@@ -487,7 +487,7 @@ export default function IncomeDashboard() {
                                     }}
                                   />
                                 ) : (
-                                  <p className="text-sm text-green-600">
+                                  <p className="text-sm text-muted-foreground">
                                     {t('income.accounts.monthlyIncome')}: {t('common.currency')}
                                     {account.recurringAmount.toLocaleString()}
                                     <Button
