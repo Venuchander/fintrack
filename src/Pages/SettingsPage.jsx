@@ -144,7 +144,7 @@ const SettingsPage = () => {
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto p-4">
+          <main className="flex-1 overflow-y-auto p-4 pb-20">
             <div className="max-w-2xl mx-auto space-y-8">
               <Card>
                 <CardHeader>
