@@ -176,12 +176,10 @@ function Dashboard() {
     if (!user) return;
 
     try {
-      console.log('Dashboard: Attempting to restore transaction:', transaction);
       await restoreExpense(user.uid, transaction);
       // Refresh user data
       const data = await getUserData(user.uid);
       setUserData(data);
-      console.log('Dashboard: Transaction restored successfully');
     } catch (error) {
       console.error("Dashboard: Error restoring transaction:", error);
       throw error;

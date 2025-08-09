@@ -306,7 +306,6 @@ const RecentTransactions = ({
 
     try {
       if (undoData.action === 'delete') {
-        console.log('Attempting to restore transaction:', undoData.transaction);
         
         // Use the restore callback if available, otherwise fall back to update
         if (onRestoreTransaction) {
@@ -408,8 +407,6 @@ const exportToPDF = () => {
   setIsExporting(true);
   
   try {
-    console.log("Starting PDF generation with", filteredTransactions.length, "transactions");
-
     
     // Create PDF document
     const doc = new jsPDF({
@@ -417,8 +414,6 @@ const exportToPDF = () => {
       unit: 'mm',
       format: 'a4'
     });
-    
-    console.log("PDF document created");
     
     // Add title
     doc.setFontSize(18);
@@ -445,8 +440,6 @@ const exportToPDF = () => {
         const amount = parseFloat(t.displayAmount.replace(/[^\d.-]/g, ''));
         return sum + (isNaN(amount) ? 0 : amount);
       }, 0);
-    
-    console.log("Calculated totals - Income:", totalIncome, "Expense:", totalExpense);
     
     doc.setFontSize(10);
     doc.text(`Total Transactions: ${filteredTransactions.length}`, 14, 48);
@@ -479,8 +472,6 @@ const exportToPDF = () => {
         ];
       }
     });
-    
-    console.log("Table data prepared, rows:", tableData.length);
     
     // Simple table without autoTable plugin
     const startY = 75;
@@ -541,13 +532,9 @@ const exportToPDF = () => {
       currentY += lineHeight;
     });
     
-    console.log("Table added successfully");
-    
     // Save file
     const fileName = `transaction_report_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
-    
-    console.log("PDF saved successfully:", fileName);
     
     // Show success message
     toast({
