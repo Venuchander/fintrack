@@ -304,11 +304,14 @@ export default function ChatbotPage() {
                   </div>
 
                   {message.sender === 'user' && (
-                    <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
-                      <AvatarFallback className="text-white">
-                        {user?.displayName?.[0] || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
+                      <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
+                        {user?.photoURL ? (
+                          <AvatarImage src={user.photoURL} alt={user?.displayName || 'User'} />
+                        ) : null}
+                        <AvatarFallback className="text-white">
+                          {user?.displayName?.[0] || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
                   )}
                 </div>
               ))}
