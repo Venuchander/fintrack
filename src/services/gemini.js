@@ -2,8 +2,8 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEN_AI_API_KEY);
 
-// Initialize Gemini 2.0 Flash model
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+// Initialize Gemini 2.5 Flash model
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 export const extractDataFromReceipt = async (imageFile) => {
   try {
