@@ -69,6 +69,43 @@ User's new message: ${userInput}
 Please provide a helpful and personalized response in ${lang}.`;
 };
 
+// Generate detailed task description for Bland AI voice calls
+const generateBlandAITask = (userData, messages) => {
+  return `
+Task: Financial consultation call
+
+User Profile:
+- Total Balance: ₹${userData?.totalBalance || 0}
+- Monthly Income: ₹${userData?.accounts?.reduce((sum, acc) => sum + (acc.isRecurringIncome ? acc.recurringAmount : 0), 0) || 0}
+- Savings Goal: ₹${userData?.savingsGoal || 0}
+
+Recent Activity:
+${userData?.expenses?.slice(-3).map(exp => 
+  `- ${exp.category}: ₹${exp.amount} (${new Date(exp.date).toLocaleDateString()})`
+).join('\n')}
+
+Recent Chat History:
+${messages.slice(-3).map(m => `${m.sender}: ${m.text}`).join('\n')}
+
+Instructions for Voice Call:
+1. Start by greeting the user and verifying their identity
+2. Reference their current financial situation and recent transactions
+3. Provide personalized financial advice based on their data
+4. Be attentive to their questions and provide clear explanations
+5. Keep the conversation professional but friendly
+
+Key Points to Discuss:
+- Current savings progress towards their goal
+- Recent spending patterns
+- Personalized financial recommendations
+- Any specific concerns from recent chat history
+
+Security Guidelines:
+- Verify user identity before discussing specific financial details
+- Do not share exact account balances unless user confirms identity
+- Keep responses focused and relevant to financial consultation`;
+};
+
 export default function ChatbotPage() {
   const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState([
@@ -173,6 +210,103 @@ export default function ChatbotPage() {
     }
   };
 
+  const handleCall = async () => {
+    if (!user) {
+      toast.error(t('chatbot.errors.loginRequired'));
+      return;
+    }
+
+    try {
+      const userPhoneNumber = userData?.phoneNumber;
+      if (!userPhoneNumber) {
+        toast.error(t('chatbot.errors.phoneNumberRequired'));
+        return;
+      }
+
+      const BLAND_API_KEY = import.meta.env.VITE_BLAND_API_KEY;
+      
+      if (!BLAND_API_KEY) {
+        toast.error('Bland AI API key not configured');
+        return;
+      }
+
+      const taskDescription = generateBlandAITask(userData, messages);
+
+      const callData = {
+        phone_number: userPhoneNumber.startsWith('+') ? userPhoneNumber : `+${userPhoneNumber}`,
+        task: taskDescription,
+        model: "enhanced",
+        voice: "nat",
+        max_duration: 15,
+        record: true,
+        temperature: 0.7,
+        first_message: await translateText(
+          "Hello! I'm your AI financial assistant. For security purposes, could you please verify your identity by confirming your name and the last transaction you made?",
+          i18n.language
+        ),
+        speech_model: "nova-2",
+        caller_id: "AI Financial Advisor",
+        interrupt: true,
+        request_callbacks: {
+          transcripts: false,
+          audio: true
+        },
+        voice_settings: {
+          stability: 0.7,
+          similarity: 0.7,
+          speed: 1.0,
+          pause_duration: 0.7
+        },
+        custom_instructions: {
+          context: taskDescription,
+          goals: [
+            "Review current financial status and recent transactions",
+            "Provide personalized financial advice",
+            "Address any concerns from recent chat history",
+            "Help user progress toward savings goals"
+          ],
+          constraints: [
+            "Must verify user identity before discussing specific financial details",
+            "Keep information security in mind - no sharing of exact balances until identity verified",
+            "Focus on actionable financial advice",
+            "Keep responses clear and concise"
+          ],
+          error_handling: {
+            on_user_unavailable: "I'll leave a brief message about scheduling another consultation.",
+            on_unclear_response: "I'll politely ask for clarification.",
+            on_technical_issues: "I'll apologize and suggest continuing via chat."
+          }
+        }
+      };
+
+      const response = await axios.post('https://api.bland.ai/v1/calls', 
+        callData, 
+        { 
+          headers: {
+            'Authorization': `Bearer ${BLAND_API_KEY}`,
+            'Content-Type': 'application/json',
+          }
+        }
+      );
+      
+      if (response.status === 200) {
+        const callMessage = {
+          text: "📞 " + t('chatbot.callInitiated'),
+          sender: 'system',
+          timestamp: new Date().toISOString()
+        };
+        setMessages(prev => [...prev, callMessage]);
+        await saveMessage(callMessage);
+        toast.success(t('chatbot.callSuccess'));
+      } else {
+        toast.error(`${t('chatbot.callFailed')}: ${response.data.message}`);
+      }
+    } catch (error) {
+      console.error('Error initiating call:', error);
+      toast.error(`${t('chatbot.errors.callError')}: ${error.message}`);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -212,7 +346,7 @@ export default function ChatbotPage() {
         return updated
       })
       await saveMessage(botMessage)
-    } catch (error) {
+    } catch {
       const errorMessage = {
         text: "I apologize, but I encountered an error. Please try again.",
         sender: 'bot',
@@ -250,7 +384,14 @@ export default function ChatbotPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-
+                <Button
+                  onClick={handleCall}
+                  variant="outline"
+                  className="rounded-full border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors dark:border-gray-600 dark:hover:bg-gray-700"
+                >
+                  <Phone className="h-4 w-4 text-blue-500 mr-2 dark:text-blue-400" />
+                  <span className="hidden sm:inline">{t('chatbot.call')}</span>
+                </Button>
                 <ProfileButton
                   user={user}
                   onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}

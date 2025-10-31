@@ -312,15 +312,23 @@
           "online": "Online",
           "thinking": "Thinking..."
         },
+        "call": "Call",
         "callButton": "Call",
         "alert": {
           "loginToCall": "Please log in to make a call",
           "phoneNotFound": "Phone number not found in your profile"
         },
+        "callInitiated": "Voice call initiated for financial consultation",
         "callInitiatedMessage": "📞 Voice call initiated for financial consultation",
-        "error": {
+        "callSuccess": "Call initiated successfully!",
+        "callFailed": "Call initiation failed",
+        "errors": {
+          "loginRequired": "Please log in to make a call",
+          "phoneNumberRequired": "Phone number not found in your profile",
+          "callError": "Error initiating call",
           "processingRequest": "I apologize, but I encountered an error processing your request. Please try again."
         },
+        "errorMessage": "I apologize, but I encountered an error. Please try again.",
         "inputPlaceholder": "Type your message..."
       },
       "sidebar": {
@@ -682,15 +690,23 @@
           "online": "En línea",
           "thinking": "Pensando..."
         },
+        "call": "Llamar",
         "callButton": "Llamar",
         "alert": {
           "loginToCall": "Por favor inicia sesión para hacer una llamada",
           "phoneNotFound": "Número de teléfono no encontrado en tu perfil"
         },
+        "callInitiated": "Llamada de voz iniciada para consulta financiera",
         "callInitiatedMessage": "📞 Llamada iniciada para consulta financiera",
-        "error": {
+        "callSuccess": "¡Llamada iniciada con éxito!",
+        "callFailed": "Falló el inicio de la llamada",
+        "errors": {
+          "loginRequired": "Por favor inicia sesión para hacer una llamada",
+          "phoneNumberRequired": "Número de teléfono no encontrado en tu perfil",
+          "callError": "Error al iniciar la llamada",
           "processingRequest": "Lo siento, pero hubo un error procesando tu solicitud. Por favor, inténtalo de nuevo."
         },
+        "errorMessage": "Lo siento, pero encontré un error. Por favor, inténtalo de nuevo.",
         "inputPlaceholder": "Escribe tu mensaje..."
       },
       "sidebar": {
@@ -1052,15 +1068,23 @@
           "online": "En ligne",
           "thinking": "Réflexion..."
         },
+        "call": "Appeler",
         "callButton": "Appeler",
         "alert": {
           "loginToCall": "Veuillez vous connecter pour passer un appel",
           "phoneNotFound": "Numéro de téléphone non trouvé dans votre profil"
         },
+        "callInitiated": "Appel vocal initié pour consultation financière",
         "callInitiatedMessage": "📞 Appel initié pour une consultation financière",
-        "error": {
+        "callSuccess": "Appel initié avec succès !",
+        "callFailed": "Échec de l'initiation de l'appel",
+        "errors": {
+          "loginRequired": "Veuillez vous connecter pour passer un appel",
+          "phoneNumberRequired": "Numéro de téléphone non trouvé dans votre profil",
+          "callError": "Erreur lors de l'initiation de l'appel",
           "processingRequest": "Désolé, une erreur est survenue lors du traitement de votre demande. Veuillez réessayer."
         },
+        "errorMessage": "Désolé, j'ai rencontré une erreur. Veuillez réessayer.",
         "inputPlaceholder": "Tapez votre message..."
       },
       "sidebar": {
@@ -1422,15 +1446,23 @@
           "online": "Online",
           "thinking": "Denkt…"
         },
+        "call": "Anrufen",
         "callButton": "Anrufen",
         "alert": {
           "loginToCall": "Bitte einloggen, um anzurufen",
           "phoneNotFound": "Telefonnummer nicht im Profil gefunden"
         },
+        "callInitiated": "Sprachanruf für Finanzberatung initiiert",
         "callInitiatedMessage": "📞 Sprachanruf für Finanzberatung gestartet",
-        "error": {
+        "callSuccess": "Anruf erfolgreich gestartet!",
+        "callFailed": "Anrufstart fehlgeschlagen",
+        "errors": {
+          "loginRequired": "Bitte einloggen, um anzurufen",
+          "phoneNumberRequired": "Telefonnummer nicht im Profil gefunden",
+          "callError": "Fehler beim Starten des Anrufs",
           "processingRequest": "Entschuldigung, beim Bearbeiten Ihrer Anfrage ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
         },
+        "errorMessage": "Entschuldigung, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
         "inputPlaceholder": "Nachricht eingeben..."
       },
       "sidebar": {
@@ -1792,15 +1824,23 @@
           "online": "在线",
           "thinking": "思考中…"
         },
+        "call": "呼叫",
         "callButton": "呼叫",
         "alert": {
           "loginToCall": "请登录以进行呼叫",
           "phoneNotFound": "在您的资料中未找到电话号码"
         },
+        "callInitiated": "已发起财务咨询语音通话",
         "callInitiatedMessage": "📞 已发起财务咨询通话",
-        "error": {
+        "callSuccess": "呼叫成功发起！",
+        "callFailed": "呼叫发起失败",
+        "errors": {
+          "loginRequired": "请登录以进行呼叫",
+          "phoneNumberRequired": "在您的资料中未找到电话号码",
+          "callError": "发起呼叫时出错",
           "processingRequest": "抱歉，处理您的请求时出错。请再试一次。"
         },
+        "errorMessage": "抱歉，遇到错误。请再试一次。",
         "inputPlaceholder": "输入消息..."
       },
       "sidebar": {
@@ -2162,15 +2202,23 @@
           "online": "ऑनलाइन",
           "thinking": "सोच रहा हूँ..."
         },
+        "call": "कॉल करें",
         "callButton": "कॉल करें",
         "alert": {
           "loginToCall": "कृपया कॉल करने के लिए लॉगिन करें",
           "phoneNotFound": "आपकी प्रोफ़ाइल में फोन नंबर नहीं मिला"
         },
+        "callInitiated": "वित्तीय परामर्श के लिए वॉइस कॉल शुरू की गई",
         "callInitiatedMessage": "📞 वित्तीय परामर्श के लिए कॉल शुरू की गई",
-        "error": {
+        "callSuccess": "कॉल सफलतापूर्वक शुरू की गई!",
+        "callFailed": "कॉल शुरू करना विफल रहा",
+        "errors": {
+          "loginRequired": "कृपया कॉल करने के लिए लॉगिन करें",
+          "phoneNumberRequired": "आपकी प्रोफ़ाइल में फोन नंबर नहीं मिला",
+          "callError": "कॉल शुरू करने में त्रुटि",
           "processingRequest": "क्षमा करें, आपकी अनुरोध को संसाधित करते समय त्रुटि हुई। कृपया पुनः प्रयास करें।"
         },
+        "errorMessage": "क्षमा करें, एक त्रुटि हुई। कृपया पुनः प्रयास करें।",
         "inputPlaceholder": "अपना संदेश टाइप करें..."
       },
       "sidebar": {
