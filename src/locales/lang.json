@@ -303,7 +303,25 @@
         "debitCard": "Debit Card",
         "check": "Cheque",
         "cancel": "Cancel",
-        "addExpense": "Add Expense"
+        "addExpense": "Add Expense",
+        "voice": {
+          "title": "Voice Input",
+          "instructions": "Speak your expense details — amount, date, category, and more",
+          "startRecording": "Start Recording",
+          "stopRecording": "Stop Recording",
+          "listening": "Listening... speak now",
+          "processingWithAI": "Processing your voice with AI...",
+          "youSaid": "You said:",
+          "dataExtracted": "Expense data extracted from voice!",
+          "recordAgain": "Record Again",
+          "clear": "Clear",
+          "notSupported": "Voice recognition is not supported in your browser. Please use Chrome.",
+          "micPermissionDenied": "Microphone access was denied. Please allow microphone permissions.",
+          "recordingError": "Error during voice recording. Please try again.",
+          "noSpeechDetected": "No speech was detected. Please try again.",
+          "parsedSuccessfully": "Expense details extracted from voice!",
+          "parsingFailed": "Failed to parse voice input. Please try again."
+        }
       },
       "chatbot": {
         "header": "AI Assistant",
@@ -681,7 +699,25 @@
         "debitCard": "Tarjeta de débito",
         "check": "Cheque",
         "cancel": "Cancelar",
-        "addExpense": "Añadir gasto"
+        "addExpense": "Añadir gasto",
+        "voice": {
+          "title": "Entrada de voz",
+          "instructions": "Diga los detalles del gasto: monto, fecha, categoría y más",
+          "startRecording": "Iniciar grabación",
+          "stopRecording": "Detener grabación",
+          "listening": "Escuchando... hable ahora",
+          "processingWithAI": "Procesando su voz con IA...",
+          "youSaid": "Usted dijo:",
+          "dataExtracted": "¡Datos del gasto extraídos de la voz!",
+          "recordAgain": "Grabar de nuevo",
+          "clear": "Limpiar",
+          "notSupported": "El reconocimiento de voz no es compatible con su navegador. Utilice Chrome.",
+          "micPermissionDenied": "Se denegó el acceso al micrófono. Permita los permisos del micrófono.",
+          "recordingError": "Error durante la grabación de voz. Inténtelo de nuevo.",
+          "noSpeechDetected": "No se detectó voz. Inténtelo de nuevo.",
+          "parsedSuccessfully": "¡Detalles del gasto extraídos de la voz!",
+          "parsingFailed": "Error al analizar la entrada de voz. Inténtelo de nuevo."
+        }
       },
       "chatbot": {
         "header": "Asistente AI",
@@ -1059,7 +1095,25 @@
         "debitCard": "Carte de débit",
         "check": "Chèque",
         "cancel": "Annuler",
-        "addExpense": "Ajouter la dépense"
+        "addExpense": "Ajouter la dépense",
+        "voice": {
+          "title": "Saisie vocale",
+          "instructions": "Dites les détails de la dépense : montant, date, catégorie, etc.",
+          "startRecording": "Démarrer l'enregistrement",
+          "stopRecording": "Arrêter l'enregistrement",
+          "listening": "Écoute en cours... parlez maintenant",
+          "processingWithAI": "Traitement de votre voix avec l'IA...",
+          "youSaid": "Vous avez dit :",
+          "dataExtracted": "Données de dépense extraites de la voix !",
+          "recordAgain": "Réenregistrer",
+          "clear": "Effacer",
+          "notSupported": "La reconnaissance vocale n'est pas prise en charge dans votre navigateur. Veuillez utiliser Chrome.",
+          "micPermissionDenied": "L'accès au microphone a été refusé. Veuillez autoriser les permissions du microphone.",
+          "recordingError": "Erreur lors de l'enregistrement vocal. Veuillez réessayer.",
+          "noSpeechDetected": "Aucune voix détectée. Veuillez réessayer.",
+          "parsedSuccessfully": "Détails de dépense extraits de la voix !",
+          "parsingFailed": "Échec de l'analyse de l'entrée vocale. Veuillez réessayer."
+        }
       },
       "chatbot": {
         "header": "Assistant IA",
@@ -1437,7 +1491,25 @@
         "debitCard": "Debitkarte",
         "check": "Scheck",
         "cancel": "Abbrechen",
-        "addExpense": "Ausgabe hinzufügen"
+        "addExpense": "Ausgabe hinzufügen",
+        "voice": {
+          "title": "Spracheingabe",
+          "instructions": "Sprechen Sie Ihre Ausgabendetails — Betrag, Datum, Kategorie und mehr",
+          "startRecording": "Aufnahme starten",
+          "stopRecording": "Aufnahme stoppen",
+          "listening": "Zuhören... sprechen Sie jetzt",
+          "processingWithAI": "Ihre Stimme wird mit KI verarbeitet...",
+          "youSaid": "Sie sagten:",
+          "dataExtracted": "Ausgabedaten aus Sprache extrahiert!",
+          "recordAgain": "Erneut aufnehmen",
+          "clear": "Löschen",
+          "notSupported": "Spracherkennung wird in Ihrem Browser nicht unterstützt. Bitte verwenden Sie Chrome.",
+          "micPermissionDenied": "Mikrofonzugriff wurde verweigert. Bitte erlauben Sie die Mikrofonberechtigungen.",
+          "recordingError": "Fehler bei der Sprachaufnahme. Bitte versuchen Sie es erneut.",
+          "noSpeechDetected": "Keine Sprache erkannt. Bitte versuchen Sie es erneut.",
+          "parsedSuccessfully": "Ausgabendetails aus Sprache extrahiert!",
+          "parsingFailed": "Spracheingabe konnte nicht analysiert werden. Bitte versuchen Sie es erneut."
+        }
       },
       "chatbot": {
         "header": "KI‑Assistent",
@@ -1641,27 +1713,15 @@
           },
           "weekly": {
             "analysisText": "分析该用户的每周财务活动（所有金额均为 INR）：",
-            "focusAreas": [
-              "最高支出类别分析",
-              "环比分析",
-              "改进之处"
-            ]
+            "focusAreas": ["最高支出类别分析", "环比分析", "改进之处"]
           },
           "monthly": {
             "analysisText": "分析该用户的每月财务活动（所有金额均为 INR）：",
-            "focusAreas": [
-              "储蓄进度",
-              "经常性支出分析",
-              "改进建议"
-            ]
+            "focusAreas": ["储蓄进度", "经常性支出分析", "改进建议"]
           },
           "yearly": {
             "analysisText": "分析该用户的年度财务轨迹（所有金额均为 INR）：",
-            "focusAreas": [
-              "年度目标进度",
-              "投资建议",
-              "长期财务规划"
-            ]
+            "focusAreas": ["年度目标进度", "投资建议", "长期财务规划"]
           }
         },
         "dataLabels": {
@@ -1815,7 +1875,25 @@
         "debitCard": "借记卡",
         "check": "支票",
         "cancel": "取消",
-        "addExpense": "添加支出"
+        "addExpense": "添加支出",
+        "voice": {
+          "title": "语音输入",
+          "instructions": "说出您的支出详情——金额、日期、类别等",
+          "startRecording": "开始录音",
+          "stopRecording": "停止录音",
+          "listening": "正在收听...请说话",
+          "processingWithAI": "正在用AI处理您的语音...",
+          "youSaid": "您说的：",
+          "dataExtracted": "已从语音中提取支出数据！",
+          "recordAgain": "重新录音",
+          "clear": "清除",
+          "notSupported": "您的浏览器不支持语音识别。请使用Chrome。",
+          "micPermissionDenied": "麦克风权限被拒绝。请允许麦克风权限。",
+          "recordingError": "语音录制出错。请重试。",
+          "noSpeechDetected": "未检测到语音。请重试。",
+          "parsedSuccessfully": "已从语音中提取支出详情！",
+          "parsingFailed": "无法解析语音输入。请重试。"
+        }
       },
       "chatbot": {
         "header": "AI 助手",
@@ -2193,7 +2271,25 @@
         "debitCard": "डेबिट कार्ड",
         "check": "चेक",
         "cancel": "रद्द करें",
-        "addExpense": "खर्च जोड़ें"
+        "addExpense": "खर्च जोड़ें",
+        "voice": {
+          "title": "आवाज़ से दर्ज करें",
+          "instructions": "अपने खर्च का विवरण बोलें — राशि, तारीख, श्रेणी और अन्य",
+          "startRecording": "रिकॉर्डिंग शुरू करें",
+          "stopRecording": "रिकॉर्डिंग बंद करें",
+          "listening": "सुन रहा हूँ... अभी बोलें",
+          "processingWithAI": "AI से आपकी आवाज़ प्रोसेस हो रही है...",
+          "youSaid": "आपने कहा:",
+          "dataExtracted": "आवाज़ से खर्च का डेटा निकाला गया!",
+          "recordAgain": "फिर से रिकॉर्ड करें",
+          "clear": "साफ़ करें",
+          "notSupported": "आपके ब्राउज़र में आवाज़ पहचान उपलब्ध नहीं है। कृपया Chrome का उपयोग करें।",
+          "micPermissionDenied": "माइक्रोफ़ोन की अनुमति अस्वीकार कर दी गई। कृपया माइक्रोफ़ोन अनुमति दें।",
+          "recordingError": "आवाज़ रिकॉर्डिंग में त्रुटि। कृपया पुनः प्रयास करें।",
+          "noSpeechDetected": "कोई आवाज़ नहीं मिली। कृपया पुनः प्रयास करें।",
+          "parsedSuccessfully": "आवाज़ से खर्च विवरण निकाला गया!",
+          "parsingFailed": "आवाज़ इनपुट को पार्स करने में विफल। कृपया पुनः प्रयास करें।"
+        }
       },
       "chatbot": {
         "header": "एआई सहायक",

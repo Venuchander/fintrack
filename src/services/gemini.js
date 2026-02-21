@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEN_AI_API_KEY);
 
@@ -9,7 +9,7 @@ export const extractDataFromReceipt = async (imageFile) => {
   try {
     // Convert image to base64
     const base64Image = await fileToBase64(imageFile);
-    
+
     const prompt = `
     You are an AI assistant. Analyze the following receipt or bill image and extract the relevant information. Return the result in strict JSON format.
 
@@ -35,30 +35,34 @@ export const extractDataFromReceipt = async (imageFile) => {
       prompt,
       {
         inlineData: {
-          data: base64Image.split(',')[1], 
-          mimeType: imageFile.type
-        }
-      }
+          data: base64Image.split(",")[1],
+          mimeType: imageFile.type,
+        },
+      },
     ]);
 
     const response = result.response;
     const text = response.text();
-    
+
     // Parse JSON response
     const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     } else {
-      throw new Error('Could not parse OCR response');
+      throw new Error("Could not parse OCR response");
     }
-    
   } catch (error) {
-    console.error('Gemini OCR Error:', error);
-    throw new Error('Failed to process receipt with AI');
+    console.error("Gemini OCR Error:", error);
+    throw new Error("Failed to process receipt with AI");
   }
 };
 
-export const generateExpenseDescription = async (amount, category, merchant, items = []) => {
+export const generateExpenseDescription = async (
+  amount,
+  category,
+  merchant,
+  items = [],
+) => {
   try {
     const prompt = `
     Generate a concise and professional expense description suitable for expense tracking or accounting.
@@ -67,7 +71,7 @@ export const generateExpenseDescription = async (amount, category, merchant, ite
     - Amount: ₹${amount}
     - Category: ${category}
     - Merchant: ${merchant}
-    - Items: ${items.join(', ')}
+    - Items: ${items.join(", ")}
 
     Output:
     - A single sentence or phrase (under 50 characters)
@@ -76,14 +80,70 @@ export const generateExpenseDescription = async (amount, category, merchant, ite
     - Do not include the amount or currency symbol in the output
     `;
 
-
     const result = await model.generateContent(prompt);
     const response = result.response;
     return response.text().trim();
-    
   } catch (error) {
-    console.error('Description generation error:', error);
-    throw new Error('Failed to generate description');
+    console.error("Description generation error:", error);
+    throw new Error("Failed to generate description");
+  }
+};
+
+export const parseExpenseFromVoice = async (
+  transcript,
+  availablePaymentMethods = [],
+) => {
+  try {
+    const today = new Date().toISOString().split("T")[0];
+
+    const prompt = `You are an AI assistant that extracts expense information from a voice transcription. The transcription may be imperfect due to speech-to-text conversion — use your best judgment.
+Today's date is ${today}.
+
+The user said: "${transcript}"
+
+Extract the following fields and return ONLY a valid JSON object (no markdown, no explanation, no code fences):
+
+{
+  "amount": "numeric amount as a string (e.g., '500') or null",
+  "date": "YYYY-MM-DD format or null. 'today'=${today}, interpret 'yesterday', 'last Monday' etc.",
+  "category": "one of: food, transport, shopping, entertainment, health, other. Auto-detect from context or null.",
+  "description": "concise expense description under 50 chars. Always generate one.",
+  "paymentMethod": "one of: ${["cash", ...availablePaymentMethods].join(", ")} or null"
+}
+
+Category hints: food/restaurant/lunch/dinner/snack/grocery → food, cab/auto/bus/train/fuel/petrol/uber/ola → transport, clothes/electronics/amazon/flipkart/mall → shopping, movie/game/netflix/party → entertainment, doctor/medicine/hospital/pharmacy → health.
+Payment hints: match keywords like "cash", "UPI", "card", "debit", "credit" to available methods.
+Return ONLY the JSON object.`;
+
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1,
+      },
+    });
+
+    const response = result.response;
+    let text = response.text();
+
+    // Strip markdown code fences if present
+    text = text
+      .replace(/```(?:json)?\s*/gi, "")
+      .replace(/```\s*/g, "")
+      .trim();
+
+    // Extract JSON object
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      return parsed;
+    } else {
+      console.error("Gemini voice response (no JSON found):", text);
+      throw new Error("Could not parse voice expense response");
+    }
+  } catch (error) {
+    console.error("Voice expense parsing error:", error);
+    console.error("Transcript was:", transcript);
+    throw new Error("Failed to parse expense from voice");
   }
 };
 
@@ -93,6 +153,6 @@ const fileToBase64 = (file) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
-    reader.onerror = error => reject(error);
+    reader.onerror = (error) => reject(error);
   });
 };
