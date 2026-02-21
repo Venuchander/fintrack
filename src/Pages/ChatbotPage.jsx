@@ -1,19 +1,29 @@
-'use client';
+"use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from "react";
 import { Button } from "../components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Badge } from "../components/ui/badge";
 import { Input } from "../components/ui/input";
-import { Lightbulb, Send, SmilePlus, Phone, X } from 'lucide-react';
-import dynamic from 'next/dynamic';
+import { Lightbulb, Send, SmilePlus, Phone, X } from "lucide-react";
+import dynamic from "next/dynamic";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import axios from 'axios';
-import ProfileButton from '../components/components/profile';
-import Sidebar from '../components/components/Sidebar';
-import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, getDoc, collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
-import { useTranslation } from 'react-i18next';
+import axios from "axios";
+import ProfileButton from "../components/components/profile";
+import Sidebar from "../components/components/Sidebar";
+import { getAuth } from "firebase/auth";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  collection,
+  addDoc,
+  query,
+  where,
+  orderBy,
+  getDocs,
+} from "firebase/firestore";
+import { useTranslation } from "react-i18next";
 import DarkModeToggle from "../components/ui/DarkModeToggle";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,22 +37,24 @@ const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEN_AI_API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
 // Dynamically load emoji picker
-const EmojiPicker = dynamic(() => import('emoji-picker-react'), {
-  loading: () => <div className="min-h-screen flex items-center justify-center">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-  </div>,
-  ssr: false
+const EmojiPicker = dynamic(() => import("emoji-picker-react"), {
+  loading: () => (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+    </div>
+  ),
+  ssr: false,
 });
 
 // Translation helper
 const translateText = async (text, targetLang) => {
-  if (targetLang === 'en') return text;
+  if (targetLang === "en") return text;
   try {
     const response = await fetch(
-      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`,
     );
     const data = await response.json();
-    return data[0].map((item) => item[0]).join('');
+    return data[0].map((item) => item[0]).join("");
   } catch (error) {
     console.error("Translation failed:", error);
     return text; // fallback
@@ -50,7 +62,12 @@ const translateText = async (text, targetLang) => {
 };
 
 // Contextual Prompt
-const generateContextualPrompt = (userData, messages, userInput, lang = 'en') => {
+const generateContextualPrompt = (
+  userData,
+  messages,
+  userInput,
+  lang = "en",
+) => {
   return `You are an intelligent financial assistant. Please reply in this language: ${lang}
 
 Financial Overview:
@@ -59,10 +76,19 @@ Financial Overview:
 - Savings Goal: ₹${userData?.savingsGoal || 0}
 
 Recent Activity:
-${userData?.expenses?.slice(-3).map(exp => `- ${exp.category}: ₹${exp.amount} (${new Date(exp.date).toLocaleDateString()})`).join('\n')}
+${userData?.expenses
+  ?.slice(-3)
+  .map(
+    (exp) =>
+      `- ${exp.category}: ₹${exp.amount} (${new Date(exp.date).toLocaleDateString()})`,
+  )
+  .join("\n")}
 
 Recent Chat:
-${messages.slice(-3).map(m => `${m.sender}: ${m.text}`).join('\n')}
+${messages
+  .slice(-3)
+  .map((m) => `${m.sender}: ${m.text}`)
+  .join("\n")}
 
 User's new message: ${userInput}
 
@@ -80,12 +106,19 @@ User Profile:
 - Savings Goal: ₹${userData?.savingsGoal || 0}
 
 Recent Activity:
-${userData?.expenses?.slice(-3).map(exp => 
-  `- ${exp.category}: ₹${exp.amount} (${new Date(exp.date).toLocaleDateString()})`
-).join('\n')}
+${userData?.expenses
+  ?.slice(-3)
+  .map(
+    (exp) =>
+      `- ${exp.category}: ₹${exp.amount} (${new Date(exp.date).toLocaleDateString()})`,
+  )
+  .join("\n")}
 
 Recent Chat History:
-${messages.slice(-3).map(m => `${m.sender}: ${m.text}`).join('\n')}
+${messages
+  .slice(-3)
+  .map((m) => `${m.sender}: ${m.text}`)
+  .join("\n")}
 
 Instructions for Voice Call:
 1. Start by greeting the user and verifying their identity
@@ -109,9 +142,9 @@ Security Guidelines:
 export default function ChatbotPage() {
   const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState([
-    { text: t("chatbot.welcomeMessage"), sender: 'bot', timestamp: new Date() }
+    { text: t("chatbot.welcomeMessage"), sender: "bot", timestamp: new Date() },
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -148,37 +181,40 @@ export default function ChatbotPage() {
   }, [t]);
 
   const onEmojiClick = (emojiData) => {
-    setInput(prev => prev + emojiData.emoji);
+    setInput((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
 
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString(i18n.language === "en" ? 'en-US' : undefined, {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+    return date.toLocaleTimeString(
+      i18n.language === "en" ? "en-US" : undefined,
+      {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      },
+    );
   };
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       setUser(user);
       if (user) {
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
           setUserData(userDoc.data());
         }
 
         const chatQuery = query(
-          collection(db, 'chats'),
-          where('userId', '==', user.uid),
-          orderBy('timestamp', 'asc')
+          collection(db, "chats"),
+          where("userId", "==", user.uid),
+          orderBy("timestamp", "asc"),
         );
         const chatSnapshot = await getDocs(chatQuery);
-        const chatHistory = chatSnapshot.docs.map(doc => doc.data());
+        const chatHistory = chatSnapshot.docs.map((doc) => doc.data());
         if (chatHistory.length > 0) {
-          setMessages(prev => [...prev, ...chatHistory]);
+          setMessages((prev) => [...prev, ...chatHistory]);
         }
       }
     });
@@ -187,10 +223,10 @@ export default function ChatbotPage() {
 
   const saveMessage = async (message) => {
     try {
-      await addDoc(collection(db, 'chats'), {
+      await addDoc(collection(db, "chats"), {
         ...message,
-        userId: user?.uid || 'guest',
-        timestamp: new Date().toISOString()
+        userId: user?.uid || "guest",
+        timestamp: new Date().toISOString(),
       });
     } catch (err) {
       console.error("Firestore error:", err);
@@ -199,7 +235,12 @@ export default function ChatbotPage() {
 
   const generateResponse = async (userInput) => {
     try {
-      const prompt = generateContextualPrompt(userData, messages, userInput, i18n.language);
+      const prompt = generateContextualPrompt(
+        userData,
+        messages,
+        userInput,
+        i18n.language,
+      );
       const result = await model.generateContent(prompt);
       const rawText = await result.response.text();
       const translatedText = await translateText(rawText, i18n.language);
@@ -212,28 +253,23 @@ export default function ChatbotPage() {
 
   const handleCall = async () => {
     if (!user) {
-      toast.error(t('chatbot.errors.loginRequired'));
+      toast.error(t("chatbot.errors.loginRequired"));
       return;
     }
 
     try {
       const userPhoneNumber = userData?.phoneNumber;
       if (!userPhoneNumber) {
-        toast.error(t('chatbot.errors.phoneNumberRequired'));
-        return;
-      }
-
-      const BLAND_API_KEY = import.meta.env.VITE_BLAND_API_KEY;
-      
-      if (!BLAND_API_KEY) {
-        toast.error('Bland AI API key not configured');
+        toast.error(t("chatbot.errors.phoneNumberRequired"));
         return;
       }
 
       const taskDescription = generateBlandAITask(userData, messages);
 
       const callData = {
-        phone_number: userPhoneNumber.startsWith('+') ? userPhoneNumber : `+${userPhoneNumber}`,
+        phone_number: userPhoneNumber.startsWith("+")
+          ? userPhoneNumber
+          : `+${userPhoneNumber}`,
         task: taskDescription,
         model: "enhanced",
         voice: "nat",
@@ -242,68 +278,41 @@ export default function ChatbotPage() {
         temperature: 0.7,
         first_message: await translateText(
           "Hello! I'm your AI financial assistant. For security purposes, could you please verify your identity by confirming your name and the last transaction you made?",
-          i18n.language
+          i18n.language,
         ),
-        speech_model: "nova-2",
-        caller_id: "AI Financial Advisor",
-        interrupt: true,
-        request_callbacks: {
-          transcripts: false,
-          audio: true
-        },
-        voice_settings: {
-          stability: 0.7,
-          similarity: 0.7,
-          speed: 1.0,
-          pause_duration: 0.7
-        },
-        custom_instructions: {
-          context: taskDescription,
-          goals: [
-            "Review current financial status and recent transactions",
-            "Provide personalized financial advice",
-            "Address any concerns from recent chat history",
-            "Help user progress toward savings goals"
-          ],
-          constraints: [
-            "Must verify user identity before discussing specific financial details",
-            "Keep information security in mind - no sharing of exact balances until identity verified",
-            "Focus on actionable financial advice",
-            "Keep responses clear and concise"
-          ],
-          error_handling: {
-            on_user_unavailable: "I'll leave a brief message about scheduling another consultation.",
-            on_unclear_response: "I'll politely ask for clarification.",
-            on_technical_issues: "I'll apologize and suggest continuing via chat."
-          }
-        }
+        wait_for_greeting: true,
+        interruption_threshold: 100,
       };
 
-      const response = await axios.post('https://api.bland.ai/v1/calls', 
-        callData, 
-        { 
-          headers: {
-            'Authorization': `Bearer ${BLAND_API_KEY}`,
-            'Content-Type': 'application/json',
-          }
-        }
-      );
-      
-      if (response.status === 200) {
+      const response = await axios.post("/api/bland-call", callData, {
+        validateStatus: () => true, // don't throw on non-2xx
+      });
+
+      const data = response.data;
+
+      if (
+        response.status < 300 ||
+        data?.call_id ||
+        data?.status === "success"
+      ) {
         const callMessage = {
-          text: "📞 " + t('chatbot.callInitiated'),
-          sender: 'system',
-          timestamp: new Date().toISOString()
+          text: "📞 " + t("chatbot.callInitiated"),
+          sender: "system",
+          timestamp: new Date().toISOString(),
         };
-        setMessages(prev => [...prev, callMessage]);
+        setMessages((prev) => [...prev, callMessage]);
         await saveMessage(callMessage);
-        toast.success(t('chatbot.callSuccess'));
+        toast.success(t("chatbot.callSuccess"));
       } else {
-        toast.error(`${t('chatbot.callFailed')}: ${response.data.message}`);
+        console.error("Bland AI error response:", data);
+        toast.error(
+          `${t("chatbot.callFailed")}: ${data?.message || JSON.stringify(data)}`,
+        );
       }
     } catch (error) {
-      console.error('Error initiating call:', error);
-      toast.error(`${t('chatbot.errors.callError')}: ${error.message}`);
+      console.error("Error initiating call:", error);
+      const detail = error.response?.data?.message || error.message;
+      toast.error(`${t("chatbot.errors.callError")}: ${detail}`);
     }
   };
 
@@ -312,47 +321,47 @@ export default function ChatbotPage() {
 
     const userMessage = {
       text: input,
-      sender: 'user',
-      timestamp: new Date().toISOString()
-    }
+      sender: "user",
+      timestamp: new Date().toISOString(),
+    };
 
-    setMessages(prev => [...prev, userMessage])
-    setInput('')
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
     const loadingMessage = {
       text: '<div class="animate-pulse font-semibold">Thinking...</div>',
-      sender: 'bot',
+      sender: "bot",
       timestamp: new Date().toISOString(),
-      isLoading: true
-    }
-    setMessages(prev => [...prev, loadingMessage])
-    setIsLoading(true)
-    await saveMessage(userMessage)
+      isLoading: true,
+    };
+    setMessages((prev) => [...prev, loadingMessage]);
+    setIsLoading(true);
+    await saveMessage(userMessage);
 
     try {
       const aiText = await generateResponse(input);
       const botMessage = {
         text: aiText,
-        sender: 'bot',
-        timestamp: new Date().toISOString()
-      }
-      setMessages(prev => {
-        const updated = [...prev]
-        const lastIndex = updated.findIndex(m => m.isLoading)
+        sender: "bot",
+        timestamp: new Date().toISOString(),
+      };
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastIndex = updated.findIndex((m) => m.isLoading);
         if (lastIndex !== -1) {
-          updated[lastIndex] = botMessage
+          updated[lastIndex] = botMessage;
         } else {
-          updated.push(botMessage)
+          updated.push(botMessage);
         }
-        return updated
-      })
-      await saveMessage(botMessage)
+        return updated;
+      });
+      await saveMessage(botMessage);
     } catch {
       const errorMessage = {
         text: "I apologize, but I encountered an error. Please try again.",
-        sender: 'bot',
-        timestamp: new Date().toISOString()
+        sender: "bot",
+        timestamp: new Date().toISOString(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, errorMessage]);
       await saveMessage(errorMessage);
     } finally {
       setIsLoading(false);
@@ -360,12 +369,19 @@ export default function ChatbotPage() {
   };
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? 'dark' : ''}`}>
+    <div className={`min-h-screen ${isDarkMode ? "dark" : ""}`}>
       <div className="flex h-screen w-full bg-gray-100 dark:bg-gray-900">
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-20" onClick={() => setIsSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-20"
+            onClick={() => setIsSidebarOpen(false)}
+          />
         )}
-        <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} user={user} />
+        <Sidebar
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          user={user}
+        />
         <div className="flex-1 flex flex-col w-full">
           <header className="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-10 w-full">
             <div className="w-full px-4 py-3 flex justify-between items-center">
@@ -376,10 +392,15 @@ export default function ChatbotPage() {
                 </Avatar>
                 <div>
                   <h1 className="text-base sm:text-xl font-semibold text-gray-800 dark:text-white">
-                    {t('chatbot.header')}
+                    {t("chatbot.header")}
                   </h1>
-                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 hover:bg-green-100">
-                    {isLoading ? t('chatbot.status.thinking') : t('chatbot.status.online')}
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-green-100 text-green-700 hover:bg-green-100"
+                  >
+                    {isLoading
+                      ? t("chatbot.status.thinking")
+                      : t("chatbot.status.online")}
                   </Badge>
                 </div>
               </div>
@@ -390,7 +411,7 @@ export default function ChatbotPage() {
                   className="rounded-full border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-colors dark:border-gray-600 dark:hover:bg-gray-700"
                 >
                   <Phone className="h-4 w-4 text-blue-500 mr-2 dark:text-blue-400" />
-                  <span className="hidden sm:inline">{t('chatbot.call')}</span>
+                  <span className="hidden sm:inline">{t("chatbot.call")}</span>
                 </Button>
                 <ProfileButton
                   user={user}
@@ -407,10 +428,11 @@ export default function ChatbotPage() {
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'
-                    } items-start gap-2`}
+                  className={`flex ${
+                    message.sender === "user" ? "justify-end" : "justify-start"
+                  } items-start gap-2`}
                 >
-                  {message.sender === 'bot' && (
+                  {message.sender === "bot" && (
                     <Avatar className="h-8 w-8 bg-blue-500 flex-shrink-0 mt-1">
                       <AvatarImage src="/assets/robot.png" />
                       <AvatarFallback>AI</AvatarFallback>
@@ -418,23 +440,31 @@ export default function ChatbotPage() {
                   )}
 
                   <div
-                    className={`flex flex-col gap-1 ${message.sender === 'user' ? 'items-end' : 'items-start'
-                      }`}
+                    className={`flex flex-col gap-1 ${
+                      message.sender === "user" ? "items-end" : "items-start"
+                    }`}
                   >
                     <div
-                      className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${message.sender === 'user'
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-gray-100 text-gray-800'
-                        }`}
+                      className={`rounded-2xl px-3 py-2 max-w-[280px] sm:max-w-md md:max-w-lg ${
+                        message.sender === "user"
+                          ? "bg-blue-500 text-white"
+                          : "bg-gray-100 text-gray-800"
+                      }`}
                     >
                       <div className="text-sm sm:text-base whitespace-pre-wrap">
                         <span
                           dangerouslySetInnerHTML={{
                             __html: message.text
-                              .replace(/^\* (.*)/gm, '<li style="margin-left: 1em; list-style-type: disc;">$1</li>')
-                              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                              .replace(/\*(?!\s)(.*?)\*/g, '<strong>$1</strong>')
-                              .replace(/\n/g, '<br />')
+                              .replace(
+                                /^\* (.*)/gm,
+                                '<li style="margin-left: 1em; list-style-type: disc;">$1</li>',
+                              )
+                              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                              .replace(
+                                /\*(?!\s)(.*?)\*/g,
+                                "<strong>$1</strong>",
+                              )
+                              .replace(/\n/g, "<br />"),
                           }}
                         ></span>
                       </div>
@@ -444,15 +474,18 @@ export default function ChatbotPage() {
                     </div>
                   </div>
 
-                  {message.sender === 'user' && (
-                      <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
-                        {user?.photoURL ? (
-                          <AvatarImage src={user.photoURL} alt={user?.displayName || 'User'} />
-                        ) : null}
-                        <AvatarFallback className="text-white">
-                          {user?.displayName?.[0] || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
+                  {message.sender === "user" && (
+                    <Avatar className="h-8 w-8 bg-blue-600 flex-shrink-0 mt-1">
+                      {user?.photoURL ? (
+                        <AvatarImage
+                          src={user.photoURL}
+                          alt={user?.displayName || "User"}
+                        />
+                      ) : null}
+                      <AvatarFallback className="text-white">
+                        {user?.displayName?.[0] || "U"}
+                      </AvatarFallback>
+                    </Avatar>
                   )}
                 </div>
               ))}
@@ -469,7 +502,11 @@ export default function ChatbotPage() {
                   className="p-2 text-gray-400 hover:text-gray-600 rounded-full"
                   onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                 >
-                  {showEmojiPicker ? <X className="h-5 w-5" /> : <SmilePlus className="h-5 w-5" />}
+                  {showEmojiPicker ? (
+                    <X className="h-5 w-5" />
+                  ) : (
+                    <SmilePlus className="h-5 w-5" />
+                  )}
                 </Button>
                 {showEmojiPicker && (
                   <div className="absolute bottom-12 left-0 z-10 shadow-lg rounded-lg transform scale-90 sm:scale-100 origin-bottom-left">
@@ -482,9 +519,9 @@ export default function ChatbotPage() {
                 <Input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder={t('chatbot.inputPlaceholder')}
+                  placeholder={t("chatbot.inputPlaceholder")}
                   className="rounded-full border-gray-200 pr-12 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm sm:text-base py-2 dark:bg-gray-700 dark:text-white"
-                  onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                  onKeyPress={(e) => e.key === "Enter" && handleSend()}
                   disabled={isLoading}
                 />
                 <Button
